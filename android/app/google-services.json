@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "609195297990",
+    "firebase_url": "https://baby-cradle-ab503-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "baby-cradle-ab503",
+    "storage_bucket": "baby-cradle-ab503.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609195297990:android:dc44ec0a915afc77995bc7",
+        "android_client_info": {
+          "package_name": "com.example.smart_baby_cradle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "609195297990-2k0k4fqvalr2f5lqhbtr4udaflatc4ib.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.smart_baby_cradle",
+            "certificate_hash": "ea0ff9fa7c385ae89230f6bbd6e780ef43403421"
+          }
+        },
+        {
+          "client_id": "609195297990-5gc4u91ohvkdkkrhcetip9dsficqunp9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyButbvTWlJayVZyldGi9U3wO36XlB7Xa-A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "609195297990-5gc4u91ohvkdkkrhcetip9dsficqunp9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "609195297990-2sb1c1ga33o0ufroi0ni86k7kg4ms1d0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.smartBabyCradle"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
