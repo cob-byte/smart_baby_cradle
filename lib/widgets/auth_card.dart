@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import '../services/auth_service.dart';
 
-
 enum AuthMode { signUp, login }
 
 class AuthCard extends StatefulWidget {
@@ -147,7 +146,8 @@ class AuthCardState extends State<AuthCard>
                   decoration: const InputDecoration(labelText: 'E-Mail'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value?.isEmpty == true || value?.contains('@') != true) {
+                    if (value?.isEmpty == true ||
+                        value?.contains('@') != true) {
                       return 'Invalid email!';
                     }
                     return null;
@@ -188,8 +188,8 @@ class AuthCardState extends State<AuthCard>
                       position: _slideAnimation,
                       child: TextFormField(
                         enabled: _authMode == AuthMode.signUp,
-                        decoration:
-                            const InputDecoration(labelText: 'Confirm Password'),
+                        decoration: const InputDecoration(
+                            labelText: 'Confirm Password'),
                         obscureText: true,
                         validator: _authMode == AuthMode.signUp
                             ? (value) {
@@ -203,7 +203,6 @@ class AuthCardState extends State<AuthCard>
                     ),
                   ),
                 ),
-                
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeIn,
@@ -243,19 +242,24 @@ class AuthCardState extends State<AuthCard>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30.0, vertical: 8.0),
                       backgroundColor: Theme.of(context).primaryColor,
-                      foregroundColor: Theme.of(context).primaryTextTheme.labelLarge?.color,
+                      foregroundColor:
+                          Theme.of(context).primaryTextTheme.labelLarge?.color,
                     ),
-                    child: Text(_authMode == AuthMode.login ? 'LOGIN' : 'SIGN UP'),
+                    child:
+                        Text(_authMode == AuthMode.login ? 'LOGIN' : 'SIGN UP'),
                   ),
                 TextButton(
                   onPressed: _switchAuthMode,
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30.0, vertical: 4),
                     foregroundColor: Theme.of(context).primaryColor,
                   ),
-                  child: Text('${_authMode == AuthMode.login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
+                  child: Text(
+                      '${_authMode == AuthMode.login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
                 ),
               ],
             ),

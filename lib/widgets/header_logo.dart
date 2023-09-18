@@ -9,18 +9,18 @@ class HeaderLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Text(
-          'Baby\'s Cradle Monitor',
+        const Text(
+          'Smart Baby Cradle',
           style: TextStyle(
-            fontFamily: 'Bold',
+            fontFamily: 'KaushanScript-Regular',
             fontSize: 20,
-            color: colorText,
+            color: Colors.black,
           ),
         ),
         SizedBox(
-          width: deviceSize.width*0.5,
-          height: deviceSize.width*0.5,
-          child: Image.asset('assets/image/cradle.png'),
+          width: deviceSize.width * 0.5,
+          height: deviceSize.width * 0.5,
+          child: Image.asset('assets/image/sbc-Cradle.png'),
         ),
       ],
     );

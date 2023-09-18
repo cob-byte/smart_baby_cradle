@@ -19,8 +19,8 @@ class AuthScreen extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(73, 17, 15, 1),
-                  Color.fromRGBO(8, 40, 75, 1),
+                  Color.fromRGBO(255, 202, 212, 1),
+                  Color.fromRGBO(246, 227, 209, 1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -42,19 +42,18 @@ class AuthScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Container(
-                        color: const Color(0xffe9eaec),
-                        height: 2,
-                        width: deviceSize.width * 0.2
-                      ),
+                          color: Colors.black,
+                          height: 2,
+                          width: deviceSize.width * 0.2),
                       const SizedBox(
                         width: 10,
                       ),
                       const Text(
-                        'Social Contacts',
+                        'Login with',
                         style: TextStyle(
                           fontFamily: 'Medium',
                           fontSize: 15,
-                          color: Color(0xffe9eaec),
+                          color: Colors.black,
                         ),
                       ),
                       const SizedBox(
@@ -62,7 +61,7 @@ class AuthScreen extends StatelessWidget {
                       ),
                       Container(
                         width: deviceSize.width * 0.2,
-                        color: const Color(0xffe9eaec),
+                        color: Colors.black,
                         height: 2,
                       )
                     ],
