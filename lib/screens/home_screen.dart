@@ -20,15 +20,17 @@ import '../widgets/fan_item.dart';
 import '../widgets/humidity_item.dart';
 import '../widgets/temperature_item.dart';
 import '../widgets/sound_detector_item.dart';
+import '../widgets/music_player_item.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
   final AssetsAudioPlayer assetsAudioPlayer;
 
-  const HomeScreen({Key? key, required this.assetsAudioPlayer}) : super(key: key);
+  const HomeScreen({Key? key, required this.assetsAudioPlayer})
+      : super(key: key);
 
   @override
-    HomeScreenState createState() => HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
 class HomeScreenState extends State<HomeScreen> {
@@ -71,7 +73,6 @@ class HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,8 +90,8 @@ class HomeScreenState extends State<HomeScreen> {
       ),
       extendBodyBehindAppBar: true,
       drawer: Theme(
-        data: Theme.of(context).copyWith(
-            canvasColor: const Color.fromRGBO(22, 22, 22,0.5) ),
+        data: Theme.of(context)
+            .copyWith(canvasColor: const Color.fromRGBO(22, 22, 22, 0.5)),
         child: AppDrawer(assetsAudioPlayer),
       ),
       body: Container(
@@ -133,12 +134,14 @@ class HomeScreenState extends State<HomeScreen> {
                     mainAxisSpacing: 5,
                     childAspectRatio: 1 / 1),
                 children: <Widget>[
-                  MotorItem(run: motor['run'], level: motor['level'].toDouble()),
+                  MotorItem(
+                      run: motor['run'], level: motor['level'].toDouble()),
                   FanItem(fan['run'], fan['level'].toDouble()),
                   TemperatureItem(double.parse(status['Temperature'])),
                   HumidityItem(double.parse(status['Humidity']) / 100),
                   SoundDetectorItem(sound['detected']),
                   const CameraLiveItem(),
+                  MusicPlayerItem(widget.assetsAudioPlayer),
                 ],
               );
             } else {

@@ -17,7 +17,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -42,12 +41,9 @@ class _MyAppState extends State<MyApp> {
         Playlist(
           audios: audios,
         ),
-        autoStart: false
-    );
+        autoStart: false);
     super.initState();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +57,8 @@ class _MyAppState extends State<MyApp> {
         routes: {
           Wrapper.routeName: (ctx) => Wrapper(),
           AuthScreen.routeName: (ctx) => const AuthScreen(),
-          HomeScreen.routeName: (ctx) => HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
+          HomeScreen.routeName: (ctx) =>
+              HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
           CameraScreen.routeName: (ctx) => const CameraScreen(),
           MusicPlayerScreen.routeName: (ctx) =>
               MusicPlayerScreen(assetsAudioPlayer),
