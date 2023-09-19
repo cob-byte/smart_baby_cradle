@@ -14,7 +14,6 @@ class HeaderLogo extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'Regular',
             fontSize: 30,
-            padding: EdgeInsets.all(10.0),
             color: Colors.black,
           ),
         ),

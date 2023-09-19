@@ -9,8 +9,7 @@ class MusicPlayerScreen extends StatefulWidget {
   final AssetsAudioPlayer assetsAudioPlayer;
   const MusicPlayerScreen(this.assetsAudioPlayer, {Key? key}) : super(key: key);
   @override
-  MusicPlayerScreenState createState() =>
-      MusicPlayerScreenState();
+  MusicPlayerScreenState createState() => MusicPlayerScreenState();
 }
 
 class MusicPlayerScreenState extends State<MusicPlayerScreen> {
@@ -21,7 +20,6 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
   final musicService = MusicService();
 
   AssetsAudioPlayer get assetsAudioPlayer => widget.assetsAudioPlayer;
-
 
   @override
   void initState() {
@@ -53,11 +51,25 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
     if (songIndex == 4) {
       imageAsset = 'assets/image/Twinkle.png';
     }
-   
+    if (songIndex == 5) {
+      imageAsset = 'assets/image/NapTime.png';
+    }
+    if (songIndex == 6) {
+      imageAsset = 'assets/image/Beddy-byeButterfly.png';
+    }
+    if (songIndex == 7) {
+      imageAsset = 'assets/image/BabyBear.png';
+    }
+    if (songIndex == 8) {
+      imageAsset = 'assets/image/IfYouAreSleepy.png';
+    }
+    if (songIndex == 9) {
+      imageAsset = 'assets/image/HushLittleBaby.png';
+    }
+
     setState(() {});
   }
 
- 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -72,13 +84,12 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color.fromRGBO(22, 22, 22, 0.4),
+        backgroundColor: const Color.fromRGBO(215, 167, 175, 1),
       ),
       extendBodyBehindAppBar: true,
       drawer: Theme(
-        data: Theme.of(context).copyWith(
-            canvasColor: const Color.fromRGBO(22, 22, 22,0.5)
-            ),
+        data: Theme.of(context)
+            .copyWith(canvasColor: const Color.fromRGBO(22, 22, 22, 0.5)),
         child: AppDrawer(assetsAudioPlayer),
       ),
       body: SingleChildScrollView(
@@ -86,8 +97,10 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color.fromRGBO(73, 17, 15, 1),
-                Color.fromRGBO(8, 40, 75, 1),
+                Color.fromRGBO(255, 202, 212, 1),
+                Color.fromRGBO(255, 202, 212, 1),
+                Color.fromRGBO(246, 227, 209, 1),
+                Color.fromRGBO(217, 217, 217, 1),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -103,7 +116,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   border: Border(
                     bottom: BorderSide(
                       width: 1,
-                      color: Colors.grey,
+                      color: Color.fromRGBO(19, 19, 19, 0.822),
                     ),
                   ),
                 ),
@@ -128,9 +141,10 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                         children: <Widget>[
                           IconButton(
                               icon: Icon(
-                                Icons.volume_off,
-                                color:
-                                    isMuted ? Colors.white : Colors.grey[550],
+                                isMuted ? Icons.volume_off : Icons.volume_up,
+                                color: isMuted
+                                    ? Color.fromARGB(255, 192, 118, 129)
+                                    : Colors.grey[550],
                                 size: 25,
                               ),
                               onPressed: () {
@@ -139,8 +153,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                 });
                                 if (isMuted) {
                                   assetsAudioPlayer.setVolume(0);
-                                }
-                                if (!isMuted) {
+                                } else {
                                   assetsAudioPlayer.setVolume(volume);
                                 }
                               }),
@@ -150,7 +163,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                               IconButton(
                                   icon: const Icon(
                                     Icons.skip_previous,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     size: 40,
                                   ),
                                   onPressed: () {
@@ -165,9 +178,9 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                         builder: (context, isPlaying) {
                                           return isPlaying
                                               ? const Icon(Icons.pause,
-                                                  color: Colors.white, size: 40)
+                                                  color: Colors.black, size: 40)
                                               : const Icon(Icons.play_arrow,
-                                                  color: Colors.white,
+                                                  color: Colors.black,
                                                   size: 40);
                                         }),
                                     onPressed: () {
@@ -177,7 +190,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                               IconButton(
                                   icon: const Icon(
                                     Icons.skip_next,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     size: 40,
                                   ),
                                   onPressed: () {
@@ -188,15 +201,18 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                           IconButton(
                               icon: Icon(
                                 Icons.loop,
-                                color:
-                                    isLooping ? Colors.white : Colors.grey[550],
+                                color: isLooping
+                                    ? const Color.fromARGB(255, 192, 118, 129)
+                                    : Colors.grey[550],
                                 size: 25,
                               ),
                               onPressed: () {
                                 setState(() {
                                   isLooping = !isLooping;
                                 });
-                                assetsAudioPlayer.setLoopMode(isLooping ? LoopMode.single : LoopMode.none);
+                                assetsAudioPlayer.setLoopMode(isLooping
+                                    ? LoopMode.single
+                                    : LoopMode.none);
                               }),
                         ],
                       ),
@@ -206,7 +222,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                       children: <Widget>[
                         const Icon(
                           Icons.volume_down,
-                          color: Colors.white,
+                          color: Colors.black,
                           size: 25,
                         ),
                         Slider(
@@ -221,14 +237,14 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                         ),
                         const Icon(
                           Icons.volume_up,
-                          color: Colors.white,
+                          color: Colors.black,
                           size: 25,
                         ),
                       ],
                     ),
                     const Text(
                       'Control Baby\'s Room',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.black),
                     )
                   ],
                 ),
@@ -245,7 +261,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     'Johnsons Baby',
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.black.withOpacity(0.8),
                     ),
                   ),
                 ),
@@ -259,13 +275,14 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 },
                 child: ListTile(
                   leading: const CircleAvatar(
-                    backgroundImage: ExactAssetImage('assets/image/LullabyGoodnight.jpg'),
+                    backgroundImage:
+                        ExactAssetImage('assets/image/LullabyGoodnight.jpg'),
                   ),
                   title: Text(
                     'Lullaby Goodnight',
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.black.withOpacity(0.8),
                     ),
                   ),
                 ),
@@ -286,7 +303,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     'Pretty Little Baby',
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.black.withOpacity(0.8),
                     ),
                   ),
                 ),
@@ -307,7 +324,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     'Rockabye Baby',
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.black.withOpacity(0.8),
                     ),
                   ),
                 ),
@@ -328,13 +345,111 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     'Twinkle',
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.black.withOpacity(0.8),
                     ),
                   ),
                 ),
               ),
               const Divider(
                 color: Colors.grey,
+              ),
+              GestureDetector(
+                onTap: () {
+                  assetsAudioPlayer.playlistPlayAtIndex(5);
+                },
+                child: ListTile(
+                  leading: const CircleAvatar(
+                      backgroundImage:
+                          ExactAssetImage('assets/image/NapTime.png')),
+                  title: Text(
+                    'Nap Time',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+              ),
+              const Divider(
+                color: Colors.grey,
+              ),
+              GestureDetector(
+                onTap: () {
+                  assetsAudioPlayer.playlistPlayAtIndex(6);
+                },
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundImage:
+                        ExactAssetImage('assets/image/Beddy-byeButterfly.png'),
+                  ),
+                  title: Text(
+                    'Beddy-bye Butterfly',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+              ),
+              const Divider(
+                color: Colors.grey,
+              ),
+              GestureDetector(
+                onTap: () {
+                  assetsAudioPlayer.playlistPlayAtIndex(7);
+                },
+                child: ListTile(
+                  leading: const CircleAvatar(
+                      backgroundImage:
+                          ExactAssetImage('assets/image/BabyBear.png')),
+                  title: Text(
+                    'Baby Bear',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+              ),
+              const Divider(
+                color: Colors.grey,
+              ),
+              GestureDetector(
+                onTap: () {
+                  assetsAudioPlayer.playlistPlayAtIndex(8);
+                },
+                child: ListTile(
+                  leading: const CircleAvatar(
+                      backgroundImage:
+                          ExactAssetImage('assets/image/IfYouAreSleepy.png')),
+                  title: Text(
+                    'If You Are Sleepy',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+              ),
+              const Divider(
+                color: Colors.grey,
+              ),
+              GestureDetector(
+                onTap: () {
+                  assetsAudioPlayer.playlistPlayAtIndex(9);
+                },
+                child: ListTile(
+                  leading: const CircleAvatar(
+                      backgroundImage:
+                          ExactAssetImage('assets/image/HushLittleBaby.png')),
+                  title: Text(
+                    'Hush Little Baby',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black.withOpacity(0.8),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

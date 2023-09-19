@@ -33,6 +33,11 @@ class _MyAppState extends State<MyApp> {
     Audio("assets/audios/PrettyLittleHorses.mp3"),
     Audio("assets/audios/RockabyeBaby.mp3"),
     Audio("assets/audios/Twinkle.mp3"),
+    Audio("assets/audios/Nap Time.mp3"),
+    Audio("assets/audios/Beddy-bye Butterfly.mp3"),
+    Audio("assets/audios/Baby Bear.mp3"),
+    Audio("assets/audios/If You're Sleepy.mp3"),
+    Audio("assets/audios/Hush Little Baby.mp3"),
   ];
 
   @override
