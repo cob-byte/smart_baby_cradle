@@ -80,7 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
         title: const Text(
           'Baby Actions',
           style: TextStyle(
-            fontFamily: 'Poppins-Bold',
+            fontFamily: 'Bold',
             fontSize: 25,
             fontStyle: FontStyle.normal,
             color: Colors.white,

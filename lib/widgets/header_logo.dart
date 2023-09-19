@@ -12,8 +12,9 @@ class HeaderLogo extends StatelessWidget {
         const Text(
           'Smart Baby Cradle',
           style: TextStyle(
-            fontFamily: 'KaushanScript-Regular',
-            fontSize: 20,
+            fontFamily: 'Regular',
+            fontSize: 30,
+            padding: EdgeInsets.all(10.0),
             color: Colors.black,
           ),
         ),

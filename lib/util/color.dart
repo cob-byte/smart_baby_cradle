@@ -8,5 +8,5 @@ Color colorBlueText = const Color(0xff6078ff);
 
 Color colorBackGroundCard = const Color(0xffffffff);
 
-Color colorBackgroundAuthScreen1 = const Color(0xff232526);
+Color colorBackgroundAuthScreen1 = Color.fromARGB(255, 241, 207, 114);
 Color colorBackgroundAuthScreen2 = const Color(0xff414345);

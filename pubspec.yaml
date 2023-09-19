@@ -92,6 +92,9 @@ flutter:
     - family: Medium
       fonts:
         - asset: assets/font/Poppins-Medium.ttf
+    - family: Regular
+      fonts:
+        - asset: assets/font/KaushanScript-Regular.ttf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
