@@ -8,7 +8,8 @@ import '../services/controller_service.dart';
 class MotorItem extends StatefulWidget {
   final int run;
   final double level;
-  const MotorItem({Key? key, required this.run, required this.level}) : super(key: key);
+  const MotorItem({Key? key, required this.run, required this.level})
+      : super(key: key);
 
   @override
   MotorItemState createState() => MotorItemState();
@@ -42,7 +43,8 @@ class MotorItemState extends State<MotorItem> {
 
   _onMotorChange(DatabaseEvent event) {
     setState(() {
-      Map<dynamic, dynamic> snapshotValue = event.snapshot.value as Map<dynamic, dynamic>;
+      Map<dynamic, dynamic> snapshotValue =
+          event.snapshot.value as Map<dynamic, dynamic>;
       _buttonStatus = snapshotValue['run'];
       _sliderValue = (snapshotValue['level']).toDouble();
     });
@@ -52,8 +54,9 @@ class MotorItemState extends State<MotorItem> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(22, 22, 22, 0.5),
+        color: Color.fromRGBO(255, 226, 211, 1),
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(),
       ),
       child: LayoutBuilder(
         builder: (ctx, constraints) => Column(
@@ -71,16 +74,19 @@ class MotorItemState extends State<MotorItem> {
                 setState(() {});
               },
               child: SizedBox(
-                  width: constraints.maxWidth * 0.45,
-                  child: _buttonStatus == 1
-                      ? Image.asset(
-                          'assets/image/power_on.png',
-                        )
-                      : Image.asset(
-                          'assets/image/power_off.png',
-                        )),
+                width: constraints.maxWidth * 0.65,
+                child: _buttonStatus == 1
+                    ? Transform.scale(
+                        scale: 1.5, // Adjust the scale factor as needed
+                        child: Image.asset('assets/image/motor_on.png'),
+                      )
+                    : Transform.scale(
+                        scale: 1.5, // Adjust the scale factor as needed
+                        child: Image.asset('assets/image/motor_off.png'),
+                      ),
+              ),
             ),
-            Slider(
+            /* Slider(
               min: 1.0,
               max: 3.0,
               value: _sliderValue,
@@ -97,17 +103,19 @@ class MotorItemState extends State<MotorItem> {
                     _sliderLabel = "High";
                   }
                 });
-                 _motorController.updateItem( directory, _buttonStatus, _sliderValue);
+                _motorController.updateItem(
+                    directory, _buttonStatus, _sliderValue);
               },
               divisions: 2,
               label: _sliderLabel,
-            ),
+            ),*/
             const FittedBox(
               child: Text(
                 'Motor',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
+                  fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
               ),

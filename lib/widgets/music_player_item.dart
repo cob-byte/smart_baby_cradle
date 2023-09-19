@@ -12,8 +12,9 @@ class MusicPlayerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(22, 22, 22, 0.5),
+        color: const Color.fromRGBO(255, 202, 212, 1),
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(),
       ),
       child: LayoutBuilder(
         builder: (ctx, constraints) => Column(
@@ -25,15 +26,16 @@ class MusicPlayerItem extends StatelessWidget {
               },
               child: SizedBox(
                 width: constraints.maxWidth * 0.65,
-                child: Image.asset('assets/image/music_player.png'),
+                child: Image.asset('assets/image/babymusic.png'),
               ),
             ),
             const FittedBox(
               child: Text(
-                'Music Player',
+                'Music',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
+                  fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
               ),

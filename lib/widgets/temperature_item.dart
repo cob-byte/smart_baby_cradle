@@ -22,13 +22,13 @@ class _TemperatureItemState extends State<TemperatureItem> {
   _TemperatureItemState(this._temp);
 
   Color get tempStatusColor {
-    if ( _temp <= 15) {
+    if (_temp <= 15) {
       return const Color.fromRGBO(0, 0, 255, 1);
     } else if (_temp > 15 && _temp <= 20) {
       return const Color.fromRGBO(255, 255, 0, 1);
     } else if (_temp > 20 && _temp <= 30) {
       return const Color.fromRGBO(0, 255, 0, 1);
-    }else if (_temp > 30 && _temp <= 35) {
+    } else if (_temp > 30 && _temp <= 35) {
       return const Color.fromRGBO(255, 255, 0, 1);
     } else {
       return const Color.fromRGBO(255, 0, 0, 1);
@@ -61,8 +61,9 @@ class _TemperatureItemState extends State<TemperatureItem> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(22, 22, 22, 0.5),
+        color: const Color.fromRGBO(233, 116, 138, 1),
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(),
       ),
       child: LayoutBuilder(
         builder: (ctx, constraints) => Column(
@@ -91,7 +92,8 @@ class _TemperatureItemState extends State<TemperatureItem> {
               'Temperature',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
+                fontSize: 17,
                 fontWeight: FontWeight.bold,
               ),
             ),

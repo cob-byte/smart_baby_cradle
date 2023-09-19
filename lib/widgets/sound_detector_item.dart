@@ -47,13 +47,13 @@ class _SoundDetectorItemState extends State<SoundDetectorItem> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(22, 22, 22, 0.5),
+        color: const Color.fromRGBO(248, 164, 180, 1),
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(),
       ),
       child: LayoutBuilder(
         builder: (ctx, constraints) => Column(
@@ -70,7 +70,8 @@ class _SoundDetectorItemState extends State<SoundDetectorItem> {
                 'Sound Detector',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
+                  fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
               ),

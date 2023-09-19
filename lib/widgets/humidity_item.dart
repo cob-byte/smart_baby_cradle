@@ -22,7 +22,8 @@ class HumidityItemState extends State<HumidityItem> {
   Color get humidityStatus {
     if (_humidityLevel >= 0.3 && _humidityLevel <= 0.5) {
       return const Color.fromRGBO(0, 255, 0, 1);
-    } else if ((_humidityLevel >= 0.2 && _humidityLevel < 0.3) || (_humidityLevel > 0.5 && _humidityLevel <= 0.6))  {
+    } else if ((_humidityLevel >= 0.2 && _humidityLevel < 0.3) ||
+        (_humidityLevel > 0.5 && _humidityLevel <= 0.6)) {
       return const Color.fromRGBO(255, 255, 0, 1);
     } else {
       return const Color.fromRGBO(255, 0, 0, 1);
@@ -31,7 +32,8 @@ class HumidityItemState extends State<HumidityItem> {
 
   @override
   void initState() {
-    _humidityStatus.getStatusStream(directory,_updateTemp)
+    _humidityStatus
+        .getStatusStream(directory, _updateTemp)
         .then((StreamSubscription s) => _subscription = s);
     super.initState();
   }
@@ -51,11 +53,12 @@ class HumidityItemState extends State<HumidityItem> {
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(22, 22, 22, 0.5),
+        color: const Color.fromRGBO(233, 116, 138, 1),
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(),
       ),
       child: LayoutBuilder(
         builder: (ctx, constraints) => Column(
@@ -86,7 +89,8 @@ class HumidityItemState extends State<HumidityItem> {
               'Humidity',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
+                fontSize: 17,
                 fontWeight: FontWeight.bold,
               ),
             ),

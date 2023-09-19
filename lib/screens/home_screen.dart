@@ -78,7 +78,7 @@ class HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Baby Actions',
+          'Dashboard ✨',
           style: TextStyle(
             fontFamily: 'Bold',
             fontSize: 25,
@@ -86,7 +86,7 @@ class HomeScreenState extends State<HomeScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color.fromRGBO(22, 22, 22, 0.6),
+        backgroundColor: Color.fromRGBO(215, 167, 175, 1),
       ),
       extendBodyBehindAppBar: true,
       drawer: Theme(
@@ -99,8 +99,10 @@ class HomeScreenState extends State<HomeScreen> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xffb92b27),
-              Color(0xff1565C0),
+              Color.fromRGBO(255, 202, 212, 1),
+              Color.fromRGBO(255, 202, 212, 1),
+              Color.fromRGBO(246, 227, 209, 1),
+              Color.fromRGBO(217, 217, 217, 1),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
