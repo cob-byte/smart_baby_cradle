@@ -74,6 +74,7 @@ class MotorItemState extends State<MotorItem> {
                 setState(() {});
               },
               child: SizedBox(
+                height: 150,
                 width: constraints.maxWidth * 0.65,
                 child: _buttonStatus == 1
                     ? Transform.scale(
@@ -86,29 +87,6 @@ class MotorItemState extends State<MotorItem> {
                       ),
               ),
             ),
-            /* Slider(
-              min: 1.0,
-              max: 3.0,
-              value: _sliderValue,
-              onChanged: (newValue) {
-                setState(() {
-                  _sliderValue = newValue;
-                  if (_sliderValue == 1.0) {
-                    _sliderLabel = "Low";
-                  }
-                  if (_sliderValue > 1.0 && _sliderValue <= 2.0) {
-                    _sliderLabel = "Medium";
-                  }
-                  if (_sliderValue > 2.0 && _sliderValue <= 3.0) {
-                    _sliderLabel = "High";
-                  }
-                });
-                _motorController.updateItem(
-                    directory, _buttonStatus, _sliderValue);
-              },
-              divisions: 2,
-              label: _sliderLabel,
-            ),*/
             const FittedBox(
               child: Text(
                 'Motor',

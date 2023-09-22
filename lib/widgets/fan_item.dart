@@ -74,6 +74,7 @@ class FanItemState extends State<FanItem> {
                 setState(() {});
               },
               child: SizedBox(
+                height: 150,
                 width: constraints.maxWidth * 0.65,
                 child: _buttonStatus == 1
                     ? Transform.scale(

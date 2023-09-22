@@ -13,16 +13,25 @@ class AppDrawer extends StatelessWidget {
   final AuthService auth = AuthService();
   final musicService = MusicService();
   final AssetsAudioPlayer assetsAudioPlayer;
-  AppDrawer(this.assetsAudioPlayer, {Key? key}) : super(key: key);
+  final ThemeData currentTheme; // Add this line to accept the theme
+  final Function toggleTheme;
+
+  AppDrawer(
+    this.assetsAudioPlayer, {
+    Key? key,
+    required this.currentTheme,
+    required this.toggleTheme,
+  }) : super(key: key);
 
   get style => null;
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: Column(
         children: <Widget>[
           AppBar(
-            backgroundColor: const Color.fromRGBO(255, 229, 217, 1),
+            backgroundColor: currentTheme.appBarTheme.backgroundColor,
             title: const Text(
               'MENU ',
               style: TextStyle(

@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:smart_baby_cradle/theme/boy_theme.dart';
+import 'package:smart_baby_cradle/theme/girl_theme.dart';
 
 import 'services/auth_service.dart';
 import './services/music_service.dart';
@@ -40,24 +42,26 @@ class _MyAppState extends State<MyApp> {
     Audio("assets/audios/Hush Little Baby.mp3"),
   ];
 
-  @override
-  void initState() {
-    assetsAudioPlayer.open(
-        Playlist(
-          audios: audios,
-        ),
-        autoStart: false);
-    super.initState();
+  bool isGirlTheme = true; // Initialize with girl theme
+
+  void toggleTheme() {
+    setState(() {
+      isGirlTheme = !isGirlTheme; // Toggle the theme
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentTheme =
+        isGirlTheme ? girlTheme : boyTheme; // Select the current theme
+
     return StreamProvider<String?>.value(
       value: AuthService().user,
       initialData: '',
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Baby Monitor',
+        theme: currentTheme, // Use the selected theme
         home: Wrapper(),
         routes: {
           Wrapper.routeName: (ctx) => Wrapper(),
@@ -65,8 +69,11 @@ class _MyAppState extends State<MyApp> {
           HomeScreen.routeName: (ctx) =>
               HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
           CameraScreen.routeName: (ctx) => const CameraScreen(),
-          MusicPlayerScreen.routeName: (ctx) =>
-              MusicPlayerScreen(assetsAudioPlayer),
+          MusicPlayerScreen.routeName: (ctx) => MusicPlayerScreen(
+                assetsAudioPlayer,
+                toggleTheme: toggleTheme,
+                currentTheme: currentTheme,
+              ),
         },
       ),
     );

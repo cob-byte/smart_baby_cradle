@@ -21,6 +21,8 @@ import '../widgets/humidity_item.dart';
 import '../widgets/temperature_item.dart';
 import '../widgets/sound_detector_item.dart';
 import '../widgets/music_player_item.dart';
+import '../theme/boy_theme.dart';
+import '../theme/girl_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -43,115 +45,113 @@ class HomeScreenState extends State<HomeScreen> {
 
   final _logger = Logger('FCM');
 
-  @override
-  void initState() {
-    _fcm.getToken().then((token) => _logger.info(token));
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      _logger.info("onMessage: ${message.data}");
-      final snackbar = SnackBar(
-        content: Text(message.notification?.title ?? "No Title"),
-        action: SnackBarAction(
-          label: 'Go',
-          onPressed: () {},
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackbar);
-    });
+  bool isGirlTheme = true; // Initialize with girl theme
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
-      if (message != null) {
-        _logger.info("onMessageOpenedApp: $message");
-      }
+  void toggleTheme() {
+    setState(() {
+      isGirlTheme = !isGirlTheme; // Toggle the theme
     });
-
-    _fcm.getInitialMessage().then((RemoteMessage? message) {
-      if (message != null) {
-        _logger.info("onLaunch: $message");
-      }
-    });
-
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Dashboard ✨',
-          style: TextStyle(
-            fontFamily: 'Bold',
-            fontSize: 25,
-            fontStyle: FontStyle.normal,
-            color: Colors.white,
+    final currentTheme =
+        isGirlTheme ? girlTheme : boyTheme; // Select the current theme
+
+    return Theme(
+      data: currentTheme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Dashboard ✨',
+            style: currentTheme.appBarTheme.titleTextStyle,
+          ),
+          backgroundColor: currentTheme.appBarTheme.backgroundColor,
+          actions: [
+            IconButton(
+              icon: Icon(
+                isGirlTheme ? Icons.female : Icons.male,
+                color: Colors.white,
+              ),
+              onPressed: toggleTheme,
+            ),
+          ],
+        ),
+        extendBodyBehindAppBar: true,
+        drawer: Theme(
+          data: Theme.of(context).copyWith(
+            canvasColor: currentTheme.primaryColor,
+          ),
+          child: AppDrawer(
+            assetsAudioPlayer,
+            currentTheme: currentTheme,
+            toggleTheme: toggleTheme,
           ),
         ),
-        backgroundColor: Color.fromRGBO(215, 167, 175, 1),
-      ),
-      extendBodyBehindAppBar: true,
-      drawer: Theme(
-        data: Theme.of(context)
-            .copyWith(canvasColor: const Color.fromRGBO(22, 22, 22, 0.5)),
-        child: AppDrawer(assetsAudioPlayer),
-      ),
-      body: Container(
-        padding: const EdgeInsets.only(top: 120),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(255, 202, 212, 1),
-              Color.fromRGBO(255, 202, 212, 1),
-              Color.fromRGBO(246, 227, 209, 1),
-              Color.fromRGBO(217, 217, 217, 1),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+        body: Container(
+          padding: const EdgeInsets.only(top: 120),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                currentTheme.colorScheme.primary,
+                currentTheme.colorScheme.secondary,
+                currentTheme.colorScheme.tertiary,
+                currentTheme.scaffoldBackgroundColor,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ),
-        child: FutureBuilder(
-          future: _home.getStatusOnce(""),
-          builder: (BuildContext context, AsyncSnapshot future) {
-            if (future.hasError) {
-              return const Center(
-                child: Text(
-                  "Error Occurred, Please log out and try again",
-                  style: TextStyle(color: Colors.white),
-                ),
-              );
-            }
-            if (future.hasData) {
-              final homeData = future.data.value;
-              final status = homeData['Status'];
-              final motor = homeData['Motor'];
-              final fan = homeData['Fan'];
-              final sound = homeData['Sound Detection'];
-              return GridView(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 20,
-                ),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          child: FutureBuilder(
+            future: _home.getStatusOnce(""),
+            builder: (BuildContext context, AsyncSnapshot future) {
+              if (future.hasError) {
+                return Center(
+                  child: Text(
+                    "Error Occurred, Please log out and try again",
+                    style: TextStyle(
+                      color: currentTheme.colorScheme.onError,
+                    ),
+                  ),
+                );
+              }
+              if (future.hasData) {
+                final homeData = future.data.value;
+                final status = homeData['Status'];
+                final motor = homeData['Motor'];
+                final fan = homeData['Fan'];
+                final sound = homeData['Sound Detection'];
+                return GridView(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 20,
+                  ),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 5,
                     mainAxisSpacing: 5,
-                    childAspectRatio: 1 / 1),
-                children: <Widget>[
-                  MotorItem(
-                      run: motor['run'], level: motor['level'].toDouble()),
-                  FanItem(fan['run'], fan['level'].toDouble()),
-                  TemperatureItem(double.parse(status['Temperature'])),
-                  HumidityItem(double.parse(status['Humidity']) / 100),
-                  SoundDetectorItem(sound['detected']),
-                  const CameraLiveItem(),
-                  MusicPlayerItem(widget.assetsAudioPlayer),
-                ],
-              );
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
+                    childAspectRatio: 1 / 1,
+                  ),
+                  children: <Widget>[
+                    MotorItem(
+                      run: motor['run'],
+                      level: motor['level'].toDouble(),
+                    ),
+                    FanItem(fan['run'], fan['level'].toDouble()),
+                    TemperatureItem(double.parse(status['Temperature'])),
+                    HumidityItem(double.parse(status['Humidity']) / 100),
+                    SoundDetectorItem(sound['detected']),
+                    CameraLiveItem(),
+                    MusicPlayerItem(widget.assetsAudioPlayer),
+                  ],
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
         ),
       ),
     );
