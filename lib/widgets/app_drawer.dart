@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
 import './wrapper.dart';
@@ -8,32 +9,32 @@ import '../screens/home_screen.dart';
 import '../screens/camera_screen.dart';
 import '../screens/music_player_screen.dart';
 import '../services/music_service.dart';
+import 'package:smart_baby_cradle/theme_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   final AuthService auth = AuthService();
   final musicService = MusicService();
   final AssetsAudioPlayer assetsAudioPlayer;
-  final ThemeData currentTheme; // Add this line to accept the theme
-  final Function toggleTheme;
 
   AppDrawer(
     this.assetsAudioPlayer, {
     Key? key,
-    required this.currentTheme,
-    required this.toggleTheme,
   }) : super(key: key);
 
   get style => null;
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
+
     return Drawer(
       child: Column(
         children: <Widget>[
           AppBar(
             backgroundColor: currentTheme.appBarTheme.backgroundColor,
             title: const Text(
-              'MENU ',
+              'MENU',
               style: TextStyle(
                 color: Colors.black,
                 fontFamily: 'Bold',

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:smart_baby_cradle/theme/boy_theme.dart';
 import 'package:smart_baby_cradle/theme/girl_theme.dart';
+import 'package:smart_baby_cradle/theme_provider.dart';
 
 import 'services/auth_service.dart';
 import './services/music_service.dart';
@@ -16,7 +17,12 @@ import './widgets/wrapper.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(), // Provide the ThemeProvider
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -42,6 +48,16 @@ class _MyAppState extends State<MyApp> {
     Audio("assets/audios/Hush Little Baby.mp3"),
   ];
 
+  @override
+  void initState() {
+    assetsAudioPlayer.open(
+        Playlist(
+          audios: audios,
+        ),
+        autoStart: false);
+    super.initState();
+  }
+
   bool isGirlTheme = true; // Initialize with girl theme
 
   void toggleTheme() {
@@ -52,28 +68,27 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final currentTheme =
-        isGirlTheme ? girlTheme : boyTheme; // Select the current theme
-
     return StreamProvider<String?>.value(
       value: AuthService().user,
       initialData: '',
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Baby Monitor',
-        theme: currentTheme, // Use the selected theme
-        home: Wrapper(),
-        routes: {
-          Wrapper.routeName: (ctx) => Wrapper(),
-          AuthScreen.routeName: (ctx) => const AuthScreen(),
-          HomeScreen.routeName: (ctx) =>
-              HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
-          CameraScreen.routeName: (ctx) => const CameraScreen(),
-          MusicPlayerScreen.routeName: (ctx) => MusicPlayerScreen(
-                assetsAudioPlayer,
-                toggleTheme: toggleTheme,
-                currentTheme: currentTheme,
-              ),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Baby Monitor',
+            theme: themeProvider.currentTheme, // Use the selected theme
+            home: Wrapper(),
+            routes: {
+              Wrapper.routeName: (ctx) => Wrapper(),
+              AuthScreen.routeName: (ctx) => const AuthScreen(),
+              HomeScreen.routeName: (ctx) =>
+                  HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
+              CameraScreen.routeName: (ctx) => const CameraScreen(),
+              MusicPlayerScreen.routeName: (ctx) => MusicPlayerScreen(
+                    assetsAudioPlayer,
+                  ),
+            },
+          );
         },
       ),
     );

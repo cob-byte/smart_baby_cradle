@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
 
 import '../util/color.dart';
 import '../services/status_service.dart';
@@ -23,6 +24,7 @@ import '../widgets/sound_detector_item.dart';
 import '../widgets/music_player_item.dart';
 import '../theme/boy_theme.dart';
 import '../theme/girl_theme.dart';
+import 'package:smart_baby_cradle/theme_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -44,6 +46,32 @@ class HomeScreenState extends State<HomeScreen> {
   AssetsAudioPlayer get assetsAudioPlayer => widget.assetsAudioPlayer;
 
   final _logger = Logger('FCM');
+  @override
+  void initState() {
+    _fcm.getToken().then((token) => _logger.info(token));
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      _logger.info("onMessage: ${message.data}");
+      final snackbar = SnackBar(
+        content: Text(message.notification?.title ?? "No Title"),
+        action: SnackBarAction(
+          label: 'Go',
+          onPressed: () {},
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
+      if (message != null) {
+        _logger.info("onMessageOpenedApp: $message");
+      }
+    });
+    _fcm.getInitialMessage().then((RemoteMessage? message) {
+      if (message != null) {
+        _logger.info("onLaunch: $message");
+      }
+    });
+    super.initState();
+  }
 
   bool isGirlTheme = true; // Initialize with girl theme
 
@@ -55,8 +83,8 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentTheme =
-        isGirlTheme ? girlTheme : boyTheme; // Select the current theme
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme; // Select the current theme
 
     return Theme(
       data: currentTheme,
@@ -73,7 +101,9 @@ class HomeScreenState extends State<HomeScreen> {
                 isGirlTheme ? Icons.female : Icons.male,
                 color: Colors.white,
               ),
-              onPressed: toggleTheme,
+              onPressed: () {
+                themeProvider.toggleTheme();
+              },
             ),
           ],
         ),
@@ -84,8 +114,6 @@ class HomeScreenState extends State<HomeScreen> {
           ),
           child: AppDrawer(
             assetsAudioPlayer,
-            currentTheme: currentTheme,
-            toggleTheme: toggleTheme,
           ),
         ),
         body: Container(

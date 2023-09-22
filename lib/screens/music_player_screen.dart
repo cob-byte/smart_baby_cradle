@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/app_drawer.dart';
 import '../services/music_service.dart';
 import '../theme/boy_theme.dart';
 import '../theme/girl_theme.dart';
+import 'package:smart_baby_cradle/theme_provider.dart';
 
 class MusicPlayerScreen extends StatefulWidget {
   static const routeName = '/music-player';
   final AssetsAudioPlayer assetsAudioPlayer;
-  final Function toggleTheme;
-  final ThemeData currentTheme;
 
   const MusicPlayerScreen(
     this.assetsAudioPlayer, {
     Key? key,
-    required this.toggleTheme,
-    required this.currentTheme,
   }) : super(key: key);
 
   @override
@@ -84,7 +82,8 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final currentTheme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
 
     // Get the current theme here
     return Theme(
@@ -109,8 +108,6 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
           ),
           child: AppDrawer(
             assetsAudioPlayer,
-            currentTheme: currentTheme,
-            toggleTheme: widget.toggleTheme,
           ),
         ),
         body: SingleChildScrollView(
@@ -164,7 +161,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                               icon: Icon(
                                 isMuted ? Icons.volume_off : Icons.volume_up,
                                 color: isMuted
-                                    ? Color.fromARGB(255, 192, 118, 129)
+                                    ? currentTheme.colorScheme.onSecondary
                                     : Colors.grey[550],
                                 size: 25,
                               ),
