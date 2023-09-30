@@ -21,6 +21,7 @@ class FanItemState extends State<FanItem> {
   static const String directory = 'Fan';
   late int _buttonStatus;
   late double _sliderValue;
+  String _sliderLabel = "Low";
 
   @override
   void initState() {
@@ -55,53 +56,97 @@ class FanItemState extends State<FanItem> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final currentTheme = themeProvider.currentTheme;
-    return Theme(
-      data: currentTheme,
-      child: Container(
-        decoration: BoxDecoration(
-          color: currentTheme.colorScheme.inverseSurface,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(),
-        ),
-        child: LayoutBuilder(
-          builder: (ctx, constraints) => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              GestureDetector(
-                onTap: () {
-                  if (_buttonStatus == 1) {
-                    _buttonStatus = 0;
-                  } else {
-                    _buttonStatus = 1;
-                  }
-                  _fanController.updateItem(
-                      directory, _buttonStatus, _sliderValue);
-                  setState(() {});
-                },
-                child: SizedBox(
-                  height: 150,
-                  width: constraints.maxWidth * 0.65,
-                  child: _buttonStatus == 1
-                      ? Transform.scale(
-                          scale: 1.5, // Adjust the scale factor as needed
-                          child: Image.asset('assets/image/fan_on.png'),
-                        )
-                      : Transform.scale(
-                          scale: 1.5, // Adjust the scale factor as needed
-                          child: Image.asset('assets/image/fan_off.png'),
-                        ),
-                ),
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Theme(
+          data: currentTheme,
+          child: Container(
+            decoration: BoxDecoration(
+              color: currentTheme.colorScheme.inverseSurface,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(),
+            ),
+            child: LayoutBuilder(
+              builder: (ctx, constraints) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () {
+                      if (_buttonStatus == 1) {
+                        _buttonStatus = 0;
+                      } else {
+                        _buttonStatus = 1;
+                      }
+                      _fanController.updateItem(
+                          directory, _buttonStatus, _sliderValue);
+                      setState(() {});
+                    },
+                    child: SizedBox(
+                      height: 150,
+                      width: constraints.maxWidth * 0.65,
+                      child: _buttonStatus == 1
+                          ? Transform.scale(
+                              scale: 1.5, // Adjust the scale factor as needed
+                              child: Image.asset('assets/image/fan_on.png'),
+                            )
+                          : Transform.scale(
+                              scale: 1.5, // Adjust the scale factor as needed
+                              child: Image.asset('assets/image/fan_off.png'),
+                            ),
+                    ),
+                  ),
+                  const Text(
+                    'Fan',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SliderTheme(
+                    data: SliderThemeData(
+                      // Change the color of the active part of the slider (the filled part).
+                      activeTrackColor:
+                          Colors.blue, // Change to your desired color
+
+                      // Change the color of the inactive part of the slider (the unfilled part).
+                      inactiveTrackColor: Color.fromARGB(
+                          255, 255, 255, 254), // Change to your desired color
+
+                      // Change the color of the thumb (the circle that you drag).
+                      thumbColor: Colors.red, // Change to your desired color
+
+                      // Optionally, change the color of the value indicator (the tooltip).
+                      valueIndicatorColor: Color.fromARGB(255, 36, 2, 2),
+                    ),
+                    child: Slider(
+                      min: 1.0,
+                      max: 3.0,
+                      value: _sliderValue,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _sliderValue = newValue;
+                          if (_sliderValue == 1.0) {
+                            _sliderLabel = "Low";
+                          } else if (_sliderValue > 1.0 &&
+                              _sliderValue <= 2.0) {
+                            _sliderLabel = "Medium";
+                          } else if (_sliderValue > 2.0 &&
+                              _sliderValue <= 3.0) {
+                            _sliderLabel = "High";
+                          }
+                          _fanController.updateItem(
+                              directory, _buttonStatus, _sliderValue);
+                        });
+                      },
+                      divisions: 2,
+                      label: _sliderLabel,
+                    ),
+                  ),
+                ],
               ),
-              const Text(
-                'Fan',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
