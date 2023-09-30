@@ -46,6 +46,7 @@ dependencies:
   firebase_core: ^2.15.1
   logging: ^1.0.0
   http: ^0.13.3
+  fl_chart: ^0.41.0
 
 dev_dependencies:
   flutter_test:
