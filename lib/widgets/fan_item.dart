@@ -106,19 +106,13 @@ class FanItemState extends State<FanItem> {
                   ),
                   SliderTheme(
                     data: SliderThemeData(
-                      // Change the color of the active part of the slider (the filled part).
                       activeTrackColor:
-                          Colors.blue, // Change to your desired color
-
-                      // Change the color of the inactive part of the slider (the unfilled part).
-                      inactiveTrackColor: Color.fromARGB(
-                          255, 255, 255, 254), // Change to your desired color
-
-                      // Change the color of the thumb (the circle that you drag).
-                      thumbColor: Colors.red, // Change to your desired color
-
-                      // Optionally, change the color of the value indicator (the tooltip).
-                      valueIndicatorColor: Color.fromARGB(255, 36, 2, 2),
+                          Colors.blue, // Active/Filled part of the slider
+                      inactiveTrackColor: Color.fromARGB(255, 255, 255,
+                          254), // Inactive/Unfilled part. of the slider
+                      thumbColor: Colors.red, // The circle that you drag
+                      valueIndicatorColor: Color.fromARGB(255, 36, 2,
+                          2), // Color of the value indicator (the tooltip)
                     ),
                     child: Slider(
                       min: 1.0,
