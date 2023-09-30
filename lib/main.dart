@@ -12,6 +12,7 @@ import './screens/home_screen.dart';
 import './screens/auth_screen.dart.dart';
 import './screens/camera_Screen.dart';
 import './screens/music_player_screen.dart';
+import './screens/sleep_analysis_screen.dart';
 import './widgets/wrapper.dart';
 
 void main() async {
@@ -84,6 +85,7 @@ class _MyAppState extends State<MyApp> {
               HomeScreen.routeName: (ctx) =>
                   HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
               CameraScreen.routeName: (ctx) => const CameraScreen(),
+              SleepAnalysisScreen.routeName: (ctx) => SleepAnalysisScreen(),
               MusicPlayerScreen.routeName: (ctx) => MusicPlayerScreen(
                     assetsAudioPlayer,
                   ),

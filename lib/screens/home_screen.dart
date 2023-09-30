@@ -22,6 +22,7 @@ import '../widgets/humidity_item.dart';
 import '../widgets/temperature_item.dart';
 import '../widgets/sound_detector_item.dart';
 import '../widgets/music_player_item.dart';
+import '../widgets/sleep_analysis_item.dart';
 import '../theme/boy_theme.dart';
 import '../theme/girl_theme.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
@@ -171,6 +172,7 @@ class HomeScreenState extends State<HomeScreen> {
                     SoundDetectorItem(sound['detected']),
                     CameraLiveItem(),
                     MusicPlayerItem(widget.assetsAudioPlayer),
+                    SleepAnalysisItem(),
                   ],
                 );
               } else {
