@@ -104,6 +104,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               onPressed: () {
                 themeProvider.toggleTheme();
+                isGirlTheme = !isGirlTheme;
               },
             ),
           ],
