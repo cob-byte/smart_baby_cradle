@@ -104,7 +104,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               onPressed: () {
                 themeProvider.toggleTheme();
-                isGirlTheme = !isGirlTheme;
+                toggleTheme();
               },
             ),
           ],
@@ -152,7 +152,7 @@ class HomeScreenState extends State<HomeScreen> {
                 final fan = homeData['Fan'];
                 final sound = homeData['Sound Detection'];
                 return GridView(
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 5,
@@ -168,7 +168,7 @@ class HomeScreenState extends State<HomeScreen> {
                     TemperatureItem(double.parse(status['Temperature'])),
                     HumidityItem(double.parse(status['Humidity']) / 100),
                     SoundDetectorItem(sound['detected']),
-                    CameraLiveItem(),
+                    const CameraLiveItem(),
                     MusicPlayerItem(widget.assetsAudioPlayer),
                     SleepAnalysisItem(),
                   ],
