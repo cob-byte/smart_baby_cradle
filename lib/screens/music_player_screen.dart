@@ -8,6 +8,8 @@ import '../theme/boy_theme.dart';
 import '../theme/girl_theme.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
 
+import 'package:firebase_database/firebase_database.dart';
+
 class MusicPlayerScreen extends StatefulWidget {
   static const routeName = '/music-player';
   final AssetsAudioPlayer assetsAudioPlayer;
@@ -23,6 +25,7 @@ class MusicPlayerScreen extends StatefulWidget {
 
 class MusicPlayerScreenState extends State<MusicPlayerScreen> {
   String imageAsset = 'assets/image/JohnsonsBaby.jpg';
+  int currentSongIndex = 1;
   bool isLooping = false;
   bool isMuted = false;
   double volume = 0.3;
@@ -32,51 +35,54 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
   @override
   void initState() {
+    super.initState();
+
     assetsAudioPlayer.isPlaying.listen((isPlaying) {
       assetsAudioPlayer.current.listen((songs) {
         changeImage(songs!);
-        musicService.updateFirebaseSong(isPlaying, songs.index);
+        musicService.updateFirebaseSong(isPlaying, currentSongIndex);
       });
     });
-    musicService.updateFirebaseVolume(volume);
 
-    super.initState();
+    musicService.updateFirebaseVolume(volume);
   }
 
   void changeImage(Playing songs) {
-    int songIndex = songs.index;
-    if (songIndex == 0) {
-      imageAsset = 'assets/image/JohnsonsBaby.jpg';
-    }
-    if (songIndex == 1) {
-      imageAsset = 'assets/image/LullabyGoodnight.jpg';
-    }
-    if (songIndex == 2) {
-      imageAsset = 'assets/image/PrettyLittle.jpg';
-    }
-    if (songIndex == 3) {
-      imageAsset = 'assets/image/RockabyeBaby.jpg';
-    }
-    if (songIndex == 4) {
-      imageAsset = 'assets/image/Twinkle.png';
-    }
-    if (songIndex == 5) {
-      imageAsset = 'assets/image/NapTime.png';
-    }
-    if (songIndex == 6) {
-      imageAsset = 'assets/image/Beddy-byeButterfly.png';
-    }
-    if (songIndex == 7) {
-      imageAsset = 'assets/image/BabyBear.png';
-    }
-    if (songIndex == 8) {
-      imageAsset = 'assets/image/IfYouAreSleepy.png';
-    }
-    if (songIndex == 9) {
-      imageAsset = 'assets/image/HushLittleBaby.png';
-    }
+    if (mounted) { // Check if the widget is still mounted
+      currentSongIndex = songs.index; // Update the current song index
+      if (currentSongIndex == 0) {
+        imageAsset = 'assets/image/JohnsonsBaby.jpg';
+      }
+      if (currentSongIndex == 1) {
+        imageAsset = 'assets/image/LullabyGoodnight.jpg';
+      }
+      if (currentSongIndex == 2) {
+        imageAsset = 'assets/image/PrettyLittle.jpg';
+      }
+      if (currentSongIndex == 3) {
+        imageAsset = 'assets/image/RockabyeBaby.jpg';
+      }
+      if (currentSongIndex == 4) {
+        imageAsset = 'assets/image/Twinkle.png';
+      }
+      if (currentSongIndex == 5) {
+        imageAsset = 'assets/image/NapTime.png';
+      }
+      if (currentSongIndex == 6) {
+        imageAsset = 'assets/image/Beddy-byeButterfly.png';
+      }
+      if (currentSongIndex == 7) {
+        imageAsset = 'assets/image/BabyBear.png';
+      }
+      if (currentSongIndex == 8) {
+        imageAsset = 'assets/image/IfYouAreSleepy.png';
+      }
+      if (currentSongIndex == 9) {
+        imageAsset = 'assets/image/HushLittleBaby.png';
+      }
 
-    setState(() {});
+      setState(() {});
+    }
   }
 
   @override
@@ -224,17 +230,15 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                               icon: Icon(
                                 Icons.loop,
                                 color: isLooping
-                                    ? const Color.fromARGB(255, 192, 118, 129)
-                                    : Colors.grey[550],
+                                    ? Colors.grey[550]
+                                    : const Color.fromARGB(255, 192, 118, 129),
                                 size: 25,
                               ),
                               onPressed: () {
                                 setState(() {
                                   isLooping = !isLooping;
+                                  assetsAudioPlayer.setLoopMode(isLooping ? LoopMode.single : LoopMode.none); // Set loop mode here
                                 });
-                                assetsAudioPlayer.setLoopMode(isLooping
-                                    ? LoopMode.single
-                                    : LoopMode.none);
                               },
                             ),
                           ],
@@ -252,9 +256,11 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                             min: 0.0,
                             max: 1.0,
                             onChanged: (newValue) {
-                              volume = newValue;
-                              musicService.updateFirebaseVolume(volume);
-                              setState(() {});
+                              setState(() {
+                                volume = newValue;
+                              });
+                              assetsAudioPlayer.setVolume(newValue); // Update volume immediately
+                              musicService.updateFirebaseVolume(newValue);
                             },
                             value: volume,
                           ),

@@ -118,7 +118,7 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ),
         body: Container(
-          padding: const EdgeInsets.only(top: 120),
+          padding: const EdgeInsets.only(top: 100),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -151,14 +151,11 @@ class HomeScreenState extends State<HomeScreen> {
                 final fan = homeData['Fan'];
                 final sound = homeData['Sound Detection'];
                 return GridView(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 20,
-                  ),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
+                    mainAxisSpacing: 20,
                     childAspectRatio: 1 / 1,
                   ),
                   children: <Widget>[
