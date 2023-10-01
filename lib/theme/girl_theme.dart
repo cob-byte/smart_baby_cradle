@@ -23,6 +23,7 @@ final ThemeData girlTheme = ThemeData(
     onInverseSurface: Color.fromRGBO(248, 164, 180, 1),
     onSurfaceVariant: Color.fromRGBO(255, 197, 208, 1),
     surfaceVariant: Color.fromRGBO(255, 226, 232, 1),
+    onTertiary: Color.fromRGBO(255, 222, 246, 1),
   ),
   scaffoldBackgroundColor: const Color.fromRGBO(255, 202, 212, 1),
   textTheme: const TextTheme(
