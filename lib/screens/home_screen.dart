@@ -109,7 +109,7 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        extendBodyBehindAppBar: true,
+        //extendBodyBehindAppBar: true,
         drawer: Theme(
           data: Theme.of(context).copyWith(
             canvasColor: currentTheme.primaryColor,
@@ -118,68 +118,84 @@ class HomeScreenState extends State<HomeScreen> {
             assetsAudioPlayer,
           ),
         ),
-        body: Container(
-          padding: const EdgeInsets.only(top: 100),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                currentTheme.colorScheme.primary,
-                currentTheme.colorScheme.secondary,
-                currentTheme.colorScheme.tertiary,
-                currentTheme.scaffoldBackgroundColor,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: FutureBuilder(
-            future: _home.getStatusOnce(""),
-            builder: (BuildContext context, AsyncSnapshot future) {
-              if (future.hasError) {
-                return Center(
-                  child: Text(
-                    "Error Occurred, Please log out and try again",
-                    style: TextStyle(
-                      color: currentTheme.colorScheme.onError,
-                    ),
-                  ),
-                );
-              }
-              if (future.hasData) {
-                final homeData = future.data.value;
-                final status = homeData['Status'];
-                final motor = homeData['Motor'];
-                final fan = homeData['Fan'];
-                final sound = homeData['Sound Detection'];
-                return GridView(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: 1 / 1,
-                  ),
-                  children: <Widget>[
-                    MotorItem(
-                      run: motor['run'],
-                      level: motor['level'].toDouble(),
-                    ),
-                    FanItem(fan['run'], fan['level'].toDouble()),
-                    TemperatureItem(double.parse(status['Temperature'])),
-                    HumidityItem(double.parse(status['Humidity']) / 100),
-                    SoundDetectorItem(sound['detected']),
-                    const CameraLiveItem(),
-                    MusicPlayerItem(widget.assetsAudioPlayer),
-                    SleepAnalysisItem(),
+        body: Stack(
+          children: [
+            // Gradient Background
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    currentTheme.colorScheme.primary,
+                    currentTheme.colorScheme.secondary,
                   ],
-                );
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          ),
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+
+            // Image in the lower right corner
+            Positioned(
+              bottom: -100, // Adjust the position as needed
+              right: -100, // Adjust the position as needed
+              child: Image.asset(
+                'assets/image/cradle_bg.png', // Replace with your image path
+                width: 400, // Adjust the width as needed
+                height: 350, // Adjust the height as needed
+              ),
+            ),
+
+            // Rest of your content
+            FutureBuilder(
+              future: _home.getStatusOnce(""),
+              builder: (BuildContext context, AsyncSnapshot future) {
+                if (future.hasError) {
+                  return Center(
+                    child: Text(
+                      "Error Occurred, Please log out and try again",
+                      style: TextStyle(
+                        color: currentTheme.colorScheme.onError,
+                      ),
+                    ),
+                  );
+                }
+                if (future.hasData) {
+                  final homeData = future.data.value;
+                  final status = homeData['Status'];
+                  final motor = homeData['Motor'];
+                  final fan = homeData['Fan'];
+                  final sound = homeData['Sound Detection'];
+                  return GridView(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 60),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: 1 / 1,
+                    ),
+                    children: <Widget>[
+                      MotorItem(
+                        run: motor['run'],
+                        level: motor['level'].toDouble(),
+                      ),
+                      FanItem(fan['run'], fan['level'].toDouble()),
+                      TemperatureItem(double.parse(status['Temperature'])),
+                      HumidityItem(double.parse(status['Humidity']) / 100),
+                      SoundDetectorItem(sound['detected']),
+                      const CameraLiveItem(),
+                      MusicPlayerItem(widget.assetsAudioPlayer),
+                      SleepAnalysisItem(),
+                    ],
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
