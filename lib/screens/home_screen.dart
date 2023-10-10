@@ -127,6 +127,7 @@ class HomeScreenState extends State<HomeScreen> {
                   colors: [
                     currentTheme.colorScheme.primary,
                     currentTheme.colorScheme.secondary,
+                    currentTheme.colorScheme.surface,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -170,9 +171,9 @@ class HomeScreenState extends State<HomeScreen> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 20,
-                      childAspectRatio: 1 / 1,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 1 / 1.28,
                     ),
                     children: <Widget>[
                       MotorItem(

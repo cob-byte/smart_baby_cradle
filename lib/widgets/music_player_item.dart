@@ -19,9 +19,20 @@ class MusicPlayerItem extends StatelessWidget {
       data: currentTheme,
       child: Container(
         decoration: BoxDecoration(
-          color: currentTheme.colorScheme.surfaceVariant,
+          color: currentTheme.colorScheme.inversePrimary,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(),
+          boxShadow: [
+            // Add box shadow here
+            BoxShadow(
+              color: Color.fromARGB(255, 106, 106, 106)
+                  .withOpacity(0.5), // Shadow color
+              spreadRadius: 2, // Spread radius
+              blurRadius: 5, // Blur radius
+              offset:
+                  Offset(0, 3), // Offset in the positive direction of y-axis
+            ),
+          ],
         ),
         child: LayoutBuilder(
           builder: (ctx, constraints) => Column(
@@ -32,18 +43,22 @@ class MusicPlayerItem extends StatelessWidget {
                   Navigator.of(context).pushNamed(MusicPlayerScreen.routeName);
                 },
                 child: SizedBox(
-                  width: constraints.maxWidth * 0.65,
+                  //width: constraints.maxWidth * 0.80,
                   child: Image.asset('assets/image/babymusic.png'),
                 ),
               ),
-              const FittedBox(
-                child: Text(
-                  'Music',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
+              const Padding(
+                padding:
+                    EdgeInsets.only(bottom: 5.0), // Add space below the text
+                child: FittedBox(
+                  child: Text(
+                    'Music',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

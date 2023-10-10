@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 final Color fourthColor = Color.fromRGBO(217, 217, 217, 0);
 
 final ThemeData girlTheme = ThemeData(
-  primaryColor: Color.fromARGB(255, 208, 87, 105),
+  primaryColor: Color.fromARGB(255, 133, 41, 54),
   colorScheme: const ColorScheme(
-    primary: Color.fromRGBO(244, 172, 183, 0.65),
+    primary: Color.fromRGBO(255, 150, 166, 1),
     secondary: Color.fromRGBO(255, 229, 217, 1),
     tertiary: Color.fromRGBO(217, 217, 217, 0),
     surface: Colors.white,
@@ -19,10 +19,10 @@ final ThemeData girlTheme = ThemeData(
     brightness: Brightness.light,
     inversePrimary: Color.fromRGBO(255, 202, 212, 1),
     inverseSurface: Color.fromRGBO(244, 172, 183, 1),
-    onPrimaryContainer: Color.fromRGBO(233, 116, 138, 1),
+    onPrimaryContainer: Color.fromRGBO(138, 23, 44, 1),
     onInverseSurface: Color.fromRGBO(248, 164, 180, 1),
     onSurfaceVariant: Color.fromRGBO(255, 197, 208, 1),
-    surfaceVariant: Color.fromRGBO(255, 226, 232, 1),
+    surfaceVariant: Color.fromRGBO(255, 150, 166, 1),
     onTertiary: Color.fromRGBO(255, 222, 246, 1),
   ),
   scaffoldBackgroundColor: const Color.fromRGBO(255, 202, 212, 1),

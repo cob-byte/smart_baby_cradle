@@ -17,9 +17,20 @@ class CameraLiveItem extends StatelessWidget {
       data: currentTheme,
       child: Container(
         decoration: BoxDecoration(
-          color: currentTheme.colorScheme.onSurfaceVariant,
+          color: currentTheme.colorScheme.inversePrimary,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(),
+          boxShadow: [
+            // Add box shadow here
+            BoxShadow(
+              color: Color.fromARGB(255, 106, 106, 106)
+                  .withOpacity(0.5), // Shadow color
+              spreadRadius: 2, // Spread radius
+              blurRadius: 5, // Blur radius
+              offset:
+                  Offset(0, 3), // Offset in the positive direction of y-axis
+            ),
+          ],
         ),
         child: LayoutBuilder(
           builder: (ctx, constraints) => Column(
@@ -30,19 +41,23 @@ class CameraLiveItem extends StatelessWidget {
                   Navigator.of(context).pushNamed(CameraScreen.routeName);
                 },
                 child: SizedBox(
-                    width: constraints.maxWidth * 0.65,
+                    //width: constraints.maxWidth * 0.65,
                     child: Image.asset(
-                      'assets/image/livestream.png',
-                    )),
+                  'assets/image/livestream.png',
+                )),
               ),
-              const FittedBox(
-                child: Text(
-                  'Camera',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
+              const Padding(
+                padding:
+                    EdgeInsets.only(bottom: 5.0), // Add space below the text
+                child: FittedBox(
+                  child: Text(
+                    'Camera',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

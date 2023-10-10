@@ -25,15 +25,15 @@ class _TemperatureItemState extends State<TemperatureItem> {
 
   Color get tempStatusColor {
     if (_temp <= 15) {
-      return const Color.fromRGBO(0, 0, 255, 1);
+      return const Color.fromRGBO(0, 102, 204, 1); // Light Blue
     } else if (_temp > 15 && _temp <= 20) {
-      return const Color.fromRGBO(255, 255, 0, 1);
+      return const Color.fromRGBO(255, 204, 0, 1); // Gold/Yellow
     } else if (_temp > 20 && _temp <= 30) {
-      return const Color.fromRGBO(0, 255, 0, 1);
+      return Color.fromARGB(255, 8, 230, 41); // Green
     } else if (_temp > 30 && _temp <= 35) {
-      return const Color.fromRGBO(255, 255, 0, 1);
+      return const Color.fromRGBO(255, 153, 51, 1); // Orange
     } else {
-      return const Color.fromRGBO(255, 0, 0, 1);
+      return const Color.fromRGBO(204, 0, 0, 1); // Red
     }
   }
 
@@ -67,9 +67,20 @@ class _TemperatureItemState extends State<TemperatureItem> {
       data: currentTheme,
       child: Container(
         decoration: BoxDecoration(
-          color: currentTheme.colorScheme.onPrimaryContainer,
+          color: currentTheme.colorScheme.inversePrimary,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(),
+          boxShadow: [
+            // Add box shadow here
+            BoxShadow(
+              color: Color.fromARGB(255, 106, 106, 106)
+                  .withOpacity(0.5), // Shadow color
+              spreadRadius: 2, // Spread radius
+              blurRadius: 5, // Blur radius
+              offset:
+                  Offset(0, 3), // Offset in the positive direction of y-axis
+            ),
+          ],
         ),
         child: LayoutBuilder(
           builder: (ctx, constraints) => Column(
@@ -78,14 +89,14 @@ class _TemperatureItemState extends State<TemperatureItem> {
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: CircularPercentIndicator(
-                  radius: (0.3 * constraints.maxWidth),
-                  lineWidth: 3.0,
+                  radius: (0.38 * constraints.maxWidth),
+                  lineWidth: 4.0,
                   percent: _temp >= 0 && _temp <= 50 ? _temp / 50 : 0,
                   center: Text(
                     "${_temp.round()}˚ C",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 25.0,
+                      fontSize: 30.0,
                       color: tempStatusColor,
                     ),
                   ),

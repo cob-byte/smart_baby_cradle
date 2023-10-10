@@ -23,12 +23,12 @@ class HumidityItemState extends State<HumidityItem> {
 
   Color get humidityStatus {
     if (_humidityLevel >= 0.3 && _humidityLevel <= 0.5) {
-      return const Color.fromRGBO(0, 255, 0, 1);
+      return const Color.fromARGB(255, 8, 230, 41);
     } else if ((_humidityLevel >= 0.2 && _humidityLevel < 0.3) ||
         (_humidityLevel > 0.5 && _humidityLevel <= 0.6)) {
-      return const Color.fromRGBO(255, 255, 0, 1);
+      return const Color.fromRGBO(255, 204, 0, 1);
     } else {
-      return const Color.fromRGBO(255, 0, 0, 1);
+      return const Color.fromRGBO(204, 0, 0, 1);
     }
   }
 
@@ -62,9 +62,20 @@ class HumidityItemState extends State<HumidityItem> {
       data: currentTheme,
       child: Container(
         decoration: BoxDecoration(
-          color: currentTheme.colorScheme.onPrimaryContainer,
+          color: currentTheme.colorScheme.inversePrimary,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(),
+          boxShadow: [
+            // Add box shadow here
+            BoxShadow(
+              color: Color.fromARGB(255, 106, 106, 106)
+                  .withOpacity(0.5), // Shadow color
+              spreadRadius: 2, // Spread radius
+              blurRadius: 5, // Blur radius
+              offset:
+                  Offset(0, 3), // Offset in the positive direction of y-axis
+            ),
+          ],
         ),
         child: LayoutBuilder(
           builder: (ctx, constraints) => Column(
@@ -73,8 +84,8 @@ class HumidityItemState extends State<HumidityItem> {
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: CircularPercentIndicator(
-                  radius: (0.3 * constraints.maxWidth),
-                  lineWidth: 3.0,
+                  radius: (0.38 * constraints.maxWidth),
+                  lineWidth: 4.0,
                   percent: _humidityLevel <= 1.0 && _humidityLevel >= 0.0
                       ? _humidityLevel
                       : 0,
@@ -82,7 +93,7 @@ class HumidityItemState extends State<HumidityItem> {
                     "${(_humidityLevel * 100).round()} %",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 25.0,
+                      fontSize: 30.0,
                       color: humidityStatus,
                     ),
                   ),

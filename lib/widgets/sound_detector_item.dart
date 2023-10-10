@@ -57,28 +57,43 @@ class _SoundDetectorItemState extends State<SoundDetectorItem> {
       data: currentTheme,
       child: Container(
         decoration: BoxDecoration(
-          color: currentTheme.colorScheme.onInverseSurface,
+          color: currentTheme.colorScheme.inversePrimary,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(),
+          boxShadow: [
+            // Add box shadow here
+            BoxShadow(
+              color: Color.fromARGB(255, 106, 106, 106)
+                  .withOpacity(0.5), // Shadow color
+              spreadRadius: 2, // Spread radius
+              blurRadius: 5, // Blur radius
+              offset:
+                  Offset(0, 3), // Offset in the positive direction of y-axis
+            ),
+          ],
         ),
         child: LayoutBuilder(
           builder: (ctx, constraints) => Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               SizedBox(
-                width: constraints.maxWidth * 0.6,
+                //width: constraints.maxWidth * 0.7,
                 child: _sound == 'yes'
                     ? Image.asset('assets/image/listen_on.png')
                     : Image.asset('assets/image/listen_off.png'),
               ),
-              const FittedBox(
-                child: Text(
-                  'Sound Detector',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
+              const Padding(
+                padding:
+                    EdgeInsets.only(bottom: 5.0), // Add space below the text
+                child: FittedBox(
+                  child: Text(
+                    'Sound Detector',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

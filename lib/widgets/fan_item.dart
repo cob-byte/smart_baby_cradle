@@ -61,9 +61,20 @@ class FanItemState extends State<FanItem> {
       child: SingleChildScrollView(
         child: Container(
           decoration: BoxDecoration(
-            color: currentTheme.colorScheme.inverseSurface,
+            color: currentTheme.colorScheme.inversePrimary,
             borderRadius: BorderRadius.circular(15),
             border: Border.all(),
+            boxShadow: [
+              // Add box shadow here
+              BoxShadow(
+                color: Color.fromARGB(255, 106, 106, 106)
+                    .withOpacity(0.5), // Shadow color
+                spreadRadius: 2, // Spread radius
+                blurRadius: 5, // Blur radius
+                offset:
+                    Offset(0, 3), // Offset in the positive direction of y-axis
+              ),
+            ],
           ),
           child: LayoutBuilder(
             builder: (ctx, constraints) => Column(
@@ -105,11 +116,12 @@ class FanItemState extends State<FanItem> {
                 ),
                 SliderTheme(
                   data: SliderThemeData(
-                    activeTrackColor:
-                        Colors.blue, // Active/Filled part of the slider
+                    activeTrackColor: currentTheme.colorScheme
+                        .primary, // Active/Filled part of the slider
                     inactiveTrackColor: Color.fromARGB(255, 255, 255,
                         254), // Inactive/Unfilled part. of the slider
-                    thumbColor: Colors.red, // The circle that you drag
+                    thumbColor: currentTheme
+                        .colorScheme.onError, // The circle that you drag
                     valueIndicatorColor: Color.fromARGB(255, 36, 2,
                         2), // Color of the value indicator (the tooltip)
                   ),
