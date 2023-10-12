@@ -112,7 +112,7 @@ class HomeScreenState extends State<HomeScreen> {
         //extendBodyBehindAppBar: true,
         drawer: Theme(
           data: Theme.of(context).copyWith(
-            canvasColor: currentTheme.primaryColor,
+            canvasColor: currentTheme.colorScheme.onInverseSurface,
           ),
           child: AppDrawer(
             assetsAudioPlayer,

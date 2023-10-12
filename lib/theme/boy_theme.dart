@@ -5,7 +5,7 @@ final Color fourthColor = Color.fromRGBO(86, 174, 237, 0.608);
 final ThemeData boyTheme = ThemeData(
   primaryColor: Color.fromARGB(255, 6, 126, 142),
   colorScheme: const ColorScheme(
-    primary: Color.fromRGBO(5, 105, 145, 1),
+    primary: Color.fromRGBO(3, 144, 199, 1),
     secondary: Color.fromRGBO(96, 196, 236, 1),
     tertiary: Color.fromRGBO(151, 209, 250, 1),
     surface: Colors.white,
@@ -17,10 +17,10 @@ final ThemeData boyTheme = ThemeData(
     onBackground: Colors.black,
     onError: Color.fromARGB(255, 171, 18, 18),
     brightness: Brightness.light,
-    inversePrimary: Color.fromARGB(255, 18, 143, 232),
+    inversePrimary: Color.fromRGBO(166, 233, 241, 1),
     inverseSurface: Color.fromRGBO(142, 239, 252, 1),
     onPrimaryContainer: Color.fromRGBO(2, 39, 65, 1),
-    onInverseSurface: Color.fromRGBO(156, 196, 255, 1),
+    onInverseSurface: Color.fromRGBO(132, 179, 249, 1),
     onSurfaceVariant: Color.fromRGBO(128, 205, 249, 1),
     surfaceVariant: Color.fromRGBO(1, 47, 87, 1),
     onTertiary: Color.fromRGBO(217, 239, 255, 1),

@@ -89,6 +89,25 @@ class AppDrawer extends StatelessWidget {
               });
             },
           ),
+          // Add an Image widget at the bottom
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    bottom: 10.0), // Adjust the padding as needed
+                child: Opacity(
+                  opacity:
+                      0.8, // Adjust the opacity value between 0.0 (completely transparent) and 1.0 (fully visible)
+                  child: Image.asset(
+                    'assets/image/bg_cradle.png', // Replace with your image path
+                    width: 300, // Adjust the width as needed
+                    height: 300, // Adjust the height as needed
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

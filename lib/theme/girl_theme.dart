@@ -18,11 +18,11 @@ final ThemeData girlTheme = ThemeData(
     onError: Color.fromARGB(255, 171, 18, 18),
     brightness: Brightness.light,
     inversePrimary: Color.fromRGBO(255, 202, 212, 1),
-    inverseSurface: Color.fromRGBO(244, 172, 183, 1),
+    inverseSurface: Color.fromRGBO(251, 173, 187, 1),
     onPrimaryContainer: Color.fromRGBO(138, 23, 44, 1),
-    onInverseSurface: Color.fromRGBO(248, 164, 180, 1),
+    onInverseSurface: Color.fromRGBO(255, 172, 187, 1),
     onSurfaceVariant: Color.fromRGBO(255, 197, 208, 1),
-    surfaceVariant: Color.fromRGBO(255, 150, 166, 1),
+    surfaceVariant: Color.fromRGBO(253, 175, 187, 1),
     onTertiary: Color.fromRGBO(255, 222, 246, 1),
   ),
   scaffoldBackgroundColor: const Color.fromRGBO(255, 202, 212, 1),
@@ -30,12 +30,12 @@ final ThemeData girlTheme = ThemeData(
     displayLarge: TextStyle(
       fontSize: 24.0,
       fontWeight: FontWeight.bold,
-      color: Colors.pink,
+      color: Color.fromARGB(255, 255, 157, 190),
     ),
     // Add more text styles as needed
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: Color.fromRGBO(244, 172, 183, 0.65),
+    backgroundColor: Color.fromRGBO(244, 172, 183, 1),
     titleTextStyle: TextStyle(
       fontSize: 25.0,
       fontStyle: FontStyle.normal,
