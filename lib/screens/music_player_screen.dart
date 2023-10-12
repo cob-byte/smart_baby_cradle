@@ -39,7 +39,8 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
     super.initState();
     musicService.getFirebaseVolume().then((vol) {
       setState(() {
-        volume = double.tryParse(vol ?? '0.3') ?? 0.3; // Initialize with 0.3 if null
+        volume =
+            double.tryParse(vol ?? '0.3') ?? 0.3; // Initialize with 0.3 if null
         assetsAudioPlayer.setVolume(volume);
         musicService.updateFirebaseVolume(volume);
 
@@ -53,7 +54,8 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
     musicService.getFirebaseLooping().then((looping) {
       setState(() {
         isLooping = looping ?? false; // Initialize with false if null
-        assetsAudioPlayer.setLoopMode(isLooping ? LoopMode.single : LoopMode.none);
+        assetsAudioPlayer
+            .setLoopMode(isLooping ? LoopMode.single : LoopMode.none);
       });
     });
 
@@ -111,14 +113,13 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
           imageAsset = 'assets/image/HushLittleBaby.png';
           break;
         default:
-        // Handle the case for unknown song indexes
+          // Handle the case for unknown song indexes
           imageAsset = 'assets/image/JohnsonsBaby.jpg';
           break;
       }
       setState(() {});
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -158,8 +159,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 colors: [
                   currentTheme.colorScheme.primary,
                   currentTheme.colorScheme.secondary,
-                  currentTheme.colorScheme.tertiary,
-                  currentTheme.scaffoldBackgroundColor,
+                  currentTheme.colorScheme.surface,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -246,8 +246,10 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                       player: assetsAudioPlayer,
                                       builder: (context, isPlaying) {
                                         return isPlaying
-                                            ? Icon(Icons.pause, color: Colors.black, size: 40)
-                                            : Icon(Icons.play_arrow, color: Colors.black, size: 40);
+                                            ? Icon(Icons.pause,
+                                                color: Colors.black, size: 40)
+                                            : Icon(Icons.play_arrow,
+                                                color: Colors.black, size: 40);
                                       },
                                     ),
                                     onPressed: () {
@@ -266,7 +268,8 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                     currentSongIndex++;
                                     await assetsAudioPlayer.next();
                                     // Update Firebase with the new song index
-                                    musicService.updateFirebaseSong(currentSongIndex);
+                                    musicService
+                                        .updateFirebaseSong(currentSongIndex);
                                   },
                                 ),
                               ],
@@ -275,14 +278,16 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                               icon: Icon(
                                 Icons.loop,
                                 color: isLooping
-                                    ? Colors.grey[550]
-                                    : const Color.fromARGB(255, 192, 118, 129),
+                                    ? currentTheme.colorScheme.onSecondary
+                                    : Colors.grey[550],
                                 size: 25,
                               ),
                               onPressed: () {
                                 setState(() {
                                   isLooping = !isLooping;
-                                  assetsAudioPlayer.setLoopMode(isLooping ? LoopMode.single : LoopMode.none); // Set loop mode here
+                                  assetsAudioPlayer.setLoopMode(isLooping
+                                      ? LoopMode.single
+                                      : LoopMode.none); // Set loop mode here
                                 });
 
                                 musicService.updateFirebaseLooping(isLooping);
@@ -332,7 +337,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                        ExactAssetImage('assets/image/JohnsonsBaby.jpg')),
+                            ExactAssetImage('assets/image/JohnsonsBaby.jpg')),
                     title: Text(
                       'Johnsons Baby',
                       style: TextStyle(
@@ -352,7 +357,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundImage:
-                      ExactAssetImage('assets/image/LullabyGoodnight.jpg'),
+                          ExactAssetImage('assets/image/LullabyGoodnight.jpg'),
                     ),
                     title: Text(
                       'Lullaby Goodnight',
@@ -373,7 +378,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundImage:
-                      ExactAssetImage('assets/image/PrettyLittle.jpg'),
+                          ExactAssetImage('assets/image/PrettyLittle.jpg'),
                     ),
                     title: Text(
                       'Pretty Little Baby',
@@ -394,7 +399,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundImage:
-                      ExactAssetImage('assets/image/RockabyeBaby.jpg'),
+                          ExactAssetImage('assets/image/RockabyeBaby.jpg'),
                     ),
                     title: Text(
                       'Rockabye Baby',
@@ -415,7 +420,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundImage:
-                      ExactAssetImage('assets/image/Twinkle.png'),
+                          ExactAssetImage('assets/image/Twinkle.png'),
                     ),
                     title: Text(
                       'Twinkle',
@@ -436,7 +441,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                        ExactAssetImage('assets/image/NapTime.png')),
+                            ExactAssetImage('assets/image/NapTime.png')),
                     title: Text(
                       'Nap Time',
                       style: TextStyle(
@@ -477,7 +482,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                        ExactAssetImage('assets/image/BabyBear.png')),
+                            ExactAssetImage('assets/image/BabyBear.png')),
                     title: Text(
                       'Baby Bear',
                       style: TextStyle(
@@ -497,7 +502,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                        ExactAssetImage('assets/image/IfYouAreSleepy.png')),
+                            ExactAssetImage('assets/image/IfYouAreSleepy.png')),
                     title: Text(
                       'If You Are Sleepy',
                       style: TextStyle(
@@ -517,7 +522,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                        ExactAssetImage('assets/image/HushLittleBaby.png')),
+                            ExactAssetImage('assets/image/HushLittleBaby.png')),
                     title: Text(
                       'Hush Little Baby',
                       style: TextStyle(
