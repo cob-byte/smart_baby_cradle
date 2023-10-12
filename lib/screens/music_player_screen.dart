@@ -228,13 +228,15 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                     color: Colors.black,
                                     size: 40,
                                   ),
-                                  onPressed: () async {
-                                    // Increment the currentSongIndex by 1 and play the next song
+                                  onPressed: currentSongIndex > 0
+                                      ? () async {
+                                    // Decrement the currentSongIndex by 1 and play the prev song
                                     currentSongIndex--;
                                     await assetsAudioPlayer.previous();
                                     // Update Firebase with the new song index
                                     musicService.updateFirebaseSong(currentSongIndex);
-                                  },
+                                  }
+                                      : null, // Set onPressed to null when it's the first song
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
