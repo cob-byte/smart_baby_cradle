@@ -82,7 +82,7 @@ class AppDrawer extends StatelessWidget {
               if (assetsAudioPlayer.isPlaying.value) {
                 assetsAudioPlayer.playlistPlayAtIndex(0);
                 assetsAudioPlayer.pause();
-                musicService.updateFirebaseSong(false, 1);
+                musicService.updateFirebaseSong(1);
               }
               auth.signOut().then((_) {
                 Navigator.of(context).pushReplacementNamed(Wrapper.routeName);

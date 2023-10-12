@@ -27,8 +27,9 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
   String imageAsset = 'assets/image/JohnsonsBaby.jpg';
   int currentSongIndex = 1;
   bool isLooping = false;
+  bool isPause = true;
   bool isMuted = false;
-  double volume = 0.3;
+  double volume = 0.3; // Initialize with a default value
   final musicService = MusicService();
 
   AssetsAudioPlayer get assetsAudioPlayer => widget.assetsAudioPlayer;
@@ -36,54 +37,88 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
   @override
   void initState() {
     super.initState();
+    musicService.getFirebaseVolume().then((vol) {
+      setState(() {
+        volume = double.tryParse(vol ?? '0.3') ?? 0.3; // Initialize with 0.3 if null
+        assetsAudioPlayer.setVolume(volume);
+        musicService.updateFirebaseVolume(volume);
+
+        // Check if the fetched volume is 0 and set mute accordingly
+        if (volume == 0) {
+          isMuted = true;
+        }
+      });
+    });
+
+    musicService.getFirebaseLooping().then((looping) {
+      setState(() {
+        isLooping = looping ?? false; // Initialize with false if null
+        assetsAudioPlayer.setLoopMode(isLooping ? LoopMode.single : LoopMode.none);
+      });
+    });
+
+    musicService.getFirebasePause().then((pause) {
+      setState(() {
+        isPause = pause ?? true; // Initialize with true if null
+        if (!isPause) {
+          assetsAudioPlayer.play();
+        }
+      });
+    });
 
     assetsAudioPlayer.isPlaying.listen((isPlaying) {
       assetsAudioPlayer.current.listen((songs) {
         changeImage(songs!);
-        musicService.updateFirebaseSong(isPlaying, currentSongIndex);
+        musicService.updateFirebaseSong(currentSongIndex);
+        musicService.updateFirebasePause(isPlaying);
       });
     });
-
-    musicService.updateFirebaseVolume(volume);
   }
 
   void changeImage(Playing songs) {
-    if (mounted) { // Check if the widget is still mounted
-      currentSongIndex = songs.index; // Update the current song index
-      if (currentSongIndex == 0) {
-        imageAsset = 'assets/image/JohnsonsBaby.jpg';
+    if (mounted) {
+      currentSongIndex = songs.index;
+      // Update the imageAsset based on the currentSongIndex
+      switch (currentSongIndex) {
+        case 0:
+          imageAsset = 'assets/image/JohnsonsBaby.jpg';
+          break;
+        case 1:
+          imageAsset = 'assets/image/LullabyGoodnight.jpg';
+          break;
+        case 2:
+          imageAsset = 'assets/image/PrettyLittle.jpg';
+          break;
+        case 3:
+          imageAsset = 'assets/image/RockabyeBaby.jpg';
+          break;
+        case 4:
+          imageAsset = 'assets/image/Twinkle.png';
+          break;
+        case 5:
+          imageAsset = 'assets/image/NapTime.png';
+          break;
+        case 6:
+          imageAsset = 'assets/image/Beddy-byeButterfly.png';
+          break;
+        case 7:
+          imageAsset = 'assets/image/BabyBear.png';
+          break;
+        case 8:
+          imageAsset = 'assets/image/IfYouAreSleepy.png';
+          break;
+        case 9:
+          imageAsset = 'assets/image/HushLittleBaby.png';
+          break;
+        default:
+        // Handle the case for unknown song indexes
+          imageAsset = 'assets/image/JohnsonsBaby.jpg';
+          break;
       }
-      if (currentSongIndex == 1) {
-        imageAsset = 'assets/image/LullabyGoodnight.jpg';
-      }
-      if (currentSongIndex == 2) {
-        imageAsset = 'assets/image/PrettyLittle.jpg';
-      }
-      if (currentSongIndex == 3) {
-        imageAsset = 'assets/image/RockabyeBaby.jpg';
-      }
-      if (currentSongIndex == 4) {
-        imageAsset = 'assets/image/Twinkle.png';
-      }
-      if (currentSongIndex == 5) {
-        imageAsset = 'assets/image/NapTime.png';
-      }
-      if (currentSongIndex == 6) {
-        imageAsset = 'assets/image/Beddy-byeButterfly.png';
-      }
-      if (currentSongIndex == 7) {
-        imageAsset = 'assets/image/BabyBear.png';
-      }
-      if (currentSongIndex == 8) {
-        imageAsset = 'assets/image/IfYouAreSleepy.png';
-      }
-      if (currentSongIndex == 9) {
-        imageAsset = 'assets/image/HushLittleBaby.png';
-      }
-
       setState(() {});
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -177,8 +212,10 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                 });
                                 if (isMuted) {
                                   assetsAudioPlayer.setVolume(0);
+                                  musicService.updateFirebaseVolume(0);
                                 } else {
                                   assetsAudioPlayer.setVolume(volume);
+                                  musicService.updateFirebaseVolume(volume);
                                 }
                               },
                             ),
@@ -191,8 +228,12 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                     color: Colors.black,
                                     size: 40,
                                   ),
-                                  onPressed: () {
-                                    assetsAudioPlayer.previous();
+                                  onPressed: () async {
+                                    // Increment the currentSongIndex by 1 and play the next song
+                                    currentSongIndex--;
+                                    await assetsAudioPlayer.previous();
+                                    // Update Firebase with the new song index
+                                    musicService.updateFirebaseSong(currentSongIndex);
                                   },
                                 ),
                                 Padding(
@@ -203,10 +244,8 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                       player: assetsAudioPlayer,
                                       builder: (context, isPlaying) {
                                         return isPlaying
-                                            ? const Icon(Icons.pause,
-                                                color: Colors.black, size: 40)
-                                            : const Icon(Icons.play_arrow,
-                                                color: Colors.black, size: 40);
+                                            ? Icon(Icons.pause, color: Colors.black, size: 40)
+                                            : Icon(Icons.play_arrow, color: Colors.black, size: 40);
                                       },
                                     ),
                                     onPressed: () {
@@ -220,8 +259,12 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                     color: Colors.black,
                                     size: 40,
                                   ),
-                                  onPressed: () {
-                                    assetsAudioPlayer.next();
+                                  onPressed: () async {
+                                    // Increment the currentSongIndex by 1 and play the next song
+                                    currentSongIndex++;
+                                    await assetsAudioPlayer.next();
+                                    // Update Firebase with the new song index
+                                    musicService.updateFirebaseSong(currentSongIndex);
                                   },
                                 ),
                               ],
@@ -239,6 +282,8 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                   isLooping = !isLooping;
                                   assetsAudioPlayer.setLoopMode(isLooping ? LoopMode.single : LoopMode.none); // Set loop mode here
                                 });
+
+                                musicService.updateFirebaseLooping(isLooping);
                               },
                             ),
                           ],
@@ -259,10 +304,10 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                               setState(() {
                                 volume = newValue;
                               });
-                              assetsAudioPlayer.setVolume(newValue); // Update volume immediately
+                              assetsAudioPlayer.setVolume(newValue);
                               musicService.updateFirebaseVolume(newValue);
                             },
-                            value: volume,
+                            value: isMuted ? 0.0 : volume,
                           ),
                           const Icon(
                             Icons.volume_up,
@@ -285,7 +330,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                            ExactAssetImage('assets/image/JohnsonsBaby.jpg')),
+                        ExactAssetImage('assets/image/JohnsonsBaby.jpg')),
                     title: Text(
                       'Johnsons Baby',
                       style: TextStyle(
@@ -305,7 +350,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundImage:
-                          ExactAssetImage('assets/image/LullabyGoodnight.jpg'),
+                      ExactAssetImage('assets/image/LullabyGoodnight.jpg'),
                     ),
                     title: Text(
                       'Lullaby Goodnight',
@@ -326,7 +371,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundImage:
-                          ExactAssetImage('assets/image/PrettyLittle.jpg'),
+                      ExactAssetImage('assets/image/PrettyLittle.jpg'),
                     ),
                     title: Text(
                       'Pretty Little Baby',
@@ -347,7 +392,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundImage:
-                          ExactAssetImage('assets/image/RockabyeBaby.jpg'),
+                      ExactAssetImage('assets/image/RockabyeBaby.jpg'),
                     ),
                     title: Text(
                       'Rockabye Baby',
@@ -368,7 +413,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundImage:
-                          ExactAssetImage('assets/image/Twinkle.png'),
+                      ExactAssetImage('assets/image/Twinkle.png'),
                     ),
                     title: Text(
                       'Twinkle',
@@ -389,7 +434,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                            ExactAssetImage('assets/image/NapTime.png')),
+                        ExactAssetImage('assets/image/NapTime.png')),
                     title: Text(
                       'Nap Time',
                       style: TextStyle(
@@ -430,7 +475,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                            ExactAssetImage('assets/image/BabyBear.png')),
+                        ExactAssetImage('assets/image/BabyBear.png')),
                     title: Text(
                       'Baby Bear',
                       style: TextStyle(
@@ -450,7 +495,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                            ExactAssetImage('assets/image/IfYouAreSleepy.png')),
+                        ExactAssetImage('assets/image/IfYouAreSleepy.png')),
                     title: Text(
                       'If You Are Sleepy',
                       style: TextStyle(
@@ -470,7 +515,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   child: ListTile(
                     leading: const CircleAvatar(
                         backgroundImage:
-                            ExactAssetImage('assets/image/HushLittleBaby.png')),
+                        ExactAssetImage('assets/image/HushLittleBaby.png')),
                     title: Text(
                       'Hush Little Baby',
                       style: TextStyle(
