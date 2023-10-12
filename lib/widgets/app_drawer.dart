@@ -32,7 +32,7 @@ class AppDrawer extends StatelessWidget {
       child: Column(
         children: <Widget>[
           AppBar(
-            backgroundColor: currentTheme.appBarTheme.backgroundColor,
+            backgroundColor: currentTheme.colorScheme.inversePrimary,
             title: const Text(
               'MENU',
               style: TextStyle(
