@@ -75,6 +75,14 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
         musicService.updateFirebasePause(isPlaying);
       });
     });
+
+    assetsAudioPlayer.playlistFinished.listen((finished) {
+      if (finished) {
+        // Auto-play the first song in the playlist when the last song finishes
+        assetsAudioPlayer.playlistPlayAtIndex(0);
+        musicService.updateFirebasePause(false);
+      }
+    });
   }
 
   void changeImage(Playing songs) {
