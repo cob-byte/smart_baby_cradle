@@ -22,6 +22,7 @@ class FanItemState extends State<FanItem> {
   late int _buttonStatus;
   late double _sliderValue;
   String _sliderLabel = "Low";
+  bool _isManualMode = false; // Added to track manual/auto mode.
 
   @override
   void initState() {
@@ -114,39 +115,62 @@ class FanItemState extends State<FanItem> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SliderTheme(
-                  data: SliderThemeData(
-                    activeTrackColor: currentTheme.colorScheme
-                        .primary, // Active/Filled part of the slider
-                    inactiveTrackColor: Color.fromARGB(255, 255, 255,
-                        254), // Inactive/Unfilled part. of the slider
-                    thumbColor: currentTheme
-                        .colorScheme.onError, // The circle that you drag
-                    valueIndicatorColor: Color.fromARGB(255, 36, 2,
-                        2), // Color of the value indicator (the tooltip)
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isManualMode = !_isManualMode;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isManualMode
+                        ? currentTheme.colorScheme
+                            .surfaceVariant // Use primary color for Manual mode
+                        : currentTheme.colorScheme
+                            .surfaceVariant, // Use secondary color for Auto mode
                   ),
-                  child: Slider(
-                    min: 1.0,
-                    max: 3.0,
-                    value: _sliderValue,
-                    onChanged: (newValue) {
-                      setState(() {
-                        _sliderValue = newValue;
-                        if (_sliderValue == 1.0) {
-                          _sliderLabel = "Low";
-                        } else if (_sliderValue > 1.0 && _sliderValue <= 2.0) {
-                          _sliderLabel = "Medium";
-                        } else if (_sliderValue > 2.0 && _sliderValue <= 3.0) {
-                          _sliderLabel = "High";
-                        }
-                        _fanController.updateItem(
-                            directory, _buttonStatus, _sliderValue);
-                      });
-                    },
-                    divisions: 2,
-                    label: _sliderLabel,
+                  child: Text(
+                    _isManualMode ? "Manual" : "Auto",
+                    style: TextStyle(
+                      color: _isManualMode
+                          ? currentTheme.colorScheme
+                              .surface // Use text color for Manual mode
+                          : currentTheme.colorScheme
+                              .surface, // Use text color for Auto mode
+                    ),
                   ),
                 ),
+                if (_isManualMode)
+                  SliderTheme(
+                    data: SliderThemeData(
+                      activeTrackColor: currentTheme.colorScheme.primary,
+                      inactiveTrackColor: Color.fromARGB(255, 255, 255, 254),
+                      thumbColor: currentTheme.colorScheme.onError,
+                      valueIndicatorColor: Color.fromARGB(255, 36, 2, 2),
+                    ),
+                    child: Slider(
+                      min: 1.0,
+                      max: 3.0,
+                      value: _sliderValue,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _sliderValue = newValue;
+                          if (_sliderValue == 1.0) {
+                            _sliderLabel = "Low";
+                          } else if (_sliderValue > 1.0 &&
+                              _sliderValue <= 2.0) {
+                            _sliderLabel = "Medium";
+                          } else if (_sliderValue > 2.0 &&
+                              _sliderValue <= 3.0) {
+                            _sliderLabel = "High";
+                          }
+                          _fanController.updateItem(
+                              directory, _buttonStatus, _sliderValue);
+                        });
+                      },
+                      divisions: 2,
+                      label: _sliderLabel,
+                    ),
+                  ),
               ],
             ),
           ),

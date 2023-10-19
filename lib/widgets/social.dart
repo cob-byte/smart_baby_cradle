@@ -16,11 +16,11 @@ class Authentication {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     final GoogleSignInAccount? googleSignInAccount =
-    await googleSignIn.signIn();
+        await googleSignIn.signIn();
 
     if (googleSignInAccount != null) {
       final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount.authentication;
+          await googleSignInAccount.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
@@ -29,7 +29,7 @@ class Authentication {
 
       try {
         final UserCredential userCredential =
-        await auth.signInWithCredential(credential);
+            await auth.signInWithCredential(credential);
 
         user = userCredential.user;
       } on FirebaseAuthException catch (e) {
@@ -37,14 +37,13 @@ class Authentication {
           ScaffoldMessenger.of(context).showSnackBar(
             Authentication.customSnackBar(
               content:
-              'The account already exists with a different credential.',
+                  'The account already exists with a different credential.',
             ),
           );
         } else if (e.code == 'invalid-credential') {
           ScaffoldMessenger.of(context).showSnackBar(
             Authentication.customSnackBar(
-              content:
-              'Error occurred while accessing credentials. Try again.',
+              content: 'Error occurred while accessing credentials. Try again.',
             ),
           );
         }
@@ -61,14 +60,11 @@ class Authentication {
   }
 
   static Future<UserCredential> signInWithFacebook() async {
+    final LoginResult loginResult = await FacebookAuth.instance
+        .login(permissions: ['email', 'public_profile', 'user_birthday']);
 
-    final LoginResult loginResult = await FacebookAuth.instance.login(
-        permissions: [
-          'email', 'public_profile', 'user_birthday'
-        ]
-    );
-
-    final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!.token);
+    final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(loginResult.accessToken!.token);
     return FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
   }
 
@@ -116,7 +112,8 @@ class Social extends StatelessWidget {
         ),
         GestureDetector(
           onTap: () async {
-            User? user = await Authentication.signInWithGoogle(context: context);
+            User? user =
+                await Authentication.signInWithGoogle(context: context);
             if (user != null) {
               // User is signed in
               ScaffoldMessenger.of(context).showSnackBar(
