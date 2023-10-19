@@ -1,27 +1,47 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:smart_baby_cradle/widgets/sleep_analysis_item.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
 
-class SleepAnalysisScreen extends StatelessWidget {
+class SleepAnalysisScreen extends StatefulWidget {
   static const routeName = '/sleep-analysis';
+
+  @override
+  _SleepAnalysisScreenState createState() => _SleepAnalysisScreenState();
+}
+
+class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
+  late Timer _timer;
+  late String _currentTime;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the time and start the timer to update it every second
+    _currentTime = _getCurrentTime();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _currentTime = _getCurrentTime();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    // Dispose the timer when the widget is removed from the tree
+    _timer.cancel();
+    super.dispose();
+  }
+
+  String _getCurrentTime() {
+    return DateFormat.Hm().format(DateTime.now());
+  }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final currentTheme = themeProvider.currentTheme;
-
-    // Get the current time and date
-    final now = DateTime.now();
-    final formattedDate = '${now.year}-${now.month}-${now.day}';
-    final formattedTime = '${now.hour}:${now.minute}';
-
-    // Replace this value with your actual sleep quality percentage
-    final sleepQualityPercentage = 85.0;
-
-    // Replace this value with the actual sleep duration
-    final sleepDurationHours = 8;
-    final sleepDurationMinutes = 30;
 
     return Theme(
       data: currentTheme,
@@ -29,168 +49,139 @@ class SleepAnalysisScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Sleep Analysis'),
         ),
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        body: Center(
+          child: Stack(
+            alignment: Alignment.center,
             children: <Widget>[
-              // Rectangle with gradient background for current time and date
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue, Colors.purple],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          'Date: $formattedDate',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Icon(
-                          Icons.wb_sunny,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          'Time: $formattedTime',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+              // Set the background image
+              Image.asset(
+                'assets/image/sleep-background.jpg',
+                fit: BoxFit.cover,
+              ),
+              // Position the moon element at the center of the screen
+              Positioned(
+                top: 50,
+                child: Image.asset(
+                  'assets/image/moon element.png',
+                  height: 200,
+                  width: 200,
                 ),
               ),
-              SizedBox(height: 20),
-              // Rounded rectangle with gradient background for sleep quality
-              Container(
-                width: 300,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color.fromARGB(255, 76, 99, 175),
-                      Color.fromARGB(255, 80, 187, 240)
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                padding: EdgeInsets.all(16.0),
+              // Positioned the Row closer to the moon element
+              Positioned(
+                top: 270,
                 child: Column(
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          'Sleep Quality',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Icon(
-                          Icons.star,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        SizedBox(
-                          width: 80,
-                          height: 80,
-                          child: CircularProgressIndicator(
-                            value: sleepQualityPercentage / 100.0,
-                            strokeWidth: 8,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        ),
-                        Text(
-                          '${sleepQualityPercentage.round()}%',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              // Rounded rectangle with gradient background for sleep duration
-              Container(
-                width: 300,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    colors: [
-                      Color.fromARGB(255, 255, 40, 201),
-                      Color.fromARGB(255, 231, 144, 251)
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          'Sleep Duration',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Icon(
-                          Icons.access_time_filled,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
                     Text(
-                      '$sleepDurationHours hours $sleepDurationMinutes minutes',
+                      'Current Time: $_currentTime',
                       style: TextStyle(
-                        color: Colors.white,
                         fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 10), // Add spacing between texts
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.alarm,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ), // Add spacing between icon and text
+                        Text(
+                          'Alarm Time: 07:00 AM',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20), // Add spacing between texts and cards
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        _buildCardWithIcon(
+                            'Sleep', 'Score', Icons.nightlight_round),
+                        _buildCardWithIcon('Wake-Up', 'Times', Icons.alarm_on),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ), // Spacing between cards and button
+                    InkWell(
+                      onTap: () {
+                        // Add functionality for the button tap
+                        // For example, navigate to another screen or perform an action
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 20,
+                        child: Icon(
+                          Icons.keyboard_double_arrow_up_rounded,
+                          color: Colors.black,
+                          size: 25,
+                        ),
                       ),
                     ),
                   ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardWithIcon(String title, String subtitle, IconData icon) {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Container(
+        height: 150,
+        width: 120,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromARGB(255, 252, 255, 156),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                icon,
+                color: Colors.black,
+                size: 36,
+              ),
+              SizedBox(height: 10),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'Medium',
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'Medium',
+                  color: Colors.black,
                 ),
               ),
             ],
