@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class CameraScreen extends StatefulWidget {
   static const routeName = '/camera';
@@ -12,9 +12,10 @@ class CameraScreen extends StatefulWidget {
   CameraScreenState createState() => CameraScreenState();
 }
 
-
 class CameraScreenState extends State<CameraScreen> {
-  final Completer<WebViewController> _controller = Completer<WebViewController>();
+  final Completer<InAppWebViewController> _controller =
+  Completer<InAppWebViewController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,10 +31,21 @@ class CameraScreenState extends State<CameraScreen> {
         ),
         backgroundColor: const Color.fromRGBO(22, 22, 22, 1),
       ),
-      body: WebView(
-        initialUrl: 'https://www.google.com/',
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (WebViewController webViewController){
+      body: InAppWebView(
+        initialUrlRequest: URLRequest(
+          url: Uri.parse('http://192.168.254.183:8888/index.html'),
+        ),
+        initialOptions: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(
+            javaScriptEnabled: true,
+            mediaPlaybackRequiresUserGesture: true,
+            allowFileAccessFromFileURLs: true,
+          ),
+          android: AndroidInAppWebViewOptions(
+            mixedContentMode: AndroidMixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+          ),
+        ),
+        onWebViewCreated: (InAppWebViewController webViewController) {
           _controller.complete(webViewController);
         },
       ),
