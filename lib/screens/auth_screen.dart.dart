@@ -102,12 +102,12 @@ class AuthScreenState extends State<AuthScreen> {
                         children: [
                           themeProvider.currentTheme == boyTheme
                               ? Image.asset(
-                                  'assets/image/boy_icon.png',
+                                  'assets/image/boy_icon (1).png',
                                   width: 120,
                                   height: 120,
                                 )
                               : Image.asset(
-                                  'assets/image/girl_icon.png',
+                                  'assets/image/girl_icon (1).png',
                                   width: 120,
                                   height: 120,
                                 ),
