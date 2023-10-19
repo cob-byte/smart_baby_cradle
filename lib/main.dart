@@ -63,7 +63,9 @@ class _MyAppState extends State<MyApp> {
 
   void toggleTheme() {
     setState(() {
-      isGirlTheme = !isGirlTheme; // Toggle the theme
+      isGirlTheme = !isGirlTheme;
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      themeProvider.toggleTheme();
     });
   }
 
