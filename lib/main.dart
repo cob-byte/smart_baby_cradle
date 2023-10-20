@@ -5,6 +5,8 @@ import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:smart_baby_cradle/theme/boy_theme.dart';
 import 'package:smart_baby_cradle/theme/girl_theme.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
+import 'package:smart_baby_cradle/screens/wake_up_times_screen.dart';
+import 'package:smart_baby_cradle/screens/sleep_score_screen.dart';
 
 import 'services/auth_service.dart';
 import './services/music_service.dart';
@@ -91,6 +93,8 @@ class _MyAppState extends State<MyApp> {
               MusicPlayerScreen.routeName: (ctx) => MusicPlayerScreen(
                     assetsAudioPlayer,
                   ),
+              SleepScoreScreen.routeName: (ctx) => SleepScoreScreen(),
+              WakeUpTimesScreen.routeName: (ctx) => WakeUpTimesScreen(),
             },
           );
         },

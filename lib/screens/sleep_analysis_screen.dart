@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_baby_cradle/screens/wake_up_times_screen.dart';
+import 'package:smart_baby_cradle/screens/sleep_score_screen.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
 
 class SleepAnalysisScreen extends StatefulWidget {
@@ -58,7 +60,7 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
                 'assets/image/sleep-background.jpg',
                 fit: BoxFit.cover,
               ),
-              // Position the moon element at the center of the screen
+              // Positioned the moon element at the center of the screen
               Positioned(
                 top: 50,
                 child: Image.asset(
@@ -105,9 +107,22 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        _buildCardWithIcon(
-                            'Sleep', 'Score', Icons.nightlight_round),
-                        _buildCardWithIcon('Wake-Up', 'Times', Icons.alarm_on),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(
+                                context, SleepScoreScreen.routeName);
+                          },
+                          child: _buildCardWithIcon(
+                              'Sleep', 'Score', Icons.nightlight_round),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(
+                                context, WakeUpTimesScreen.routeName);
+                          },
+                          child: _buildCardWithIcon(
+                              'Wake-Up', 'Times', Icons.alarm_on),
+                        ),
                       ],
                     ),
                     SizedBox(
