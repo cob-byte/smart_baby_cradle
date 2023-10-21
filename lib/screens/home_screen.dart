@@ -24,6 +24,7 @@ import '../widgets/sound_detector_item.dart';
 import '../widgets/music_player_item.dart';
 import '../widgets/sleep_analysis_item.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
+import 'package:smart_baby_cradle/theme/greyscale_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -45,6 +46,8 @@ class HomeScreenState extends State<HomeScreen> {
   AssetsAudioPlayer get assetsAudioPlayer => widget.assetsAudioPlayer;
 
   final _logger = Logger('FCM');
+  bool isRaspberryPiOn = true;
+
   @override
   void initState() {
     _fcm.getToken().then((token) => _logger.info(token));
@@ -83,7 +86,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final currentTheme = themeProvider.currentTheme; // Select the current theme
+    final currentTheme = themeProvider.currentTheme;
 
     return Theme(
       data: currentTheme,
@@ -95,18 +98,39 @@ class HomeScreenState extends State<HomeScreen> {
           ),
           backgroundColor: currentTheme.appBarTheme.backgroundColor,
           actions: [
-            IconButton(
-              icon: Icon(
-                isGirlTheme ? Icons.female : Icons.male,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                themeProvider.toggleTheme();
-                toggleTheme();
-              },
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isRaspberryPiOn = !isRaspberryPiOn;
+                      themeProvider.setRaspberryPiStatus(isRaspberryPiOn);
+                      if (!isRaspberryPiOn) {
+                        themeProvider.currentTheme = greyscaleTheme;
+                      }
+                    });
+                  },
+                  icon: Icon(
+                    isRaspberryPiOn ? Icons.wifi : Icons.wifi_off,
+                    color: isRaspberryPiOn ? Colors.green : Colors.red,
+                  ),
+                ),
+                if (isRaspberryPiOn)
+                  IconButton(
+                    icon: Icon(
+                      isGirlTheme ? Icons.female : Icons.male,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      themeProvider.toggleTheme();
+                      toggleTheme();
+                    },
+                  ),
+              ],
             ),
           ],
         ),
+
         //extendBodyBehindAppBar: true,
         drawer: Theme(
           data: Theme.of(context).copyWith(
