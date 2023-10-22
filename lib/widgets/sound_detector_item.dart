@@ -10,7 +10,9 @@ import 'package:smart_baby_cradle/theme_provider.dart';
 
 class SoundDetectorItem extends StatefulWidget {
   final String sound;
-  const SoundDetectorItem(this.sound, {Key? key}) : super(key: key);
+  final bool isRaspberryPiOn;
+  const SoundDetectorItem(this.sound, this.isRaspberryPiOn, {Key? key})
+      : super(key: key);
   @override
   _SoundDetectorItemState createState() => _SoundDetectorItemState(sound);
 }
@@ -77,10 +79,11 @@ class _SoundDetectorItemState extends State<SoundDetectorItem> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               SizedBox(
-                //width: constraints.maxWidth * 0.7,
-                child: _sound == 'yes'
-                    ? Image.asset('assets/image/listen_on.png')
-                    : Image.asset('assets/image/listen_off.png'),
+                child: widget.isRaspberryPiOn
+                    ? (_sound == 'yes'
+                        ? Image.asset('assets/image/listen_on.png')
+                        : Image.asset('assets/image/listen_off.png'))
+                    : Image.asset('assets/image/sound_dis.png'),
               ),
               const Padding(
                 padding:

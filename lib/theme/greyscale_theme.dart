@@ -17,7 +17,7 @@ final ThemeData greyscaleTheme = ThemeData(
     onBackground: Colors.black,
     onError: Color.fromARGB(255, 171, 18, 18),
     brightness: Brightness.light,
-    inversePrimary: Color.fromRGBO(135, 135, 135, 1),
+    inversePrimary: Color.fromRGBO(187, 187, 187, 1),
     inverseSurface: Color.fromRGBO(111, 111, 111, 1),
     onPrimaryContainer: Color.fromRGBO(130, 130, 130, 1),
     onInverseSurface: Color.fromRGBO(152, 152, 152, 1),

@@ -10,7 +10,12 @@ import 'package:smart_baby_cradle/theme_provider.dart';
 class MotorItem extends StatefulWidget {
   final int run;
   final double level;
-  const MotorItem({Key? key, required this.run, required this.level})
+  final bool isRaspberryPiOn;
+  const MotorItem(
+      {Key? key,
+      required this.run,
+      required this.isRaspberryPiOn,
+      required this.level})
       : super(key: key);
 
   @override
@@ -94,15 +99,20 @@ class MotorItemState extends State<MotorItem> {
                   child: SizedBox(
                     height: 150,
                     width: constraints.maxWidth * 0.65,
-                    child: _buttonStatus == 1
-                        ? Transform.scale(
-                            scale: 1.5,
-                            child: Image.asset('assets/image/motor_on.png'),
-                          )
+                    child: widget.isRaspberryPiOn
+                        ? (_buttonStatus == 1
+                            ? Transform.scale(
+                                scale: 1.5,
+                                child: Image.asset('assets/image/motor_on.png'),
+                              )
+                            : Transform.scale(
+                                scale: 1.5,
+                                child:
+                                    Image.asset('assets/image/motor_off.png'),
+                              ))
                         : Transform.scale(
                             scale: 1.5,
-                            child: Image.asset('assets/image/motor_off.png'),
-                          ),
+                            child: Image.asset('assets/image/motor_dis.png')),
                   ),
                 ),
                 const FittedBox(

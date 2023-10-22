@@ -10,9 +10,13 @@ import 'package:smart_baby_cradle/theme_provider.dart';
 
 class TemperatureItem extends StatefulWidget {
   final double temp;
-  const TemperatureItem(this.temp, {Key? key}) : super(key: key);
+  final bool isRaspberryPiOn;
+
+  const TemperatureItem(this.temp, this.isRaspberryPiOn, {Key? key})
+      : super(key: key);
   @override
-  _TemperatureItemState createState() => _TemperatureItemState(temp);
+  _TemperatureItemState createState() =>
+      _TemperatureItemState(temp, isRaspberryPiOn);
 }
 
 class _TemperatureItemState extends State<TemperatureItem> {
@@ -20,17 +24,20 @@ class _TemperatureItemState extends State<TemperatureItem> {
   StreamSubscription? _subscription;
   static const String directory = 'Status/Temperature';
   double _temp;
+  final bool _isRaspberryPiOn;
 
-  _TemperatureItemState(this._temp);
+  _TemperatureItemState(this._temp, this._isRaspberryPiOn);
 
   Color get tempStatusColor {
-    if (_temp <= 15) {
+    if (!_isRaspberryPiOn) {
+      return Colors.grey;
+    } else if (_temp <= 15) {
       return const Color.fromRGBO(0, 102, 204, 1); // Light Blue
-    } else if (_temp > 15 && _temp <= 20) {
+    } else if (_temp <= 20) {
       return const Color.fromRGBO(255, 204, 0, 1); // Gold/Yellow
-    } else if (_temp > 20 && _temp <= 30) {
+    } else if (_temp <= 30) {
       return Color.fromARGB(255, 8, 230, 41); // Green
-    } else if (_temp > 30 && _temp <= 35) {
+    } else if (_temp <= 35) {
       return const Color.fromRGBO(255, 153, 51, 1); // Orange
     } else {
       return const Color.fromRGBO(204, 0, 0, 1); // Red

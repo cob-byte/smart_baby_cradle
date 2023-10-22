@@ -4,6 +4,9 @@ import '../screens/sleep_analysis_screen.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
 
 class SleepAnalysisItem extends StatelessWidget {
+  final bool isRaspberryPiOn; // New parameter
+
+  SleepAnalysisItem({required this.isRaspberryPiOn}); // Constructor
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -37,8 +40,11 @@ class SleepAnalysisItem extends StatelessWidget {
                       .pushNamed(SleepAnalysisScreen.routeName);
                 },
                 child: SizedBox(
-                  //width: constraints.maxWidth * 0.65,
-                  child: Image.asset('assets/image/sleep_analysis.png'),
+                  child: Image.asset(
+                    isRaspberryPiOn
+                        ? 'assets/image/sleep_analysis.png'
+                        : 'assets/image/sleep_dis.png',
+                  ),
                 ),
               ),
               const Padding(

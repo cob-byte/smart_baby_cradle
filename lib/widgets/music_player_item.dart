@@ -8,8 +8,9 @@ import '../screens/music_player_screen.dart';
 
 class MusicPlayerItem extends StatelessWidget {
   final AssetsAudioPlayer assetsAudioPlayer;
+  final bool isRaspberryPiOn;
 
-  MusicPlayerItem(this.assetsAudioPlayer);
+  MusicPlayerItem(this.assetsAudioPlayer, this.isRaspberryPiOn);
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +44,11 @@ class MusicPlayerItem extends StatelessWidget {
                   Navigator.of(context).pushNamed(MusicPlayerScreen.routeName);
                 },
                 child: SizedBox(
-                  //width: constraints.maxWidth * 0.80,
-                  child: Image.asset('assets/image/babymusic.png'),
+                  child: Image.asset(
+                    isRaspberryPiOn
+                        ? 'assets/image/babymusic.png'
+                        : 'assets/image/music_dis.png',
+                  ),
                 ),
               ),
               const Padding(

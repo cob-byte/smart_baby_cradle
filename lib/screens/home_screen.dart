@@ -167,8 +167,6 @@ class HomeScreenState extends State<HomeScreen> {
                 height: 350, // Adjust the height as needed
               ),
             ),
-
-            // Rest of your content
             FutureBuilder(
               future: _home.getStatusOnce(""),
               builder: (BuildContext context, AsyncSnapshot future) {
@@ -201,14 +199,25 @@ class HomeScreenState extends State<HomeScreen> {
                       MotorItem(
                         run: motor['run'],
                         level: motor['level'].toDouble(),
+                        isRaspberryPiOn: isRaspberryPiOn,
                       ),
-                      FanItem(fan['run'], fan['level'].toDouble()),
-                      TemperatureItem(double.parse(status['Temperature'])),
+                      FanItem(
+                        fan['run'],
+                        fan['level'].toDouble(),
+                        isRaspberryPiOn,
+                      ),
+                      TemperatureItem(
+                        double.parse(status['Temperature']),
+                        isRaspberryPiOn,
+                      ),
                       HumidityItem(double.parse(status['Humidity']) / 100),
-                      SoundDetectorItem(sound['detected']),
-                      const CameraLiveItem(),
-                      MusicPlayerItem(widget.assetsAudioPlayer),
-                      SleepAnalysisItem(),
+                      SoundDetectorItem(sound['detected'], isRaspberryPiOn),
+                      CameraLiveItem(isRaspberryPiOn: isRaspberryPiOn),
+                      MusicPlayerItem(
+                        widget.assetsAudioPlayer,
+                        isRaspberryPiOn,
+                      ),
+                      SleepAnalysisItem(isRaspberryPiOn: isRaspberryPiOn),
                     ],
                   );
                 } else {

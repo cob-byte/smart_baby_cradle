@@ -10,7 +10,9 @@ import 'package:smart_baby_cradle/theme_provider.dart';
 class FanItem extends StatefulWidget {
   final int run;
   final double level;
-  const FanItem(this.run, this.level, {Key? key}) : super(key: key);
+  final bool isRaspberryPiOn;
+  const FanItem(this.run, this.level, this.isRaspberryPiOn, {Key? key})
+      : super(key: key);
   @override
   FanItemState createState() => FanItemState();
 }
@@ -95,15 +97,19 @@ class FanItemState extends State<FanItem> {
                   child: SizedBox(
                     height: 150,
                     width: constraints.maxWidth * 0.65,
-                    child: _buttonStatus == 1
-                        ? Transform.scale(
-                            scale: 1.5, // Adjust the scale factor as needed
-                            child: Image.asset('assets/image/fan_on.png'),
-                          )
+                    child: widget.isRaspberryPiOn
+                        ? (_buttonStatus == 1
+                            ? Transform.scale(
+                                scale: 1.5,
+                                child: Image.asset('assets/image/fan_on.png'),
+                              )
+                            : Transform.scale(
+                                scale: 1.5,
+                                child: Image.asset('assets/image/fan_off.png'),
+                              ))
                         : Transform.scale(
-                            scale: 1.5, // Adjust the scale factor as needed
-                            child: Image.asset('assets/image/fan_off.png'),
-                          ),
+                            scale: 1.5,
+                            child: Image.asset('assets/image/fan_dis.png')),
                   ),
                 ),
                 const Text(

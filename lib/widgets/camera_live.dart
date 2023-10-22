@@ -7,7 +7,10 @@ import '../services/status_service.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
 
 class CameraLiveItem extends StatelessWidget {
-  const CameraLiveItem({Key? key}) : super(key: key);
+  final bool isRaspberryPiOn;
+
+  const CameraLiveItem({Key? key, required this.isRaspberryPiOn})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +44,11 @@ class CameraLiveItem extends StatelessWidget {
                   Navigator.of(context).pushNamed(CameraScreen.routeName);
                 },
                 child: SizedBox(
-                    //width: constraints.maxWidth * 0.65,
-                    child: Image.asset(
-                  'assets/image/livestream.png',
-                )),
+                  //width: constraints.maxWidth * 0.65,
+                  child: isRaspberryPiOn
+                      ? Image.asset('assets/image/livestream.png')
+                      : Image.asset('assets/image/live_dis.png'), // A
+                ),
               ),
               const Padding(
                 padding:
