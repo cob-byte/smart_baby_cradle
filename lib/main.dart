@@ -83,17 +83,16 @@ class _MyAppState extends State<MyApp> {
             title: 'Baby Monitor',
             theme: themeProvider.currentTheme, // Use the selected theme
             home: Wrapper(),
-            routes: {
+            routes: <String, WidgetBuilder>{
               Wrapper.routeName: (ctx) => Wrapper(),
               AuthScreen.routeName: (ctx) => const AuthScreen(),
               HomeScreen.routeName: (ctx) =>
                   HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
               CameraScreen.routeName: (ctx) => const CameraScreen(),
               SleepAnalysisScreen.routeName: (ctx) => SleepAnalysisScreen(),
-              MusicPlayerScreen.routeName: (ctx) => MusicPlayerScreen(
-                    assetsAudioPlayer,
-                  ),
-              SleepScoreScreen.routeName: (ctx) => SleepScoreScreen(),
+              MusicPlayerScreen.routeName: (ctx) =>
+                  MusicPlayerScreen(assetsAudioPlayer),
+              SleepScoreScreen.routeName: (ctx) => SleepScoreScreen(100),
               WakeUpTimesScreen.routeName: (ctx) => WakeUpTimesScreen(),
             },
           );
