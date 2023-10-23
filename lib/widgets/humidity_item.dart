@@ -10,7 +10,8 @@ import 'package:smart_baby_cradle/theme_provider.dart';
 
 class HumidityItem extends StatefulWidget {
   final double humidity;
-  const HumidityItem(this.humidity, {Key? key}) : super(key: key);
+  final bool isRaspberryPiOn;
+  const HumidityItem(this.humidity, this.isRaspberryPiOn, {Key? key}) : super(key: key);
   @override
   HumidityItemState createState() => HumidityItemState();
 }
@@ -22,7 +23,10 @@ class HumidityItemState extends State<HumidityItem> {
   late double _humidityLevel = widget.humidity;
 
   Color get humidityStatus {
-    if (_humidityLevel >= 0.3 && _humidityLevel <= 0.5) {
+    if(widget.isRaspberryPiOn == false){
+      return Colors.grey;
+    }
+    else if (_humidityLevel >= 0.3 && _humidityLevel <= 0.5) {
       return const Color.fromARGB(255, 8, 230, 41);
     } else if ((_humidityLevel >= 0.2 && _humidityLevel < 0.3) ||
         (_humidityLevel > 0.5 && _humidityLevel <= 0.6)) {

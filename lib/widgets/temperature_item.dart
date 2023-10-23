@@ -16,7 +16,7 @@ class TemperatureItem extends StatefulWidget {
       : super(key: key);
   @override
   _TemperatureItemState createState() =>
-      _TemperatureItemState(temp, isRaspberryPiOn);
+      _TemperatureItemState(temp);
 }
 
 class _TemperatureItemState extends State<TemperatureItem> {
@@ -24,12 +24,11 @@ class _TemperatureItemState extends State<TemperatureItem> {
   StreamSubscription? _subscription;
   static const String directory = 'Status/Temperature';
   double _temp;
-  final bool _isRaspberryPiOn;
 
-  _TemperatureItemState(this._temp, this._isRaspberryPiOn);
+  _TemperatureItemState(this._temp);
 
   Color get tempStatusColor {
-    if (!_isRaspberryPiOn) {
+    if (widget.isRaspberryPiOn == false) {
       return Colors.grey;
     } else if (_temp <= 15) {
       return const Color.fromRGBO(0, 102, 204, 1); // Light Blue

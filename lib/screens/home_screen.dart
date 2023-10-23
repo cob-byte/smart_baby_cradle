@@ -210,7 +210,7 @@ class HomeScreenState extends State<HomeScreen> {
                         double.parse(status['Temperature']),
                         isRaspberryPiOn,
                       ),
-                      HumidityItem(double.parse(status['Humidity']) / 100),
+                      HumidityItem(double.parse(status['Humidity']) / 100, isRaspberryPiOn),
                       SoundDetectorItem(sound['detected'], isRaspberryPiOn),
                       CameraLiveItem(isRaspberryPiOn: isRaspberryPiOn),
                       MusicPlayerItem(
