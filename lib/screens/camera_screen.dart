@@ -48,6 +48,25 @@ class CameraScreenState extends State<CameraScreen> {
         onWebViewCreated: (InAppWebViewController webViewController) {
           _controller.complete(webViewController);
         },
+        onLoadError: (controller, url, code, message) {
+          // Show dialog when an error occurs.
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Camera Livestream Not Found'),
+              content: Text('Please reboot the device or check your internet connection.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Go Back'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

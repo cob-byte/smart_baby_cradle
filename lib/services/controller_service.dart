@@ -10,6 +10,8 @@ class ControllerService {
   Future<StreamSubscription<DatabaseEvent>> getStatusStream(String directory , Function(DatabaseEvent event) onData) async {
     StreamSubscription<DatabaseEvent> subscription = database
         .ref()
+        .child("devices")
+        .child("202010377")
         .child(directory)
         .onValue
         .listen((DatabaseEvent event) {
@@ -24,6 +26,8 @@ class ControllerService {
 
     FirebaseDatabase.instance
         .ref()
+        .child("devices")
+        .child("202010377")
         .child(directory)
         .once()
         .then((DataSnapshot snapshot) {
@@ -35,7 +39,7 @@ class ControllerService {
 
 
   Future<void> updateItem(String directory ,int status,double level)async{
-     await database.ref().child(directory).update({
+     await database.ref().child("devices").child("202010377").child(directory).update({
       'level': level.toInt(),
       'run': status,
     });

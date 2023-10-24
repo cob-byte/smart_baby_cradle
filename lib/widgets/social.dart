@@ -88,29 +88,6 @@ class Social extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         GestureDetector(
-          onTap: () {
-            Authentication.signInWithFacebook();
-          },
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 226, 165, 104),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: Icon(
-                FontAwesomeIcons.facebookF,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          width: 10,
-        ),
-        GestureDetector(
           onTap: () async {
             User? user =
                 await Authentication.signInWithGoogle(context: context);

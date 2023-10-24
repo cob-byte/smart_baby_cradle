@@ -24,7 +24,8 @@ class FanItemState extends State<FanItem> {
   late int _buttonStatus;
   late double _sliderValue;
   String _sliderLabel = "Low";
-  bool _isManualMode = false; // Added to track manual/auto mode.
+  bool _isManualMode = true; // Added to track manual/auto mode.
+  late DatabaseReference _autoModeRef;
 
   @override
   void initState() {
@@ -34,6 +35,8 @@ class FanItemState extends State<FanItem> {
     _fanController
         .getStatusStream(directory, _onFanChange)
         .then((StreamSubscription s) => _subscription = s);
+
+    _autoModeRef = FirebaseDatabase.instance.ref().child("devices/202010377/Fan/auto");
   }
 
   @override
@@ -84,7 +87,7 @@ class FanItemState extends State<FanItem> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 GestureDetector(
-                  onTap: () {
+                  onTap: _isManualMode ? () {
                     if (_buttonStatus == 1) {
                       _buttonStatus = 0;
                     } else {
@@ -93,7 +96,7 @@ class FanItemState extends State<FanItem> {
                     _fanController.updateItem(
                         directory, _buttonStatus, _sliderValue);
                     setState(() {});
-                  },
+                  }: null,
                   child: SizedBox(
                     height: 150,
                     width: constraints.maxWidth * 0.65,
@@ -125,6 +128,13 @@ class FanItemState extends State<FanItem> {
                   onPressed: () {
                     setState(() {
                       _isManualMode = !_isManualMode;
+                      // Update Motor/auto in the database based on _isManualMode
+                      _autoModeRef.set(!_isManualMode); // Set Motor/auto to _isManualMode
+                      if (_isManualMode) {
+                        // If switching to manual mode, set Fan/run to 0
+                        _fanController.updateItem(directory, 0, _sliderValue);
+                        _buttonStatus = 0; // Update the local button status
+                      }
                     });
                   },
                   style: ElevatedButton.styleFrom(

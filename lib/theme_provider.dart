@@ -23,7 +23,7 @@ class ThemeProvider extends ChangeNotifier {
   void setRaspberryPiStatus(bool isOn) {
     isRaspberryPiOn = isOn;
     if (isRaspberryPiOn) {
-      currentTheme = currentTheme == girlTheme ? boyTheme : girlTheme;
+      currentTheme = getTheme();
     } else {
       currentTheme = greyscaleTheme;
     }

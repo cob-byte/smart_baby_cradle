@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_baby_cradle/theme/boy_theme.dart';
+import 'package:smart_baby_cradle/theme/girl_theme.dart';
 
 import '../services/auth_service.dart';
 import './wrapper.dart';
@@ -15,11 +17,12 @@ class AppDrawer extends StatelessWidget {
   final AuthService auth = AuthService();
   final musicService = MusicService();
   final AssetsAudioPlayer assetsAudioPlayer;
+  final bool isRaspberryPiOn;
 
   AppDrawer(
-    this.assetsAudioPlayer, {
-    Key? key,
-  }) : super(key: key);
+      this.assetsAudioPlayer,
+      this.isRaspberryPiOn,
+      );
 
   get style => null;
 
@@ -52,24 +55,30 @@ class AppDrawer extends StatelessWidget {
                 .pushReplacementNamed(HomeScreen.routeName),
           ),
           const Divider(color: Colors.white),
-          ListTile(
-            leading: const Icon(Icons.camera_alt, color: Colors.white),
-            title: const Text(
-              'Camera',
-              style: TextStyle(color: Colors.white),
+          IgnorePointer(
+            ignoring: !isRaspberryPiOn, // Set to true if isRaspberryPiOn is false
+            child: ListTile(
+              leading: const Icon(Icons.camera_alt, color: Colors.white),
+              title: const Text(
+                'Camera',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () =>
+                  Navigator.of(context).pushNamed(CameraScreen.routeName),
             ),
-            onTap: () =>
-                Navigator.of(context).pushNamed(CameraScreen.routeName),
           ),
           const Divider(color: Colors.white),
-          ListTile(
-            leading: const Icon(Icons.queue_music, color: Colors.white),
-            title: const Text(
-              'Music Player',
-              style: TextStyle(color: Colors.white),
+          IgnorePointer(
+            ignoring: !isRaspberryPiOn, // Set to true if isRaspberryPiOn is false
+            child: ListTile(
+              leading: const Icon(Icons.queue_music, color: Colors.white),
+              title: const Text(
+                'Music Player',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () => Navigator.of(context)
+                  .pushReplacementNamed(MusicPlayerScreen.routeName),
             ),
-            onTap: () => Navigator.of(context)
-                .pushReplacementNamed(MusicPlayerScreen.routeName),
           ),
           const Divider(color: Colors.white),
           ListTile(
@@ -84,6 +93,7 @@ class AppDrawer extends StatelessWidget {
                 assetsAudioPlayer.pause();
                 musicService.updateFirebasePause(false);
               }
+              themeProvider.currentTheme = girlTheme;
               auth.signOut().then((_) {
                 Navigator.of(context).pushReplacementNamed(Wrapper.routeName);
               });
@@ -99,10 +109,16 @@ class AppDrawer extends StatelessWidget {
                 child: Opacity(
                   opacity:
                       0.8, // Adjust the opacity value between 0.0 (completely transparent) and 1.0 (fully visible)
-                  child: Image.asset(
-                    'assets/image/bg_cradle.png', // Replace with your image path
-                    width: 300, // Adjust the width as needed
-                    height: 300, // Adjust the height as needed
+                  child: isRaspberryPiOn
+                      ? Image.asset(
+                    'assets/image/cradle_bg.png',
+                    width: 400,
+                    height: 350,
+                  )
+                      : Image.asset(
+                    'assets/image/bg_off.png',
+                    width: 400,
+                    height: 350,
                   ),
                 ),
               ),

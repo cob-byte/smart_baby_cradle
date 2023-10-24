@@ -20,6 +20,7 @@ class AuthCardState extends State<AuthCard>
   final Map<String, String> _authData = {
     'email': '',
     'password': '',
+    'deviceID': '',
   };
   var _isLoading = false;
   final _passwordController = TextEditingController();
@@ -87,8 +88,15 @@ class AuthCardState extends State<AuthCard>
         await _auth.signInWithEmailAndPassword(
             _authData['email']!, _authData['password']!);
       } else {
-        await _auth.registerWithEmailAndPassword(
-            _authData['email']!, _authData['password']!);
+        // Check if the deviceID already exists in the "devices" node
+        final deviceIDExists = await _auth.checkDeviceIDExists(_authData['deviceID']!);
+        if (deviceIDExists) {
+          await _auth.registerWithEmailAndPassword(
+              _authData['email']!, _authData['password']!);
+          await _auth.saveDeviceID(_authData['deviceID']!);
+        } else {
+          _showError('Device ID Does Not Exist', 'Please try again with a valid Device ID.');
+        }
       }
       setState(() {
         _isLoading = false;
@@ -221,12 +229,16 @@ class AuthCardState extends State<AuthCard>
                             const InputDecoration(labelText: 'Device ID'),
                         validator: _authMode == AuthMode.signUp
                             ? (value) {
-                                if (value != "Baby2020") {
-                                  return 'Please Enter a valid device ID';
-                                }
-                                return null;
-                              }
-                            : null,
+                          if (value!.isEmpty) {
+                            return 'Device ID is required';
+                          }
+                          return null;
+                        }: null,
+                        onSaved: (value) {
+                          if (value != null) {
+                            _authData['deviceID'] = value;
+                          }
+                        },
                       ),
                     ),
                   ),

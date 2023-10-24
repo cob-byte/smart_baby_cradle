@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:provider/provider.dart';
 
+import '../theme/greyscale_theme.dart';
 import '../widgets/app_drawer.dart';
 import '../services/music_service.dart';
 import '../theme/boy_theme.dart';
@@ -30,6 +33,10 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
   bool isPause = true;
   bool isMuted = false;
   double volume = 0.3; // Initialize with a default value
+  late DatabaseReference _timestampRef;
+  bool isRaspberryPiOn = true;
+  late ThemeProvider themeProvider;
+  Timer? _timer;
   final musicService = MusicService();
 
   AssetsAudioPlayer get assetsAudioPlayer => widget.assetsAudioPlayer;
@@ -158,6 +165,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
           ),
           child: AppDrawer(
             assetsAudioPlayer,
+            isRaspberryPiOn,
           ),
         ),
         body: SingleChildScrollView(

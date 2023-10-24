@@ -2,9 +2,8 @@ import 'package:firebase_database/firebase_database.dart';
 
 class MusicService{
 
-
   final DatabaseReference database =
-      FirebaseDatabase.instance.ref().child('Music');
+      FirebaseDatabase.instance.ref().child("devices").child("202010377").child("Music");
 
   Future<String?> getFirebaseVolume() async {
     DatabaseEvent event = await database.child('volume').once();
