@@ -32,9 +32,8 @@ class WakeUpTimesScreen extends StatelessWidget {
       body: Stack(
         alignment: Alignment.center,
         children: [
-          // Set the background image
           Image.asset(
-            'assets/image/night-background.png',
+            'assets/image/night-bg.png',
             fit: BoxFit.cover,
           ),
           SingleChildScrollView(

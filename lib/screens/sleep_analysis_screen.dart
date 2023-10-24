@@ -47,109 +47,112 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Sleep Analysis'),
         backgroundColor: Colors.transparent,
-        elevation: 0, // Remove the app bar shadow
+        elevation: 0,
       ),
       extendBodyBehindAppBar: true,
-      body: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            // Set the background image
-            Image.asset(
-              'assets/image/night-background.png',
-              fit: BoxFit.cover,
-            ),
-            Positioned(
-              top: MediaQuery.of(context).size.height * 0.03,
-              child: Container(
-                padding: EdgeInsets.all(90),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Hello, Parent',
-                      style: TextStyle(
-                        fontFamily: 'Regular',
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    FutureBuilder<String>(
-                      future: _getCurrentDateAndDay(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Container();
-                        } else {
-                          return Text(
-                            'Today is ${snapshot.data}',
-                            style: TextStyle(
-                              fontFamily: 'Medium',
-                              fontSize: 14,
-                              color: Colors.white,
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/image/night-background.png'),
+                fit: BoxFit.cover,
               ),
             ),
-            Positioned(
-              top: 190,
-              left: 20,
-              right: 20,
-              child: Column(
+          ),
+          Positioned(
+            top: 100,
+            left: 20,
+            right: 20,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 10), // Add left padding here
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Current Time:',
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  color: Colors.white.withOpacity(0.7),
-                                ),
-                              ),
-                              Text(
-                                _currentTime,
-                                style: TextStyle(
-                                  fontSize: 60,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Image.asset(
-                          'assets/image/moon element.png',
-                          height: 130,
-                          width: 130,
-                        ),
-                      ],
+                  Text(
+                    'Hello, Parent',
+                    style: TextStyle(
+                      fontFamily: 'Regular',
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  FutureBuilder<String>(
+                    future: _getCurrentDateAndDay(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container();
+                      } else {
+                        return Text(
+                          'Today is ${snapshot.data}',
+                          style: TextStyle(
+                            fontFamily: 'Medium',
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ]),
+          ),
+          const SizedBox(height: 20),
+          Positioned(
+            top: 310,
+            left: 20,
+            right: 20,
+            child: Column(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'Current Time:',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: const Color.fromARGB(255, 0, 0, 0)
+                                    .withOpacity(1),
+                              ),
+                            ),
+                            Text(
+                              _currentTime,
+                              style: const TextStyle(
+                                fontSize: 60,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Image.asset(
+                        'assets/image/moon element.png',
+                        height: 130,
+                        width: 130,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 5),
+                SizedBox(
+                  //width: MediaQuery.of(context).size.width -
+                  //70, // Match the width of the Positioned widget
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       InkWell(
                         onTap: () {
@@ -169,27 +172,17 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 80),
-                  InkWell(
-                    onTap: () {
-                      // Add functionality for the button tap
-                      // For example, navigate to another screen or perform an action
-                    },
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 20,
-                      child: Icon(
-                        Icons.keyboard_double_arrow_up_rounded,
-                        color: Colors.black,
-                        size: 25,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                Column(
+                  children: <Widget>[
+                    _buildNonClickableCard('Sleep Information'),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -197,51 +190,161 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
   Widget _buildCardWithIcon(String title, String subtitle, IconData icon) {
     return Column(
       children: <Widget>[
-        SizedBox(height: 20), // Add spacing between cards
         Card(
           elevation: 5,
+          color: Colors.white.withOpacity(0.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: Container(
-            height: 150,
-            width: 120,
+            height: MediaQuery.of(context).size.height * 0.20,
+            width: 168,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withOpacity(0.7),
               borderRadius: BorderRadius.circular(10.0),
             ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(
-                    icon,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  icon,
+                  color: Colors.black,
+                  size: 40,
+                ),
+                //const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'Medium',
                     color: Colors.black,
-                    size: 36,
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'Medium',
-                      color: Colors.black,
-                    ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'Medium',
+                    color: Colors.black,
                   ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'Medium',
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildNonClickableCard(String content) {
+    return Card(
+      elevation: 5,
+      color: Colors.white.withOpacity(0.7),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: const Column(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.airline_seat_flat_angled_rounded, size: 30),
+                    SizedBox(width: 8), // Icon for sleep duration
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '3 h and 31 m',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text('Deep Sleep'),
+                      ],
+                    ),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.nightlight_round, size: 30),
+                    SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '1 h and 25 m',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text('Fell Asleep'),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 16.0), // Add some vertical spacing
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.airline_seat_individual_suite_rounded, size: 30),
+                    SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          '9 : 00 P.M',
+                          style: TextStyle(
+                            fontSize: 18, // Adjust the font size as desired
+                            fontWeight: FontWeight.bold, // Make the text bold
+                          ),
+                        ),
+                        Text('Went to Bed'),
+                      ],
+                    ),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.accessibility_rounded, size: 30),
+                    SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          '3 h and 31 m',
+                          style: TextStyle(
+                            fontSize: 18, // Adjust the font size as desired
+                            fontWeight: FontWeight.bold, // Make the text bold
+                          ),
+                        ),
+                        Text('Wake Up'),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

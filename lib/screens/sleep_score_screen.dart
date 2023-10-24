@@ -90,7 +90,7 @@ class SleepScoreScreen extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/image/night-background.png'),
+            image: AssetImage('assets/image/night-bg.png'),
             fit: BoxFit.cover,
           ),
         ),
