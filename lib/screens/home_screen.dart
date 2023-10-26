@@ -357,6 +357,63 @@ class HomeScreenState extends State<HomeScreen> {
           FirebaseDatabase.instance.ref().child("devices").child(deviceID!);
       _timestampRef = _rootRef.child("timestamp");
 
+      _timestampRef.once().then((DatabaseEvent event) async {
+        DataSnapshot snapshot = event.snapshot;
+        if (snapshot.value != null) {
+          int currentTimestamp = snapshot.value as int;
+          DateTime currentDateTime = DateTime.now();
+          DateTime timestampDateTime = DateTime.fromMillisecondsSinceEpoch(
+              currentTimestamp * 1000);
+
+          int timeDiff = currentDateTime
+              .difference(timestampDateTime)
+              .inSeconds;
+
+          if (timeDiff > 20) {
+            // Raspberry Pi is considered offline
+            if (mounted) {
+              setState(() {
+                isRaspberryPiOn = false;
+                themeProvider.setRaspberryPiStatus(isRaspberryPiOn);
+              });
+            }
+
+            // Update the values for 'Fan', 'Motor', 'Music', and 'Sound Detection'
+            await _rootRef.child("Fan").update({
+              "level": 1,
+              "run": 0,
+              "auto": false,
+            });
+
+            await _rootRef.child("Motor").update({
+              "level": 1,
+              "run": 0,
+            });
+
+            await _rootRef.child("Music").update({
+              "song": 1,
+              "pause": true,
+              "isLooping": false,
+            });
+
+            await _rootRef.child("Sound Detection").update({
+              "detected": "no",
+            });
+          } else {
+            // Raspberry Pi is online
+            if (mounted) {
+              setState(() {
+                isRaspberryPiOn = true;
+                themeProvider.setRaspberryPiStatus(isRaspberryPiOn);
+                if(themeProvider.currentTheme == greyscaleTheme){
+                  themeProvider.currentTheme = girlTheme;
+                }
+              });
+            }
+          }
+        }
+      });
+
       // Periodically check the timestamp and determine Raspberry Pi status
       _timer = Timer.periodic(Duration(seconds: 5), (timer) {
         _timestampRef.once().then((DatabaseEvent event) async {
