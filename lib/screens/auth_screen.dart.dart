@@ -50,75 +50,68 @@ class AuthScreenState extends State<AuthScreen> {
                 height: deviceSize.height * 0.5,
               ),
             ),
-            SingleChildScrollView(
-              child: SizedBox(
-                height: deviceSize.height,
-                width: deviceSize.width,
-                child: ListView(
+            ListView(
+              children: <Widget>[
+                HeaderLogo(deviceSize),
+                const AuthCard(),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    HeaderLogo(deviceSize),
-                    const AuthCard(),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          color: Colors.black,
-                          height: 2,
-                          width: deviceSize.width * 0.2,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        const Text(
-                          'Login with',
-                          style: TextStyle(
-                            fontFamily: 'Medium',
-                            fontSize: 15,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Container(
-                          width: deviceSize.width * 0.2,
-                          color: Colors.black,
-                          height: 2,
-                        )
-                      ],
+                    Container(
+                      color: Colors.black,
+                      height: 2,
+                      width: deviceSize.width * 0.2,
                     ),
                     const SizedBox(
-                      height: 25,
+                      width: 10,
                     ),
-                    const Social(),
-                    TextButton(
-                      onPressed: () {
-                        themeProvider.toggleTheme(); // Toggle the theme
-                      },
-                      child: Column(
-                        children: [
-                          themeProvider.currentTheme == boyTheme
-                              ? Image.asset(
-                                  'assets/image/boy_icon (1).png',
-                                  width: 120,
-                                  height: 120,
-                                )
-                              : Image.asset(
-                                  'assets/image/girl_icon (1).png',
-                                  width: 120,
-                                  height: 120,
-                                ),
-                        ],
+                    const Text(
+                      'Login with',
+                      style: TextStyle(
+                        fontFamily: 'Medium',
+                        fontSize: 15,
+                        color: Colors.black,
                       ),
                     ),
-                    const Spacer()
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Container(
+                      width: deviceSize.width * 0.2,
+                      color: Colors.black,
+                      height: 2,
+                    )
                   ],
                 ),
-              ),
-            ),
+                const SizedBox(
+                  height: 25,
+                ),
+                const Social(),
+                TextButton(
+                  onPressed: () {
+                    themeProvider.toggleTheme(); // Toggle the theme
+                  },
+                  child: Column(
+                    children: [
+                      themeProvider.currentTheme == boyTheme
+                          ? Image.asset(
+                        'assets/image/boy_icon (1).png',
+                        width: 120,
+                        height: 120,
+                      )
+                          : Image.asset(
+                        'assets/image/girl_icon (1).png',
+                        width: 120,
+                        height: 120,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),

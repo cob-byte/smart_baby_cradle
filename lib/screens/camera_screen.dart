@@ -33,7 +33,7 @@ class CameraScreenState extends State<CameraScreen> {
       ),
       body: InAppWebView(
         initialUrlRequest: URLRequest(
-          url: Uri.parse('http://192.168.254.183:8888/index.html'),
+          url: Uri.parse('http://192.168.254.183:8888/'),
         ),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
@@ -66,6 +66,9 @@ class CameraScreenState extends State<CameraScreen> {
               ],
             ),
           );
+        },
+        onReceivedServerTrustAuthRequest: (controller, challenge) async {
+          return ServerTrustAuthResponse(action: ServerTrustAuthResponseAction.PROCEED);
         },
       ),
     );

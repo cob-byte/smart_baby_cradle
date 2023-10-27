@@ -390,11 +390,6 @@ class HomeScreenState extends State<HomeScreen> {
               "run": 0,
             });
 
-            await _rootRef.child("Music").update({
-              "song": 1,
-              "pause": true,
-              "isLooping": false,
-            });
 
             await _rootRef.child("Sound Detection").update({
               "detected": "no",
@@ -447,12 +442,6 @@ class HomeScreenState extends State<HomeScreen> {
               await _rootRef.child("Motor").update({
                 "level": 1,
                 "run": 0,
-              });
-
-              await _rootRef.child("Music").update({
-                "song": 1,
-                "pause": true,
-                "isLooping": false,
               });
 
               await _rootRef.child("Sound Detection").update({
