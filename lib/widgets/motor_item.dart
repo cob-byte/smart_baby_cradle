@@ -13,9 +13,9 @@ class MotorItem extends StatefulWidget {
   final bool isRaspberryPiOn;
   const MotorItem(
       {Key? key,
-      required this.run,
-      required this.isRaspberryPiOn,
-      required this.level})
+        required this.run,
+        required this.isRaspberryPiOn,
+        required this.level})
       : super(key: key);
 
   @override
@@ -51,9 +51,9 @@ class MotorItemState extends State<MotorItem> {
   _onMotorChange(DatabaseEvent event) {
     setState(() {
       Map<dynamic, dynamic> snapshotValue =
-          event.snapshot.value as Map<dynamic, dynamic>;
+      event.snapshot.value as Map<dynamic, dynamic>;
       _buttonStatus = snapshotValue['run'];
-      _sliderValue = (snapshotValue['level']).toDouble();
+      //_sliderValue = (snapshotValue['level']).toDouble();
     });
   }
 
@@ -70,14 +70,12 @@ class MotorItemState extends State<MotorItem> {
             borderRadius: BorderRadius.circular(15),
             border: Border.all(),
             boxShadow: [
-              // Add box shadow here
               BoxShadow(
                 color: Color.fromARGB(255, 106, 106, 106)
-                    .withOpacity(0.5), // Shadow color
-                spreadRadius: 2, // Spread radius
-                blurRadius: 5, // Blur radius
-                offset:
-                    Offset(0, 3), // Offset in the positive direction of y-axis
+                    .withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3),
               ),
             ],
           ),
@@ -97,22 +95,22 @@ class MotorItemState extends State<MotorItem> {
                     setState(() {});
                   },
                   child: SizedBox(
-                    height: 150,
+                    height: 200,
                     width: constraints.maxWidth * 0.65,
                     child: widget.isRaspberryPiOn
                         ? (_buttonStatus == 1
-                            ? Transform.scale(
-                                scale: 1.5,
-                                child: Image.asset('assets/image/motor_on.png'),
-                              )
-                            : Transform.scale(
-                                scale: 1.5,
-                                child:
-                                    Image.asset('assets/image/motor_off.png'),
-                              ))
+                        ? Transform.scale(
+                      scale: 1.5,
+                      child: Image.asset('assets/image/motor_on.png'),
+                    )
                         : Transform.scale(
-                            scale: 1.5,
-                            child: Image.asset('assets/image/motor_dis.png')),
+                      scale: 1.5,
+                      child:
+                      Image.asset('assets/image/motor_off.png'),
+                    ))
+                        : Transform.scale(
+                        scale: 1.5,
+                        child: Image.asset('assets/image/motor_dis.png')),
                   ),
                 ),
                 const FittedBox(
@@ -126,39 +124,9 @@ class MotorItemState extends State<MotorItem> {
                     ),
                   ),
                 ),
-                SliderTheme(
-                  data: SliderThemeData(
-                    activeTrackColor: currentTheme.colorScheme
-                        .primary, // Active/Filled part of the slider
-                    inactiveTrackColor: Color.fromARGB(255, 255, 255,
-                        254), // Inactive/Unfilled part. of the slider
-                    thumbColor: currentTheme
-                        .colorScheme.onError, // The circle that you drag
-                    valueIndicatorColor: Color.fromARGB(255, 36, 2,
-                        2), // Color of the value indicator (the tooltip)
-                  ),
-                  child: Slider(
-                    min: 1.0,
-                    max: 3.0,
-                    value: _sliderValue,
-                    onChanged: (newValue) {
-                      setState(() {
-                        _sliderValue = newValue;
-                        if (_sliderValue == 1.0) {
-                          _sliderLabel = "Low";
-                        } else if (_sliderValue > 1.0 && _sliderValue <= 2.0) {
-                          _sliderLabel = "Medium";
-                        } else if (_sliderValue > 2.0 && _sliderValue <= 3.0) {
-                          _sliderLabel = "High";
-                        }
-                      });
-                      _motorController.updateItem(
-                          directory, _buttonStatus, _sliderValue);
-                    },
-                    divisions: 2,
-                    label: _sliderLabel,
-                  ),
-                ),
+                SizedBox(height: 10),
+                /*SliderTheme(
+                ),*/
               ],
             ),
           ),
