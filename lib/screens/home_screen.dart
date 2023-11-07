@@ -90,7 +90,8 @@ class HomeScreenState extends State<HomeScreen> {
                         validationMessage = 'Device ID is required';
                       });
                     } else {
-                      final deviceIDExists = await auth.checkDeviceIDExists(controller.text.trim());
+                      final deviceIDExists = await auth
+                          .checkDeviceIDExists(controller.text.trim());
                       if (deviceIDExists) {
                         auth.saveDeviceID(controller.text.trim());
                         Navigator.of(ctx).pop();
@@ -109,9 +110,9 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ),
       );
-    }
-    else{
-      _rootRef = FirebaseDatabase.instance.ref().child("devices").child(deviceID!);
+    } else {
+      _rootRef =
+          FirebaseDatabase.instance.ref().child("devices").child(deviceID!);
       _timestampRef = _rootRef.child("timestamp");
     }
   }
@@ -221,10 +222,7 @@ class HomeScreenState extends State<HomeScreen> {
           data: Theme.of(context).copyWith(
             canvasColor: currentTheme.colorScheme.onInverseSurface,
           ),
-          child: AppDrawer(
-            assetsAudioPlayer,
-            isRaspberryPiOn
-          ),
+          child: AppDrawer(assetsAudioPlayer, isRaspberryPiOn),
         ),
         body: Stack(
           children: [
@@ -249,15 +247,15 @@ class HomeScreenState extends State<HomeScreen> {
               right: -100, // Adjust the position as needed
               child: isRaspberryPiOn
                   ? Image.asset(
-                'assets/image/cradle_bg.png',
-                width: 400,
-                height: 350,
-              )
+                      'assets/image/cradle_bg.png',
+                      width: 400,
+                      height: 350,
+                    )
                   : Image.asset(
-                'assets/image/bg_off.png',
-                width: 400,
-                height: 350,
-              ),
+                      'assets/image/bg_off.png',
+                      width: 400,
+                      height: 350,
+                    ),
             ),
             FutureBuilder(
               future: _home.getStatusOnce(_rootRef, ""),
@@ -285,55 +283,59 @@ class HomeScreenState extends State<HomeScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 10,
-                      childAspectRatio: 1 / 1.28,
+                      childAspectRatio: 1 / 1.3,
                     ),
                     children: <Widget>[
-                    IgnorePointer(
-                      ignoring: !isRaspberryPiOn,
-                      child: MotorItem(
-                        run: motor['run'],
-                        level: motor['level'].toDouble(),
-                        isRaspberryPiOn: isRaspberryPiOn,
+                      IgnorePointer(
+                        ignoring: !isRaspberryPiOn,
+                        child: MotorItem(
+                          run: motor['run'],
+                          level: motor['level'].toDouble(),
+                          isRaspberryPiOn: isRaspberryPiOn,
+                        ),
                       ),
-                    ),
-                    IgnorePointer(
-                      ignoring: !isRaspberryPiOn,
-                      child: FanItem(
-                        fan['run'],
-                        fan['level'].toDouble(),
-                        isRaspberryPiOn,
+                      IgnorePointer(
+                        ignoring: !isRaspberryPiOn,
+                        child: FanItem(
+                          fan['run'],
+                          fan['level'].toDouble(),
+                          isRaspberryPiOn,
+                        ),
                       ),
-                    ),
-                    IgnorePointer(
-                      ignoring: !isRaspberryPiOn,
-                      child: TemperatureItem(
-                        double.parse(status['Temperature']),
-                        isRaspberryPiOn,
+                      IgnorePointer(
+                        ignoring: !isRaspberryPiOn,
+                        child: TemperatureItem(
+                          double.parse(status['Temperature']),
+                          isRaspberryPiOn,
+                        ),
                       ),
-                    ),
-                    IgnorePointer(
-                      ignoring: !isRaspberryPiOn,
-                      child: HumidityItem(double.parse(status['Humidity']) / 100, isRaspberryPiOn),
-                    ),
-                    IgnorePointer(
-                      ignoring: !isRaspberryPiOn,
-                      child: SoundDetectorItem(sound['detected'], isRaspberryPiOn),
-                    ),
-                    IgnorePointer(
-                     ignoring: !isRaspberryPiOn,
-                      child: CameraLiveItem(isRaspberryPiOn: isRaspberryPiOn),
-                    ),
-                    IgnorePointer(
-                      ignoring: !isRaspberryPiOn,
-                      child: MusicPlayerItem(
+                      IgnorePointer(
+                        ignoring: !isRaspberryPiOn,
+                        child: HumidityItem(
+                            double.parse(status['Humidity']) / 100,
+                            isRaspberryPiOn),
+                      ),
+                      IgnorePointer(
+                        ignoring: !isRaspberryPiOn,
+                        child: SoundDetectorItem(
+                            sound['detected'], isRaspberryPiOn),
+                      ),
+                      IgnorePointer(
+                        ignoring: !isRaspberryPiOn,
+                        child: CameraLiveItem(isRaspberryPiOn: isRaspberryPiOn),
+                      ),
+                      IgnorePointer(
+                        ignoring: !isRaspberryPiOn,
+                        child: MusicPlayerItem(
                           widget.assetsAudioPlayer,
                           isRaspberryPiOn,
                         ),
-                    ),
-                    IgnorePointer(
-                      ignoring: !isRaspberryPiOn,
-                      child: SleepAnalysisItem(isRaspberryPiOn: isRaspberryPiOn),
-                    ),
+                      ),
+                      IgnorePointer(
+                        ignoring: !isRaspberryPiOn,
+                        child:
+                            SleepAnalysisItem(isRaspberryPiOn: isRaspberryPiOn),
+                      ),
                     ],
                   );
                 } else {
@@ -362,12 +364,11 @@ class HomeScreenState extends State<HomeScreen> {
         if (snapshot.value != null) {
           int currentTimestamp = snapshot.value as int;
           DateTime currentDateTime = DateTime.now();
-          DateTime timestampDateTime = DateTime.fromMillisecondsSinceEpoch(
-              currentTimestamp * 1000);
+          DateTime timestampDateTime =
+              DateTime.fromMillisecondsSinceEpoch(currentTimestamp * 1000);
 
-          int timeDiff = currentDateTime
-              .difference(timestampDateTime)
-              .inSeconds;
+          int timeDiff =
+              currentDateTime.difference(timestampDateTime).inSeconds;
 
           if (timeDiff > 20) {
             // Raspberry Pi is considered offline
@@ -390,7 +391,6 @@ class HomeScreenState extends State<HomeScreen> {
               "run": 0,
             });
 
-
             await _rootRef.child("Sound Detection").update({
               "detected": "no",
             });
@@ -400,7 +400,7 @@ class HomeScreenState extends State<HomeScreen> {
               setState(() {
                 isRaspberryPiOn = true;
                 themeProvider.setRaspberryPiStatus(isRaspberryPiOn);
-                if(themeProvider.currentTheme == greyscaleTheme){
+                if (themeProvider.currentTheme == greyscaleTheme) {
                   themeProvider.currentTheme = girlTheme;
                 }
               });
@@ -416,12 +416,11 @@ class HomeScreenState extends State<HomeScreen> {
           if (snapshot.value != null) {
             int currentTimestamp = snapshot.value as int;
             DateTime currentDateTime = DateTime.now();
-            DateTime timestampDateTime = DateTime.fromMillisecondsSinceEpoch(
-                currentTimestamp * 1000);
+            DateTime timestampDateTime =
+                DateTime.fromMillisecondsSinceEpoch(currentTimestamp * 1000);
 
-            int timeDiff = currentDateTime
-                .difference(timestampDateTime)
-                .inSeconds;
+            int timeDiff =
+                currentDateTime.difference(timestampDateTime).inSeconds;
 
             if (timeDiff > 20) {
               // Raspberry Pi is considered offline
@@ -453,7 +452,7 @@ class HomeScreenState extends State<HomeScreen> {
                 setState(() {
                   isRaspberryPiOn = true;
                   themeProvider.setRaspberryPiStatus(isRaspberryPiOn);
-                  if(themeProvider.currentTheme == greyscaleTheme){
+                  if (themeProvider.currentTheme == greyscaleTheme) {
                     themeProvider.currentTheme = girlTheme;
                   }
                 });

@@ -36,7 +36,8 @@ class FanItemState extends State<FanItem> {
         .getStatusStream(directory, _onFanChange)
         .then((StreamSubscription s) => _subscription = s);
 
-    _autoModeRef = FirebaseDatabase.instance.ref().child("devices/202010377/Fan/auto");
+    _autoModeRef =
+        FirebaseDatabase.instance.ref().child("devices/202010377/Fan/auto");
   }
 
   @override
@@ -87,18 +88,20 @@ class FanItemState extends State<FanItem> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 GestureDetector(
-                  onTap: _isManualMode ? () {
-                    if (_buttonStatus == 1) {
-                      _buttonStatus = 0;
-                    } else {
-                      _buttonStatus = 1;
-                    }
-                    _fanController.updateItem(
-                        directory, _buttonStatus, _sliderValue);
-                    setState(() {});
-                  }: null,
+                  onTap: _isManualMode
+                      ? () {
+                          if (_buttonStatus == 1) {
+                            _buttonStatus = 0;
+                          } else {
+                            _buttonStatus = 1;
+                          }
+                          _fanController.updateItem(
+                              directory, _buttonStatus, _sliderValue);
+                          setState(() {});
+                        }
+                      : null,
                   child: SizedBox(
-                    height: 150,
+                    height: 161,
                     width: constraints.maxWidth * 0.65,
                     child: widget.isRaspberryPiOn
                         ? (_buttonStatus == 1
@@ -129,7 +132,8 @@ class FanItemState extends State<FanItem> {
                     setState(() {
                       _isManualMode = !_isManualMode;
                       // Update Motor/auto in the database based on _isManualMode
-                      _autoModeRef.set(!_isManualMode); // Set Motor/auto to _isManualMode
+                      _autoModeRef.set(
+                          !_isManualMode); // Set Motor/auto to _isManualMode
                       if (_isManualMode) {
                         // If switching to manual mode, set Fan/run to 0
                         _fanController.updateItem(directory, 0, _sliderValue);
