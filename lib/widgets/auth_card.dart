@@ -89,13 +89,15 @@ class AuthCardState extends State<AuthCard>
             _authData['email']!, _authData['password']!);
       } else {
         // Check if the deviceID already exists in the "devices" node
-        final deviceIDExists = await _auth.checkDeviceIDExists(_authData['deviceID']!);
+        final deviceIDExists =
+            await _auth.checkDeviceIDExists(_authData['deviceID']!);
         if (deviceIDExists) {
           await _auth.registerWithEmailAndPassword(
               _authData['email']!, _authData['password']!);
           await _auth.saveDeviceID(_authData['deviceID']!);
         } else {
-          _showError('Device ID Does Not Exist', 'Please try again with a valid Device ID.');
+          _showError('Device ID Does Not Exist',
+              'Please try again with a valid Device ID.');
         }
       }
       setState(() {
@@ -152,7 +154,15 @@ class AuthCardState extends State<AuthCard>
             child: Column(
               children: <Widget>[
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'E-Mail'),
+                  decoration: InputDecoration(
+                    labelText: 'E-Mail',
+                    labelStyle:
+                        TextStyle(color: Theme.of(context).primaryColor),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Theme.of(context).primaryColor),
+                    ),
+                  ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value?.isEmpty == true ||
@@ -168,7 +178,15 @@ class AuthCardState extends State<AuthCard>
                   },
                 ),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle:
+                        TextStyle(color: Theme.of(context).primaryColor),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Theme.of(context).primaryColor),
+                    ),
+                  ),
                   keyboardType: TextInputType.visiblePassword,
                   obscureText: true,
                   controller: _passwordController,
@@ -197,8 +215,15 @@ class AuthCardState extends State<AuthCard>
                       position: _slideAnimation,
                       child: TextFormField(
                         enabled: _authMode == AuthMode.signUp,
-                        decoration: const InputDecoration(
-                            labelText: 'Confirm Password'),
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor),
+                          ),
+                        ),
                         obscureText: true,
                         validator: _authMode == AuthMode.signUp
                             ? (value) {
@@ -225,15 +250,23 @@ class AuthCardState extends State<AuthCard>
                       position: _slideAnimation,
                       child: TextFormField(
                         enabled: _authMode == AuthMode.signUp,
-                        decoration:
-                            const InputDecoration(labelText: 'Device ID'),
+                        decoration: InputDecoration(
+                          labelText: 'Device ID',
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor),
+                          ),
+                        ),
                         validator: _authMode == AuthMode.signUp
                             ? (value) {
-                          if (value!.isEmpty) {
-                            return 'Device ID is required';
-                          }
-                          return null;
-                        }: null,
+                                if (value!.isEmpty) {
+                                  return 'Device ID is required';
+                                }
+                                return null;
+                              }
+                            : null,
                         onSaved: (value) {
                           if (value != null) {
                             _authData['deviceID'] = value;
