@@ -20,9 +20,9 @@ class AppDrawer extends StatelessWidget {
   final bool isRaspberryPiOn;
 
   AppDrawer(
-      this.assetsAudioPlayer,
-      this.isRaspberryPiOn,
-      );
+    this.assetsAudioPlayer,
+    this.isRaspberryPiOn,
+  );
 
   get style => null;
 
@@ -56,11 +56,12 @@ class AppDrawer extends StatelessWidget {
           ),
           const Divider(color: Colors.white),
           IgnorePointer(
-            ignoring: !isRaspberryPiOn, // Set to true if isRaspberryPiOn is false
+            ignoring:
+                !isRaspberryPiOn, // Set to true if isRaspberryPiOn is false
             child: ListTile(
               leading: const Icon(Icons.camera_alt, color: Colors.white),
               title: const Text(
-                'Camera',
+                'Livestream',
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () =>
@@ -69,7 +70,8 @@ class AppDrawer extends StatelessWidget {
           ),
           const Divider(color: Colors.white),
           IgnorePointer(
-            ignoring: !isRaspberryPiOn, // Set to true if isRaspberryPiOn is false
+            ignoring:
+                !isRaspberryPiOn, // Set to true if isRaspberryPiOn is false
             child: ListTile(
               leading: const Icon(Icons.queue_music, color: Colors.white),
               title: const Text(
@@ -111,15 +113,15 @@ class AppDrawer extends StatelessWidget {
                       0.8, // Adjust the opacity value between 0.0 (completely transparent) and 1.0 (fully visible)
                   child: isRaspberryPiOn
                       ? Image.asset(
-                    'assets/image/cradle_bg.png',
-                    width: 400,
-                    height: 350,
-                  )
+                          'assets/image/cradle_bg.png',
+                          width: 400,
+                          height: 350,
+                        )
                       : Image.asset(
-                    'assets/image/bg_off.png',
-                    width: 400,
-                    height: 350,
-                  ),
+                          'assets/image/bg_off.png',
+                          width: 400,
+                          height: 350,
+                        ),
                 ),
               ),
             ),
