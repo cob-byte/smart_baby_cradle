@@ -45,6 +45,21 @@ class AuthService {
     }
   }
 
+  Future<void> saveFullName(String fName, String lName) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final userRef = _databaseRef.child("users");
+
+      final userId = user.uid;
+
+      final userIDRef = userRef.child(userId);
+
+      // Set the deviceID for the user
+      await userIDRef.child('fname').set(fName);
+      await userIDRef.child('lname').set(lName);
+    }
+  }
+
   Future<String?> getDeviceID() async {
     final user = _auth.currentUser;
     if (user != null) {
@@ -73,6 +88,11 @@ class AuthService {
 
     // If the snapshot value is not null, it means the deviceID exists
     return snapshot.value != null;
+  }
+
+  Future<String?> getUserEmail() async {
+    final user = _auth.currentUser;
+    return user?.email;
   }
 
   Future<void> signOut() async {

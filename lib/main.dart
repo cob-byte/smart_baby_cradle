@@ -15,6 +15,8 @@ import './screens/auth_screen.dart.dart';
 import './screens/camera_Screen.dart';
 import './screens/music_player_screen.dart';
 import './screens/sleep_analysis_screen.dart';
+import './screens/reset_password_screen.dart';
+import './screens/profile_screen.dart';
 import './widgets/wrapper.dart';
 
 void main() async {
@@ -85,10 +87,12 @@ class _MyAppState extends State<MyApp> {
             home: Wrapper(),
             routes: <String, WidgetBuilder>{
               Wrapper.routeName: (ctx) => Wrapper(),
+              ResetPass.routeName: (ctx) => ResetPass(),
               AuthScreen.routeName: (ctx) => const AuthScreen(),
               HomeScreen.routeName: (ctx) =>
                   HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
               CameraScreen.routeName: (ctx) => const CameraScreen(),
+              Profile.routeName: (ctx) => const Profile(),
               SleepAnalysisScreen.routeName: (ctx) => SleepAnalysisScreen(),
               MusicPlayerScreen.routeName: (ctx) =>
                   MusicPlayerScreen(assetsAudioPlayer),

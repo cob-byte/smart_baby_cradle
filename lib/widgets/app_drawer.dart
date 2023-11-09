@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:smart_baby_cradle/theme/boy_theme.dart';
 import 'package:smart_baby_cradle/theme/girl_theme.dart';
 
+import '../screens/profile_screen.dart';
 import '../services/auth_service.dart';
 import './wrapper.dart';
 import '../screens/home_screen.dart';
@@ -79,6 +80,16 @@ class AppDrawer extends StatelessWidget {
               onTap: () => Navigator.of(context)
                   .pushReplacementNamed(MusicPlayerScreen.routeName),
             ),
+          ),
+          const Divider(color: Colors.white),
+          ListTile(
+            leading: const Icon(Icons.person, color: Colors.white),
+            title: const Text(
+              'Profile',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () =>
+                Navigator.of(context).pushNamed(Profile.routeName),
           ),
           const Divider(color: Colors.white),
           ListTile(
