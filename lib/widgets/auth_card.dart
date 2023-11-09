@@ -101,7 +101,7 @@ class AuthCardState extends State<AuthCard>
       } else {
         // Check if the deviceID already exists in the "devices" node
         final deviceIDExists =
-            await _auth.checkDeviceIDExists(_authData['deviceID']!);
+          await _auth.checkDeviceIDExists(_authData['deviceID']!);
         if (deviceIDExists) {
           userCredential = await _auth.registerWithEmailAndPassword(
               _authData['email']!, _authData['password']!);
@@ -158,132 +158,63 @@ class AuthCardState extends State<AuthCard>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        width: deviceSize.width * 0.75,
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'E-Mail',
-                    labelStyle:
-                        TextStyle(color: Theme.of(context).primaryColor),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Theme.of(context).primaryColor),
-                    ),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value?.isEmpty == true ||
-                        value?.contains('@') != true) {
-                      return 'Invalid email!';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    if (value != null) {
-                      _authData['email'] = value;
-                    }
-                  },
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle:
-                        TextStyle(color: Theme.of(context).primaryColor),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Theme.of(context).primaryColor),
-                    ),
-                  ),
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: true,
-                  controller: _passwordController,
-                  validator: (value) {
-                    if (value?.isEmpty == true || (value?.length ?? 0) < 5) {
-                      return 'Password is too short!';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    if (value != null) {
-                      _authData['password'] = value;
-                    }
-                  },
-                ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeIn,
-                  constraints: BoxConstraints(
-                    minHeight: _authMode == AuthMode.signUp ? 60 : 0,
-                    maxHeight: _authMode == AuthMode.signUp ? 120 : 0,
-                  ),
-                  child: FadeTransition(
-                    opacity: _opacityAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: TextFormField(
-                        enabled: _authMode == AuthMode.signUp,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          labelStyle:
-                              TextStyle(color: Theme.of(context).primaryColor),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor),
-                          ),
-                        ),
-                        obscureText: true,
-                        validator: _authMode == AuthMode.signUp
-                            ? (value) {
-                                if (value != _passwordController.text) {
-                                  return 'Passwords do not match!';
-                                }
-                                return null;
-                              }
-                            : null,
+        elevation: 8.0,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeIn,
+          height: _authMode == AuthMode.signUp ? 510 : 305,
+          constraints: BoxConstraints(
+            minHeight: _authMode == AuthMode.signUp ? 320 : 260,
+          ),
+          width: deviceSize.width * 0.75,
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'E-Mail',
+                      labelStyle:
+                      TextStyle(color: Theme.of(context).primaryColor),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                        BorderSide(color: Theme.of(context).primaryColor),
                       ),
                     ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value?.isEmpty == true ||
+                          value?.contains('@') != true) {
+                        return 'Invalid email!';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      if (value != null) {
+                        _authData['email'] = value;
+                      }
+                    },
                   ),
-                ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeIn,
-                  constraints: BoxConstraints(
-                    minHeight: _authMode == AuthMode.signUp ? 60 : 0,
-                    maxHeight: _authMode == AuthMode.signUp ? 120 : 0,
-                  ),
-                  child: FadeTransition(
-                    opacity: _opacityAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: TextFormField(
-                        enabled: _authMode == AuthMode.signUp,
-                        decoration: InputDecoration(
-                          labelText: 'Device ID',
-                          labelStyle:
-                              TextStyle(color: Theme.of(context).primaryColor),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor),
-                          ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText ? Icons.visibility : Icons.visibility_off,
                         ),
-                        validator: _authMode == AuthMode.signUp
-                            ? (value) {
-                                if (value!.isEmpty) {
-                                  return 'Device ID is required';
-                                }
-                                return null;
-                              }
-                            : null,
-                        onSaved: (value) {
-                          if (value != null) {
-                            _authData['deviceID'] = value;
-                          }
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
                         },
+                      ),
+                      labelStyle:
+                      TextStyle(color: Theme.of(context).primaryColor),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                        BorderSide(color: Theme.of(context).primaryColor),
                       ),
                     ),
                     keyboardType: TextInputType.visiblePassword,
@@ -326,15 +257,21 @@ class AuthCardState extends State<AuthCard>
                                 });
                               },
                             ),
+                            labelStyle:
+                            TextStyle(color: Theme.of(context).primaryColor),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).primaryColor),
+                            ),
                           ),
                           obscureText: _obscureText1,
                           validator: _authMode == AuthMode.signUp
                               ? (value) {
-                                  if (value != _passwordController.text) {
-                                    return 'Passwords do not match!';
-                                  }
-                                  return null;
-                                }
+                            if (value != _passwordController.text) {
+                              return 'Passwords do not match!';
+                            }
+                            return null;
+                          }
                               : null,
                         ),
                       ),
@@ -429,8 +366,15 @@ class AuthCardState extends State<AuthCard>
                         position: _slideAnimation,
                         child: TextFormField(
                           enabled: _authMode == AuthMode.signUp,
-                          decoration:
-                              const InputDecoration(labelText: 'Device ID'),
+                          decoration: InputDecoration(
+                            labelText: 'Device ID',
+                            labelStyle:
+                            TextStyle(color: Theme.of(context).primaryColor),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).primaryColor),
+                            ),
+                          ),
                           validator: _authMode == AuthMode.signUp
                               ? (value) {
                             if (value!.isEmpty) {
@@ -463,10 +407,10 @@ class AuthCardState extends State<AuthCard>
                             horizontal: 30.0, vertical: 8.0),
                         backgroundColor: Theme.of(context).primaryColor,
                         foregroundColor:
-                            Theme.of(context).primaryTextTheme.labelLarge?.color,
+                        Theme.of(context).primaryTextTheme.labelLarge?.color,
                       ),
                       child:
-                          Text(_authMode == AuthMode.login ? 'LOGIN' : 'SIGN UP'),
+                      Text(_authMode == AuthMode.login ? 'LOGIN' : 'SIGN UP'),
                     ),
                   TextButton(
                     onPressed: _switchAuthMode,

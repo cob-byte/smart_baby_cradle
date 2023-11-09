@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_baby_cradle/pages/edit_image.dart';
 import 'package:smart_baby_cradle/pages/edit_name.dart';
 import 'package:smart_baby_cradle/pages/edit_device.dart';
 import '../pages/change_password.dart';
 import '../services/status_service.dart';
+import '../theme/girl_theme.dart';
+import '../theme_provider.dart';
 import '../user/user.dart';
 import '../widgets/display_image_widget.dart';
 import '../user/user_data.dart';
@@ -34,6 +37,7 @@ class ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return FutureBuilder<User>(
       future: _futureUser,
@@ -136,6 +140,7 @@ class ProfileState extends State<Profile> {
                         ),
                         ElevatedButton(
                           onPressed: () {
+                            themeProvider.currentTheme = girlTheme;
                             auth.signOut().then((_) {
                               Navigator.of(context).pushReplacementNamed(Wrapper.routeName);
                             });
