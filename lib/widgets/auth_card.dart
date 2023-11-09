@@ -100,13 +100,15 @@ class AuthCardState extends State<AuthCard>
             _authData['email']!, _authData['password']!);
       } else {
         // Check if the deviceID already exists in the "devices" node
-        final deviceIDExists = await _auth.checkDeviceIDExists(_authData['deviceID']!);
+        final deviceIDExists =
+            await _auth.checkDeviceIDExists(_authData['deviceID']!);
         if (deviceIDExists) {
           userCredential = await _auth.registerWithEmailAndPassword(
               _authData['email']!, _authData['password']!);
           await _auth.saveDeviceID(_authData['deviceID']!);
         } else {
-          _showError('Device ID Does Not Exist', 'Please try again with a valid Device ID.');
+          _showError('Device ID Does Not Exist',
+              'Please try again with a valid Device ID.');
         }
       }
       if (userCredential != null && userCredential.user != null && _authData['fName'] != null && _authData['lName'] != null) {
@@ -156,48 +158,131 @@ class AuthCardState extends State<AuthCard>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        elevation: 8.0,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeIn,
-          height: _authMode == AuthMode.signUp ? 510 : 305,
-          constraints: BoxConstraints(
-            minHeight: _authMode == AuthMode.signUp ? 320 : 260,
-          ),
-          width: deviceSize.width * 0.75,
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  TextFormField(
-                    decoration: const InputDecoration(labelText: 'E-Mail'),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value?.isEmpty == true ||
-                          value?.contains('@') != true) {
-                        return 'Invalid email!';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      if (value != null) {
-                        _authData['email'] = value;
-                      }
-                    },
+        width: deviceSize.width * 0.75,
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'E-Mail',
+                    labelStyle:
+                        TextStyle(color: Theme.of(context).primaryColor),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Theme.of(context).primaryColor),
+                    ),
                   ),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText ? Icons.visibility : Icons.visibility_off,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value?.isEmpty == true ||
+                        value?.contains('@') != true) {
+                      return 'Invalid email!';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    if (value != null) {
+                      _authData['email'] = value;
+                    }
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle:
+                        TextStyle(color: Theme.of(context).primaryColor),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Theme.of(context).primaryColor),
+                    ),
+                  ),
+                  keyboardType: TextInputType.visiblePassword,
+                  obscureText: true,
+                  controller: _passwordController,
+                  validator: (value) {
+                    if (value?.isEmpty == true || (value?.length ?? 0) < 5) {
+                      return 'Password is too short!';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    if (value != null) {
+                      _authData['password'] = value;
+                    }
+                  },
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeIn,
+                  constraints: BoxConstraints(
+                    minHeight: _authMode == AuthMode.signUp ? 60 : 0,
+                    maxHeight: _authMode == AuthMode.signUp ? 120 : 0,
+                  ),
+                  child: FadeTransition(
+                    opacity: _opacityAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: TextFormField(
+                        enabled: _authMode == AuthMode.signUp,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor),
+                          ),
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
+                        obscureText: true,
+                        validator: _authMode == AuthMode.signUp
+                            ? (value) {
+                                if (value != _passwordController.text) {
+                                  return 'Passwords do not match!';
+                                }
+                                return null;
+                              }
+                            : null,
+                      ),
+                    ),
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeIn,
+                  constraints: BoxConstraints(
+                    minHeight: _authMode == AuthMode.signUp ? 60 : 0,
+                    maxHeight: _authMode == AuthMode.signUp ? 120 : 0,
+                  ),
+                  child: FadeTransition(
+                    opacity: _opacityAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: TextFormField(
+                        enabled: _authMode == AuthMode.signUp,
+                        decoration: InputDecoration(
+                          labelText: 'Device ID',
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor),
+                          ),
+                        ),
+                        validator: _authMode == AuthMode.signUp
+                            ? (value) {
+                                if (value!.isEmpty) {
+                                  return 'Device ID is required';
+                                }
+                                return null;
+                              }
+                            : null,
+                        onSaved: (value) {
+                          if (value != null) {
+                            _authData['deviceID'] = value;
+                          }
                         },
                       ),
                     ),

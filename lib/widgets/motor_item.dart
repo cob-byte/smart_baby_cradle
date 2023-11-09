@@ -13,9 +13,9 @@ class MotorItem extends StatefulWidget {
   final bool isRaspberryPiOn;
   const MotorItem(
       {Key? key,
-        required this.run,
-        required this.isRaspberryPiOn,
-        required this.level})
+      required this.run,
+      required this.isRaspberryPiOn,
+      required this.level})
       : super(key: key);
 
   @override
@@ -51,7 +51,7 @@ class MotorItemState extends State<MotorItem> {
   _onMotorChange(DatabaseEvent event) {
     setState(() {
       Map<dynamic, dynamic> snapshotValue =
-      event.snapshot.value as Map<dynamic, dynamic>;
+          event.snapshot.value as Map<dynamic, dynamic>;
       _buttonStatus = snapshotValue['run'];
       //_sliderValue = (snapshotValue['level']).toDouble();
     });
@@ -71,8 +71,7 @@ class MotorItemState extends State<MotorItem> {
             border: Border.all(),
             boxShadow: [
               BoxShadow(
-                color: Color.fromARGB(255, 106, 106, 106)
-                    .withOpacity(0.5),
+                color: Color.fromARGB(255, 106, 106, 106).withOpacity(0.5),
                 spreadRadius: 2,
                 blurRadius: 5,
                 offset: Offset(0, 3),
@@ -96,21 +95,21 @@ class MotorItemState extends State<MotorItem> {
                   },
                   child: SizedBox(
                     height: 200,
-                    width: constraints.maxWidth * 0.65,
+                    width: constraints.maxWidth * 0.75,
                     child: widget.isRaspberryPiOn
                         ? (_buttonStatus == 1
-                        ? Transform.scale(
-                      scale: 1.5,
-                      child: Image.asset('assets/image/motor_on.png'),
-                    )
+                            ? Transform.scale(
+                                scale: 1.5,
+                                child: Image.asset('assets/image/motor_on.png'),
+                              )
+                            : Transform.scale(
+                                scale: 1.5,
+                                child:
+                                    Image.asset('assets/image/motor_off.png'),
+                              ))
                         : Transform.scale(
-                      scale: 1.5,
-                      child:
-                      Image.asset('assets/image/motor_off.png'),
-                    ))
-                        : Transform.scale(
-                        scale: 1.5,
-                        child: Image.asset('assets/image/motor_dis.png')),
+                            scale: 1.5,
+                            child: Image.asset('assets/image/motor_dis.png')),
                   ),
                 ),
                 const FittedBox(

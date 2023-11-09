@@ -55,7 +55,7 @@ class CameraLiveItem extends StatelessWidget {
                     EdgeInsets.only(bottom: 5.0), // Add space below the text
                 child: FittedBox(
                   child: Text(
-                    'Camera',
+                    'Livestream',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.black,
