@@ -11,7 +11,8 @@ class FanItem extends StatefulWidget {
   final int run;
   final double level;
   final bool isRaspberryPiOn;
-  const FanItem(this.run, this.level, this.isRaspberryPiOn, {Key? key})
+  final bool auto;
+  const FanItem(this.run, this.level, this.auto, this.isRaspberryPiOn, {Key? key})
       : super(key: key);
   @override
   FanItemState createState() => FanItemState();
@@ -24,14 +25,15 @@ class FanItemState extends State<FanItem> {
   late int _buttonStatus;
   late double _sliderValue;
   String _sliderLabel = "Low";
-  bool _isManualMode = true; // Added to track manual/auto mode.
+  late bool _isManualMode; // Added to track manual/auto mode.
   late DatabaseReference _autoModeRef;
 
   @override
   void initState() {
     super.initState();
     _buttonStatus = widget.run; // Access the run value via widget property
-    _sliderValue = widget.level; // Access the level value via widget property
+    _sliderValue = widget.level;
+    _isManualMode = widget.auto;
     _fanController
         .getStatusStream(directory, _onFanChange)
         .then((StreamSubscription s) => _subscription = s);
@@ -52,11 +54,24 @@ class FanItemState extends State<FanItem> {
     setState(() {
       if (event.snapshot.value != null) {
         Map<dynamic, dynamic> valueMap =
-            event.snapshot.value as Map<dynamic, dynamic>;
+        event.snapshot.value as Map<dynamic, dynamic>;
         _buttonStatus = valueMap['run'];
         _sliderValue = (valueMap['level']).toDouble();
+        _isManualMode = !(valueMap['auto'] ?? false);
       }
     });
+  }
+
+  String getFanLevel(double sliderValue) {
+    if (sliderValue == 1.0) {
+      return 'Low';
+    } else if (sliderValue > 1.0 && sliderValue <= 2.0) {
+      return 'Medium';
+    } else if (sliderValue > 2.0 && sliderValue <= 3.0) {
+      return 'High';
+    } else {
+      return 'Unknown';
+    }
   }
 
   @override
@@ -101,16 +116,16 @@ class FanItemState extends State<FanItem> {
                         }
                       : null,
                   child: SizedBox(
-                    height: _isManualMode ? 113.5 : 161,
+                    height: _isManualMode ? 113.5 : 131,
                     width: constraints.maxWidth * 0.65,
                     child: widget.isRaspberryPiOn
                         ? (_buttonStatus == 1
                             ? Transform.scale(
-                                scale: _isManualMode ? 1.15 : 1.5,
+                                scale: _isManualMode ? 1.15 : 1.15,
                                 child: Image.asset('assets/image/fan_on.png'),
                               )
                             : Transform.scale(
-                                scale: _isManualMode ? 1.15 : 1.5,
+                                scale: _isManualMode ? 1.15 : 1.15,
                                 child: Image.asset('assets/image/fan_off.png'),
                               ))
                         : Transform.scale(
@@ -159,6 +174,21 @@ class FanItemState extends State<FanItem> {
                     ),
                   ),
                 ),
+                if (!_isManualMode)
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8, top: 3),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Fan Level: ${getFanLevel(_sliderValue)}',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 if (_isManualMode)
                   SliderTheme(
                     data: SliderThemeData(
