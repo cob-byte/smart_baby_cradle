@@ -35,40 +35,66 @@ class SleepScoreScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildExpandedCard(String title, String value, IconData icon) {
+  Widget _buildOverallProgressBar() {
+    return LinearProgressIndicator(
+      value: sleepScore / 100.0, // Use the sleepScore to determine the progress
+      backgroundColor: Colors.grey,
+      valueColor: AlwaysStoppedAnimation<Color>(
+        _getStatusBarColor(sleepScore),
+      ),
+    );
+  }
+
+  Widget _buildExpandedCard(String title, String value, IconData icon,
+      Color cardColor, double progress) {
     return Expanded(
       child: Card(
         elevation: 5,
-        color: Colors.white,
+        color: cardColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(5.0),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          padding: const EdgeInsets.all(22.0),
+          child: Column(
             children: <Widget>[
               Row(
-                children: [
-                  Icon(
-                    icon,
-                    color: Colors.black,
-                    size: 24,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Row(
+                    children: [
+                      Icon(
+                        icon,
+                        color: Colors.black,
+                        size: 24,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 10),
                   Text(
-                    title,
+                    value,
                     style: TextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
+              SizedBox(height: 16),
+              _buildOverallProgressBar(),
+              SizedBox(height: 8),
               Text(
-                value,
+                '${(progress * 100).round()}% Progress',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
             ],
@@ -80,6 +106,13 @@ class SleepScoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Color> cardColors = [
+      Color.fromARGB(255, 131, 197, 255), // Customize colors as needed
+      Color.fromARGB(255, 125, 164, 248),
+      Color.fromARGB(255, 255, 161, 247),
+      Color.fromARGB(255, 255, 195, 248),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Sleep Score'),
@@ -109,20 +142,20 @@ class SleepScoreScreen extends StatelessWidget {
                   ),
                   child: PieChart(
                     PieChartData(
-                      sectionsSpace: 2,
-                      centerSpaceRadius: 40,
+                      sectionsSpace: 1,
+                      centerSpaceRadius: 55,
                       sections: [
                         PieChartSectionData(
                           value: sleepScore.toDouble(),
                           color: _getStatusBarColor(sleepScore),
                           title: '',
-                          radius: 50,
-                          showTitle: false, // Hide the title
+                          radius: 30, // Adjust thickness as needed
+                          showTitle: false,
                         ),
                         PieChartSectionData(
                           value: (100 - sleepScore).toDouble(),
                           color: Colors.transparent,
-                          radius: 50,
+                          radius: 30,
                         ),
                       ],
                     ),
@@ -190,21 +223,29 @@ class SleepScoreScreen extends StatelessWidget {
                           'Quality',
                           'Excellent',
                           Icons.star,
+                          cardColors[0],
+                          0.8, // Example progress value, adjust as needed
                         ),
                         _buildExpandedCard(
                           'Duration',
                           '7 hours',
                           Icons.access_time,
+                          cardColors[1],
+                          0.6, // Example progress value, adjust as needed
                         ),
                         _buildExpandedCard(
                           'Restfulness',
                           'High',
                           Icons.cloud,
+                          cardColors[2],
+                          0.7, // Example progress value, adjust as needed
                         ),
                         _buildExpandedCard(
                           'Snoring',
                           'Low',
                           Icons.noise_aware,
+                          cardColors[3],
+                          0.5, // Example progress value, adjust as needed
                         ),
                       ],
                     ),
