@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_baby_cradle/pages/edit_cover.dart';
 import 'package:smart_baby_cradle/pages/edit_image.dart';
 import 'package:smart_baby_cradle/pages/edit_name.dart';
 import 'package:smart_baby_cradle/pages/edit_device.dart';
@@ -11,6 +12,7 @@ import '../theme/girl_theme.dart';
 import '../theme_provider.dart';
 import '../user/user.dart';
 import '../widgets/display_image_widget.dart';
+import '../widgets/display_cover_widget.dart';
 import '../user/user_data.dart';
 import '../widgets/wrapper.dart';
 
@@ -38,125 +40,141 @@ class ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
 
-    return FutureBuilder<User>(
-      future: _futureUser,
-      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          User user = snapshot.data!;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                'Profile Screen',
-                style: TextStyle(
-                  fontFamily: 'Poppins-Bold',
-                  fontSize: 25,
-                  fontStyle: FontStyle.normal,
-                  color: Colors.white.withOpacity(0.7),
+    return Theme(
+        data: currentTheme,
+        child: FutureBuilder<User>(
+          future: _futureUser,
+          builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              User user = snapshot.data!;
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(
+                    'Profile Screen',
+                    style: currentTheme.appBarTheme.titleTextStyle,
+                  ),
+                  backgroundColor: currentTheme.appBarTheme.backgroundColor,
                 ),
-              ),
-              backgroundColor: const Color.fromRGBO(22, 22, 22, 1),
-            ),
-            body: Container(
-              child: Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(
-                              "https://thumbs.dreamstime.com/z/baby-seamless-pattern-gender-neutral-design-element-nursery-fabric-wallpaper-wrapping-paper-vector-illustration-flat-159228703.jpg"
-                          ),
-                          fit: BoxFit.cover,
-                        )
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      height: height / 1.4,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(45.0),
-                          topRight: Radius.circular(45.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: height / 10.5,
-                    child: Column(
-                      children: <Widget>[
-                        Container(
-                          height: height / 5,
-                          width: height / 5,
+                body: Container(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Positioned(
+                        top: 0, // Adjust the top position as needed
+                        child: Container(
+                          width: MediaQuery.of(context)
+                              .size
+                              .width, // Set the width to fill the screen
+                          height: height / 4, // Adjust the height as needed
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
+                            shape: BoxShape.rectangle,
                           ),
-                          child: InkWell(
-                            onTap: () {
-                              navigateSecondPage(EditImagePage());
-                            },
-                            child: DisplayImage(
-                              imagePath: user.image,
-                              onPressed: () {},
+                          child: ClipRRect(
+                            child: InkWell(
+                              onTap: () {
+                                navigateSecondPage(EditCoverPhotoPage());
+                              },
+                              child: DisplayCoverPhoto(
+                                coverPhotoPath: user.coverPhoto,
+                                onPressed: () {},
+                              ),
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          child: Text(
-                            user.name,
-                            style: TextStyle(fontSize: 30, fontFamily: 'OpenSans'),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          height: height / 1.4,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(45.0),
+                              topRight: Radius.circular(45.0),
+                            ),
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(user.email),
+                      ),
+                      Positioned(
+                        top: height / 10.5,
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              height: height / 5,
+                              width: height / 5,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  navigateSecondPage(EditImagePage());
+                                },
+                                child: DisplayImage(
+                                  imagePath: user.image,
+                                  onPressed: () {},
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Container(
+                              child: Text(
+                                user.name,
+                                style: TextStyle(
+                                    fontSize: 30, fontFamily: 'OpenSans'),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(user.email),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 50,
+                            ),
+                            buildUserInfoDisplay(
+                                user.name, 'Name', EditNameFormPage()),
+                            buildUserInfoDisplay(
+                                user.device, 'Device ID', EditDeviceFormPage()),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Route route = MaterialPageRoute(
+                                    builder: (context) => ChangePassFormPage());
+                                Navigator.push(context, route).then(onGoBack);
+                              },
+                              child: Text('Change Password'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                themeProvider.currentTheme = girlTheme;
+                                auth.signOut().then((_) {
+                                  Navigator.of(context)
+                                      .pushReplacementNamed(Wrapper.routeName);
+                                });
+                              },
+                              child: Text('Log Out'),
+                            ),
                           ],
                         ),
-                        SizedBox(
-                          height: 50,
-                        ),
-                        buildUserInfoDisplay(user.name, 'Name', EditNameFormPage()),
-                        buildUserInfoDisplay(user.device, 'Device ID', EditDeviceFormPage()),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Route route = MaterialPageRoute(builder: (context) => ChangePassFormPage());
-                            Navigator.push(context, route).then(onGoBack);
-                          },
-                          child: Text('Change Password'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            themeProvider.currentTheme = girlTheme;
-                            auth.signOut().then((_) {
-                              Navigator.of(context).pushReplacementNamed(Wrapper.routeName);
-                            });
-                          },
-                          child: Text('Log Out'),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          );
-        }
-      },
-    );
+                ),
+              );
+            }
+          },
+        ));
   }
 
   // Widget builds the display item with the proper formatting to display the user's info
@@ -183,9 +201,9 @@ class ProfileState extends State<Profile> {
                   decoration: BoxDecoration(
                       border: Border(
                           bottom: BorderSide(
-                            color: Colors.grey,
-                            width: 1,
-                          ))),
+                    color: Colors.grey,
+                    width: 1,
+                  ))),
                   child: Row(children: [
                     Expanded(
                         child: TextButton(

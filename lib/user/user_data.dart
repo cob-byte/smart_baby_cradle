@@ -12,7 +12,9 @@ class UserData {
 
   static User myUser = User(
     image:
-    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images",
+        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images",
+    coverPhoto:
+        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images",
     name: 'Test Test',
     email: 'test.test@gmail.com',
     device: 'test',
@@ -26,14 +28,28 @@ class UserData {
       String uid = firebaseUser.uid;
       String email = firebaseUser.email ?? '';
       String name = firebaseUser.displayName ?? '';
-      DataSnapshot snapshot = await _databaseRef.child('users').child(uid).get();
+      DataSnapshot snapshot =
+          await _databaseRef.child('users').child(uid).get();
       if (snapshot.value != null && snapshot.value is Map) {
-        Map<String, dynamic> data = Map<String, dynamic>.from(snapshot.value as Map);
+        Map<String, dynamic> data =
+            Map<String, dynamic>.from(snapshot.value as Map);
         String device = data['deviceID'] ?? '';
         String fname = data['fname'] ?? '';
         String lname = data['lname'] ?? '';
-        String image = data['imageURL'] ?? 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images';
-        return User(image: image, name: name, device: device, email: email, fname: fname, lname: lname);
+        String image = data['imageURL'] ??
+            'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images';
+        String coverPhoto = data['coverPhotoURL'] ??
+            'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images';
+
+        return User(
+          image: image,
+          coverPhoto: coverPhoto,
+          name: name,
+          device: device,
+          email: email,
+          fname: fname,
+          lname: lname,
+        );
       }
     }
     throw Exception('No user logged in');
