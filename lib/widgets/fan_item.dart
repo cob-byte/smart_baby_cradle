@@ -101,16 +101,16 @@ class FanItemState extends State<FanItem> {
                         }
                       : null,
                   child: SizedBox(
-                    height: 161,
+                    height: _isManualMode ? 113.5 : 161,
                     width: constraints.maxWidth * 0.65,
                     child: widget.isRaspberryPiOn
                         ? (_buttonStatus == 1
                             ? Transform.scale(
-                                scale: 1.5,
+                                scale: _isManualMode ? 1.15 : 1.5,
                                 child: Image.asset('assets/image/fan_on.png'),
                               )
                             : Transform.scale(
-                                scale: 1.5,
+                                scale: _isManualMode ? 1.15 : 1.5,
                                 child: Image.asset('assets/image/fan_off.png'),
                               ))
                         : Transform.scale(
