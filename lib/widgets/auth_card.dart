@@ -94,14 +94,15 @@ class AuthCardState extends State<AuthCard>
       _isLoading = true;
     });
     try {
-      UserCredential? userCredential; // Declare a nullable variable to store the user credential
+      UserCredential?
+          userCredential; // Declare a nullable variable to store the user credential
       if (_authMode == AuthMode.login) {
         userCredential = await _auth.signInWithEmailAndPassword(
             _authData['email']!, _authData['password']!);
       } else {
         // Check if the deviceID already exists in the "devices" node
         final deviceIDExists =
-          await _auth.checkDeviceIDExists(_authData['deviceID']!);
+            await _auth.checkDeviceIDExists(_authData['deviceID']!);
         if (deviceIDExists) {
           userCredential = await _auth.registerWithEmailAndPassword(
               _authData['email']!, _authData['password']!);
@@ -111,7 +112,10 @@ class AuthCardState extends State<AuthCard>
               'Please try again with a valid Device ID.');
         }
       }
-      if (userCredential != null && userCredential.user != null && _authData['fName'] != null && _authData['lName'] != null) {
+      if (userCredential != null &&
+          userCredential.user != null &&
+          _authData['fName'] != null &&
+          _authData['lName'] != null) {
         String fullName = _authData['fName']! + ' ' + _authData['lName']!;
         await userCredential.user!.updateDisplayName(fullName);
         await _auth.saveFullName(_authData['fName']!, _authData['lName']!);
@@ -177,10 +181,10 @@ class AuthCardState extends State<AuthCard>
                     decoration: InputDecoration(
                       labelText: 'E-Mail',
                       labelStyle:
-                      TextStyle(color: Theme.of(context).primaryColor),
+                          TextStyle(color: Theme.of(context).primaryColor),
                       focusedBorder: UnderlineInputBorder(
                         borderSide:
-                        BorderSide(color: Theme.of(context).primaryColor),
+                            BorderSide(color: Theme.of(context).primaryColor),
                       ),
                     ),
                     keyboardType: TextInputType.emailAddress,
@@ -202,7 +206,9 @@ class AuthCardState extends State<AuthCard>
                       labelText: 'Password',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureText ? Icons.visibility : Icons.visibility_off,
+                          _obscureText
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
                         onPressed: () {
                           setState(() {
@@ -211,10 +217,10 @@ class AuthCardState extends State<AuthCard>
                         },
                       ),
                       labelStyle:
-                      TextStyle(color: Theme.of(context).primaryColor),
+                          TextStyle(color: Theme.of(context).primaryColor),
                       focusedBorder: UnderlineInputBorder(
                         borderSide:
-                        BorderSide(color: Theme.of(context).primaryColor),
+                            BorderSide(color: Theme.of(context).primaryColor),
                       ),
                     ),
                     keyboardType: TextInputType.visiblePassword,
@@ -249,7 +255,9 @@ class AuthCardState extends State<AuthCard>
                             labelText: 'Confirm Password',
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscureText1 ? Icons.visibility : Icons.visibility_off,
+                                _obscureText1
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -257,8 +265,8 @@ class AuthCardState extends State<AuthCard>
                                 });
                               },
                             ),
-                            labelStyle:
-                            TextStyle(color: Theme.of(context).primaryColor),
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).primaryColor),
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                   color: Theme.of(context).primaryColor),
@@ -267,11 +275,11 @@ class AuthCardState extends State<AuthCard>
                           obscureText: _obscureText1,
                           validator: _authMode == AuthMode.signUp
                               ? (value) {
-                            if (value != _passwordController.text) {
-                              return 'Passwords do not match!';
-                            }
-                            return null;
-                          }
+                                  if (value != _passwordController.text) {
+                                    return 'Passwords do not match!';
+                                  }
+                                  return null;
+                                }
                               : null,
                         ),
                       ),
@@ -291,21 +299,23 @@ class AuthCardState extends State<AuthCard>
                         child: TextFormField(
                           enabled: _authMode == AuthMode.signUp,
                           decoration:
-                          const InputDecoration(labelText: 'First Name'),
+                              const InputDecoration(labelText: 'First Name'),
                           validator: _authMode == AuthMode.signUp
                               ? (value) {
-                            value = value!.trim(); // Trim the input
-                            if (value.isEmpty) {
-                              return 'First Name is required';
-                            } else if (value.length < 2) {
-                              return 'First Name must be at least 2 characters long';
-                            } else if (value.length > 25) {
-                              return 'First Name must be less than 25 characters long';
-                            } else if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
-                              return 'First Name must only contain alphabetic characters';
-                            }
-                            return null;
-                          }: null,
+                                  value = value!.trim(); // Trim the input
+                                  if (value.isEmpty) {
+                                    return 'First Name is required';
+                                  } else if (value.length < 2) {
+                                    return 'First Name must be at least 2 characters long';
+                                  } else if (value.length > 25) {
+                                    return 'First Name must be less than 25 characters long';
+                                  } else if (!RegExp(r'^[a-zA-Z ]+$')
+                                      .hasMatch(value)) {
+                                    return 'First Name must only contain alphabetic characters';
+                                  }
+                                  return null;
+                                }
+                              : null,
                           onSaved: (value) {
                             if (value != null) {
                               _authData['fName'] = value;
@@ -329,21 +339,23 @@ class AuthCardState extends State<AuthCard>
                         child: TextFormField(
                           enabled: _authMode == AuthMode.signUp,
                           decoration:
-                          const InputDecoration(labelText: 'Last Name'),
+                              const InputDecoration(labelText: 'Last Name'),
                           validator: _authMode == AuthMode.signUp
                               ? (value) {
-                            value = value!.trim(); // Trim the input
-                            if (value.isEmpty) {
-                              return 'Last Name is required';
-                            } else if (value.length < 2) {
-                              return 'Last Name must be at least 2 characters long';
-                            } else if (value.length > 25) {
-                              return 'Last Name must be less than 25 characters long';
-                            } else if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
-                              return 'Last Name must only contain alphabetic characters';
-                            }
-                            return null;
-                          }: null,
+                                  value = value!.trim(); // Trim the input
+                                  if (value.isEmpty) {
+                                    return 'Last Name is required';
+                                  } else if (value.length < 2) {
+                                    return 'Last Name must be at least 2 characters long';
+                                  } else if (value.length > 25) {
+                                    return 'Last Name must be less than 25 characters long';
+                                  } else if (!RegExp(r'^[a-zA-Z ]+$')
+                                      .hasMatch(value)) {
+                                    return 'Last Name must only contain alphabetic characters';
+                                  }
+                                  return null;
+                                }
+                              : null,
                           onSaved: (value) {
                             if (value != null) {
                               _authData['lName'] = value;
@@ -368,8 +380,8 @@ class AuthCardState extends State<AuthCard>
                           enabled: _authMode == AuthMode.signUp,
                           decoration: InputDecoration(
                             labelText: 'Device ID',
-                            labelStyle:
-                            TextStyle(color: Theme.of(context).primaryColor),
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).primaryColor),
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                   color: Theme.of(context).primaryColor),
@@ -377,11 +389,12 @@ class AuthCardState extends State<AuthCard>
                           ),
                           validator: _authMode == AuthMode.signUp
                               ? (value) {
-                            if (value!.isEmpty) {
-                              return 'Device ID is required';
-                            }
-                            return null;
-                          }: null,
+                                  if (value!.isEmpty) {
+                                    return 'Device ID is required';
+                                  }
+                                  return null;
+                                }
+                              : null,
                           onSaved: (value) {
                             if (value != null) {
                               _authData['deviceID'] = value;
@@ -406,11 +419,13 @@ class AuthCardState extends State<AuthCard>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 30.0, vertical: 8.0),
                         backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor:
-                        Theme.of(context).primaryTextTheme.labelLarge?.color,
+                        foregroundColor: Theme.of(context)
+                            .primaryTextTheme
+                            .labelLarge
+                            ?.color,
                       ),
-                      child:
-                      Text(_authMode == AuthMode.login ? 'LOGIN' : 'SIGN UP'),
+                      child: Text(
+                          _authMode == AuthMode.login ? 'LOGIN' : 'SIGN UP'),
                     ),
                   TextButton(
                     onPressed: _switchAuthMode,
@@ -422,14 +437,17 @@ class AuthCardState extends State<AuthCard>
                     child: Text(
                         '${_authMode == AuthMode.login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
                   ),
-                  _authMode == AuthMode.login ? TextButton(
-                    onPressed: _forgotPassword,
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
-                      foregroundColor: Theme.of(context).primaryColor,
-                    ),
-                    child: Text('Forgot password?'),
-                  ) : Container(),
+                  _authMode == AuthMode.login
+                      ? TextButton(
+                          onPressed: _forgotPassword,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30.0, vertical: 4),
+                            foregroundColor: Theme.of(context).primaryColor,
+                          ),
+                          child: Text('Forgot password?'),
+                        )
+                      : Container(),
                 ],
               ),
             ),
