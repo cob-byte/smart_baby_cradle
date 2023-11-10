@@ -32,9 +32,8 @@ import 'package:smart_baby_cradle/theme/greyscale_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
-  final AssetsAudioPlayer assetsAudioPlayer;
 
-  const HomeScreen({Key? key, required this.assetsAudioPlayer})
+  const HomeScreen({Key? key})
       : super(key: key);
 
   @override
@@ -43,14 +42,11 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   final AuthService auth = AuthService();
-  final musicService = MusicService();
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   late DatabaseReference _rootRef, _timestampRef;
   late ThemeProvider themeProvider;
   final StatusService _home = StatusService();
   String? newDeviceID, deviceID;
-
-  AssetsAudioPlayer get assetsAudioPlayer => widget.assetsAudioPlayer;
 
   final _logger = Logger('FCM');
   bool isRaspberryPiOn = true;
@@ -222,7 +218,7 @@ class HomeScreenState extends State<HomeScreen> {
           data: Theme.of(context).copyWith(
             canvasColor: currentTheme.colorScheme.onInverseSurface,
           ),
-          child: AppDrawer(assetsAudioPlayer, isRaspberryPiOn),
+          child: AppDrawer(isRaspberryPiOn),
         ),
         body: Stack(
           children: [
@@ -299,6 +295,7 @@ class HomeScreenState extends State<HomeScreen> {
                         child: FanItem(
                           fan['run'],
                           fan['level'].toDouble(),
+                          !fan['auto'],
                           isRaspberryPiOn,
                         ),
                       ),
@@ -327,7 +324,6 @@ class HomeScreenState extends State<HomeScreen> {
                       IgnorePointer(
                         ignoring: !isRaspberryPiOn,
                         child: MusicPlayerItem(
-                          widget.assetsAudioPlayer,
                           isRaspberryPiOn,
                         ),
                       ),

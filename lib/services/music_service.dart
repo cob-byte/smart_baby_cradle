@@ -28,7 +28,7 @@ class MusicService{
   }
 
   Future<void> updateFirebasePause(bool isPlaying) async {
-    await database.update({'pause': !isPlaying});
+    await database.update({'pause': isPlaying});
   }
 
   Future<void> updateFirebaseLooping(bool isLooping) async {
@@ -37,5 +37,9 @@ class MusicService{
 
   Future<void> updateFirebaseVolume(double vol) async {
     database.update({'volume': vol.toStringAsFixed(1)});
+  }
+
+  Future<void> updateFirebaseMuted(bool muted) async {
+    database.update({'muted': muted});
   }
 }

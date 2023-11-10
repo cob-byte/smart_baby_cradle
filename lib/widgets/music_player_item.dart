@@ -7,10 +7,9 @@ import 'package:smart_baby_cradle/theme_provider.dart';
 import '../screens/music_player_screen.dart';
 
 class MusicPlayerItem extends StatelessWidget {
-  final AssetsAudioPlayer assetsAudioPlayer;
   final bool isRaspberryPiOn;
 
-  MusicPlayerItem(this.assetsAudioPlayer, this.isRaspberryPiOn);
+  MusicPlayerItem(this.isRaspberryPiOn);
 
   @override
   Widget build(BuildContext context) {

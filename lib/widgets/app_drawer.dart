@@ -16,12 +16,9 @@ import 'package:smart_baby_cradle/theme_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   final AuthService auth = AuthService();
-  final musicService = MusicService();
-  final AssetsAudioPlayer assetsAudioPlayer;
   final bool isRaspberryPiOn;
 
   AppDrawer(
-    this.assetsAudioPlayer,
     this.isRaspberryPiOn,
   );
 
@@ -101,11 +98,6 @@ class AppDrawer extends StatelessWidget {
               style: TextStyle(color: Colors.white),
             ),
             onTap: () {
-              if (assetsAudioPlayer.isPlaying.value) {
-                assetsAudioPlayer.playlistPlayAtIndex(0);
-                assetsAudioPlayer.pause();
-                musicService.updateFirebasePause(false);
-              }
               themeProvider.currentTheme = girlTheme;
               auth.signOut().then((_) {
                 Navigator.of(context).pushReplacementNamed(Wrapper.routeName);

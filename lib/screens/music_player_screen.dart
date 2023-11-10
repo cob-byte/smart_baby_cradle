@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:provider/provider.dart';
 
+import '../services/controller_service.dart';
 import '../theme/greyscale_theme.dart';
 import '../widgets/app_drawer.dart';
 import '../services/music_service.dart';
@@ -15,11 +16,9 @@ import 'package:firebase_database/firebase_database.dart';
 
 class MusicPlayerScreen extends StatefulWidget {
   static const routeName = '/music-player';
-  final AssetsAudioPlayer assetsAudioPlayer;
 
   const MusicPlayerScreen(
-    this.assetsAudioPlayer, {
-    Key? key,
+      {Key? key,
   }) : super(key: key);
 
   @override
@@ -32,69 +31,48 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
   bool isLooping = false;
   bool isPause = true;
   bool isMuted = false;
-  double volume = 0.3; // Initialize with a default value
-  late DatabaseReference _timestampRef;
+  double volume = 0.3;
   bool isRaspberryPiOn = true;
   late ThemeProvider themeProvider;
-  Timer? _timer;
   final musicService = MusicService();
-
-  AssetsAudioPlayer get assetsAudioPlayer => widget.assetsAudioPlayer;
+  final ControllerService _musicController = ControllerService();
+  StreamSubscription? _subscription;
+  static const String musicDirectory = 'Music';
 
   @override
   void initState() {
     super.initState();
-    musicService.getFirebaseVolume().then((vol) {
-      setState(() {
-        volume =
-            double.tryParse(vol ?? '0.3') ?? 0.3; // Initialize with 0.3 if null
-        assetsAudioPlayer.setVolume(volume);
-        musicService.updateFirebaseVolume(volume);
+    _musicController
+        .getStatusStream(musicDirectory, _onMusicChange)
+        .then((StreamSubscription s) => _subscription = s);
+  }
 
-        // Check if the fetched volume is 0 and set mute accordingly
-        if (volume == 0) {
-          isMuted = true;
-        }
-      });
-    });
+  @override
+  void dispose() {
+    if (_subscription != null) {
+      _subscription?.cancel();
+    }
+    super.dispose();
+  }
 
-    musicService.getFirebaseLooping().then((looping) {
-      setState(() {
-        isLooping = looping ?? false; // Initialize with false if null
-        assetsAudioPlayer
-            .setLoopMode(isLooping ? LoopMode.single : LoopMode.none);
-      });
-    });
+  _onMusicChange(DatabaseEvent event) {
+    setState(() {
+      if (event.snapshot.value != null) {
+        Map<dynamic, dynamic> valueMap = event.snapshot.value as Map<dynamic, dynamic>;
+        int newSongIndex = valueMap['song'] - 1;
+        isLooping = valueMap['isLooping'];
+        isPause = valueMap['pause'];
+        isMuted = valueMap['muted'];
+        volume = double.tryParse(valueMap['volume'] ?? '0.3') ?? 0.3;
 
-    musicService.getFirebasePause().then((pause) {
-      setState(() {
-        isPause = pause ?? true; // Initialize with true if null
-        if (!isPause) {
-          assetsAudioPlayer.play();
-        }
-      });
-    });
-
-    assetsAudioPlayer.isPlaying.listen((isPlaying) {
-      assetsAudioPlayer.current.listen((songs) {
-        changeImage(songs!);
-        musicService.updateFirebaseSong(currentSongIndex);
-        musicService.updateFirebasePause(isPlaying);
-      });
-    });
-
-    assetsAudioPlayer.playlistFinished.listen((finished) {
-      if (finished) {
-        // Auto-play the first song in the playlist when the last song finishes
-        assetsAudioPlayer.playlistPlayAtIndex(0);
-        musicService.updateFirebasePause(false);
+        changeImage(newSongIndex);
       }
     });
   }
 
-  void changeImage(Playing songs) {
+  void changeImage(int newSongIndex) {
     if (mounted) {
-      currentSongIndex = songs.index;
+      currentSongIndex = newSongIndex;
       // Update the imageAsset based on the currentSongIndex
       switch (currentSongIndex) {
         case 0:
@@ -164,7 +142,6 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
             canvasColor: currentTheme.primaryColor,
           ),
           child: AppDrawer(
-            assetsAudioPlayer,
             isRaspberryPiOn,
           ),
         ),
@@ -226,13 +203,8 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                 setState(() {
                                   isMuted = !isMuted;
                                 });
-                                if (isMuted) {
-                                  assetsAudioPlayer.setVolume(0);
-                                  musicService.updateFirebaseVolume(0);
-                                } else {
-                                  assetsAudioPlayer.setVolume(volume);
-                                  musicService.updateFirebaseVolume(volume);
-                                }
+
+                                musicService.updateFirebaseMuted(isMuted);
                               },
                             ),
                             Row(
@@ -244,32 +216,33 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                     color: Colors.black,
                                     size: 40,
                                   ),
-                                  onPressed: currentSongIndex > 0
-                                      ? () async {
-                                    // Decrement the currentSongIndex by 1 and play the prev song
+                                  onPressed: () async {
+                                    // Decrement the currentSongIndex by 1
                                     currentSongIndex--;
-                                    await assetsAudioPlayer.previous();
+
+                                    // Check if the currentSongIndex == 0, make it 9
+                                    if (currentSongIndex == -1) {
+                                      currentSongIndex = 9;
+                                    }
+
                                     // Update Firebase with the new song index
                                     musicService.updateFirebaseSong(currentSongIndex);
                                   }
-                                      : null, // Set onPressed to null when it's the first song
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 30, vertical: 10),
                                   child: IconButton(
-                                    icon: PlayerBuilder.isPlaying(
-                                      player: assetsAudioPlayer,
-                                      builder: (context, isPlaying) {
-                                        return isPlaying
-                                            ? Icon(Icons.pause,
-                                                color: Colors.black, size: 40)
-                                            : Icon(Icons.play_arrow,
-                                                color: Colors.black, size: 40);
-                                      },
-                                    ),
+                                    icon: isPause
+                                        ? Icon(Icons.play_arrow, color: Colors.black, size: 40)
+                                        : Icon(Icons.pause, color: Colors.black, size: 40),
                                     onPressed: () {
-                                      assetsAudioPlayer.playOrPause();
+                                      setState(() {
+                                        isPause = !isPause;
+                                      });
+
+                                      // Update Firebase with the new pause value
+                                      musicService.updateFirebasePause(isPause);
                                     },
                                   ),
                                 ),
@@ -280,12 +253,16 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                     size: 40,
                                   ),
                                   onPressed: () async {
-                                    // Increment the currentSongIndex by 1 and play the next song
+                                    // Increment the currentSongIndex by 1
                                     currentSongIndex++;
-                                    await assetsAudioPlayer.next();
+
+                                    // Check if the currentSongIndex is 10, reset it to 0
+                                    if (currentSongIndex == 10) {
+                                      currentSongIndex = 0;
+                                    }
+
                                     // Update Firebase with the new song index
-                                    musicService
-                                        .updateFirebaseSong(currentSongIndex);
+                                    musicService.updateFirebaseSong(currentSongIndex);
                                   },
                                 ),
                               ],
@@ -301,9 +278,6 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                               onPressed: () {
                                 setState(() {
                                   isLooping = !isLooping;
-                                  assetsAudioPlayer.setLoopMode(isLooping
-                                      ? LoopMode.single
-                                      : LoopMode.none); // Set loop mode here
                                 });
 
                                 musicService.updateFirebaseLooping(isLooping);
@@ -327,7 +301,6 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                               setState(() {
                                 volume = newValue;
                               });
-                              assetsAudioPlayer.setVolume(newValue);
                               musicService.updateFirebaseVolume(newValue);
                             },
                             value: isMuted ? 0.0 : volume,
@@ -348,7 +321,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(0);
+                    musicService.updateFirebaseSong(0);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -368,7 +341,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(1);
+                    musicService.updateFirebaseSong(1);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -389,7 +362,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(2);
+                    musicService.updateFirebaseSong(2);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -410,7 +383,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(3);
+                    musicService.updateFirebaseSong(3);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -431,7 +404,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(4);
+                    musicService.updateFirebaseSong(4);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -452,7 +425,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(5);
+                    musicService.updateFirebaseSong(5);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -472,7 +445,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(6);
+                    musicService.updateFirebaseSong(6);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -493,7 +466,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(7);
+                    musicService.updateFirebaseSong(7);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -513,7 +486,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(8);
+                    musicService.updateFirebaseSong(8);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -533,7 +506,7 @@ class MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    assetsAudioPlayer.playlistPlayAtIndex(9);
+                    musicService.updateFirebaseSong(9);
                   },
                   child: ListTile(
                     leading: const CircleAvatar(

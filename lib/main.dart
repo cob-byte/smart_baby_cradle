@@ -38,28 +38,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final musicService = MusicService();
-  final AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
-  final List<Audio> audios = [
-    Audio("assets/audios/JohnsonsBaby.mp3"),
-    Audio("assets/audios/LullabyGoodnight.mp3"),
-    Audio("assets/audios/PrettyLittleHorses.mp3"),
-    Audio("assets/audios/RockabyeBaby.mp3"),
-    Audio("assets/audios/Twinkle.mp3"),
-    Audio("assets/audios/Nap Time.mp3"),
-    Audio("assets/audios/Butterfly.mp3"),
-    Audio("assets/audios/Baby Bear.mp3"),
-    Audio("assets/audios/If You're Sleepy.mp3"),
-    Audio("assets/audios/Hush Little Baby.mp3"),
-  ];
-
   @override
   void initState() {
-    assetsAudioPlayer.open(
-        Playlist(
-          audios: audios,
-        ),
-        autoStart: false);
     super.initState();
   }
 
@@ -89,13 +69,11 @@ class _MyAppState extends State<MyApp> {
               Wrapper.routeName: (ctx) => Wrapper(),
               ResetPass.routeName: (ctx) => ResetPass(),
               AuthScreen.routeName: (ctx) => const AuthScreen(),
-              HomeScreen.routeName: (ctx) =>
-                  HomeScreen(assetsAudioPlayer: assetsAudioPlayer),
+              HomeScreen.routeName: (ctx) => HomeScreen(),
               CameraScreen.routeName: (ctx) => const CameraScreen(),
               Profile.routeName: (ctx) => const Profile(),
               SleepAnalysisScreen.routeName: (ctx) => SleepAnalysisScreen(),
-              MusicPlayerScreen.routeName: (ctx) =>
-                  MusicPlayerScreen(assetsAudioPlayer),
+              MusicPlayerScreen.routeName: (ctx) => MusicPlayerScreen(),
               SleepScoreScreen.routeName: (ctx) => SleepScoreScreen(100),
               WakeUpTimesScreen.routeName: (ctx) => WakeUpTimesScreen(),
             },

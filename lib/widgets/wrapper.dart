@@ -9,8 +9,6 @@ import '../screens/home_screen.dart';
 class Wrapper extends StatelessWidget {
   static const routeName = '/wrapper';
 
-  final AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
-
   Wrapper({Key? key}) : super(key: key);
 
   @override
@@ -20,7 +18,7 @@ class Wrapper extends StatelessWidget {
       return const AuthScreen();
     }
     else{
-      return HomeScreen(assetsAudioPlayer: assetsAudioPlayer);
+      return HomeScreen();
     }
   }
 }
