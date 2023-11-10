@@ -209,6 +209,7 @@ class AuthCardState extends State<AuthCard>
                           _obscureText
                               ? Icons.visibility_off
                               : Icons.visibility,
+                          color: Theme.of(context).primaryColor,
                         ),
                         onPressed: () {
                           setState(() {
@@ -256,8 +257,9 @@ class AuthCardState extends State<AuthCard>
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscureText1
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Theme.of(context).primaryColor,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -298,8 +300,15 @@ class AuthCardState extends State<AuthCard>
                         position: _slideAnimation,
                         child: TextFormField(
                           enabled: _authMode == AuthMode.signUp,
-                          decoration:
-                              const InputDecoration(labelText: 'First Name'),
+                          decoration: InputDecoration(
+                            labelText: 'First Name',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).primaryColor),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).primaryColor),
+                            ),
+                          ),
                           validator: _authMode == AuthMode.signUp
                               ? (value) {
                                   value = value!.trim(); // Trim the input
@@ -338,8 +347,15 @@ class AuthCardState extends State<AuthCard>
                         position: _slideAnimation,
                         child: TextFormField(
                           enabled: _authMode == AuthMode.signUp,
-                          decoration:
-                              const InputDecoration(labelText: 'Last Name'),
+                          decoration: InputDecoration(
+                            labelText: 'Last Name',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).primaryColor),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).primaryColor),
+                            ),
+                          ),
                           validator: _authMode == AuthMode.signUp
                               ? (value) {
                                   value = value!.trim(); // Trim the input

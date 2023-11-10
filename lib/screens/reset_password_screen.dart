@@ -25,14 +25,26 @@ class ResetPassState extends State<ResetPass> {
 
     void _showErrorSnackbar(String message) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            Icon(Icons.error, color: Colors.white),
+            SizedBox(width: 8),
+            Text(message),
+          ],
+        ),
         backgroundColor: Colors.red,
       ));
     }
 
     void _showSuccessSnackbar(String message) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 8),
+            Text(message),
+          ],
+        ),
         backgroundColor: Colors.green,
       ));
     }
@@ -41,13 +53,14 @@ class ResetPassState extends State<ResetPass> {
       final email = _emailController.text.trim();
 
       if (email.isEmpty || !email.contains('@')) {
-        _showErrorSnackbar('Invalid email address');
+        _showErrorSnackbar('Invalid e-mail address');
         return;
       }
 
       try {
         await _auth.sendPasswordResetEmail(email: email);
-        _showSuccessSnackbar('Password reset email sent. Please check your inbox.');
+        _showSuccessSnackbar(
+            'Password reset email sent. Please check your inbox.');
       } catch (error) {
         _showErrorSnackbar('Password reset failed. Please try again.');
       }
@@ -97,7 +110,7 @@ class ResetPassState extends State<ResetPass> {
                     ),
                     elevation: 8.0,
                     child: Container(
-                      height: 225,
+                      height: 200,
                       width: deviceSize.width * 0.75,
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -113,13 +126,30 @@ class ResetPassState extends State<ResetPass> {
                             controller: _emailController,
                             decoration: InputDecoration(
                               labelText: 'Email',
+                              labelStyle: TextStyle(
+                                  color: Theme.of(context).primaryColor),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor),
+                              ),
                             ),
                           ),
                           SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: _resetPassword,
-                            child: Text('Reset Password'),
-                          ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              maximumSize: Size(200, 36),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.autorenew_rounded),
+                                SizedBox(width: 8),
+                                Text('Reset Password'),
+                              ],
+                            ),
+                          )
                         ],
                       ),
                     ),
