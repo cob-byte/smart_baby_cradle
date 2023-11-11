@@ -213,8 +213,7 @@ class EditNameFormPageState extends State<EditNameFormPage> {
                                         borderRadius: BorderRadius.circular(10),
                                         borderSide: BorderSide(
                                           color: currentTheme.primaryColor,
-                                          width:
-                                              2, // Adjust the width as needed
+                                          width: 2,
                                         ),
                                       ),
                                       enabledBorder: OutlineInputBorder(
