@@ -19,7 +19,7 @@ final ThemeData girlTheme = ThemeData(
     brightness: Brightness.light,
     inversePrimary: Color.fromRGBO(255, 202, 212, 1),
     inverseSurface: Color.fromRGBO(251, 173, 187, 1),
-    onPrimaryContainer: Color.fromRGBO(138, 23, 44, 1),
+    onPrimaryContainer: Color.fromRGBO(204, 29, 61, 1),
     onInverseSurface: Color.fromRGBO(204, 117, 134, 1),
     onSurfaceVariant: Color.fromRGBO(255, 197, 208, 1),
     surfaceVariant: Color.fromRGBO(253, 175, 187, 1),

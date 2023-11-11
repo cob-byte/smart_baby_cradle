@@ -96,8 +96,7 @@ class ProfileState extends State<Profile> {
                             gradient: LinearGradient(
                               colors: [
                                 currentTheme.colorScheme.primary.withOpacity(1),
-                                currentTheme.colorScheme.primary
-                                    .withOpacity(.95),
+                                currentTheme.colorScheme.primary.withOpacity(1),
                                 currentTheme.colorScheme.secondary
                                     .withOpacity(1),
                                 currentTheme.colorScheme.surface.withOpacity(1),
@@ -149,13 +148,25 @@ class ProfileState extends State<Profile> {
                               child: Text(
                                 user.name,
                                 style: TextStyle(
-                                    fontSize: 30, fontFamily: 'OpenSans'),
+                                  fontSize: 30,
+                                  fontFamily: 'OpenSans',
+                                  color: currentTheme.colorScheme.surface,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(user.email),
+                                Text(
+                                  user.email,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'OpenSans',
+                                    color: currentTheme.colorScheme.surface,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ],
                             ),
                             SizedBox(

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 final Color fourthColor = Color.fromRGBO(86, 174, 237, 0.608);
 
 final ThemeData boyTheme = ThemeData(
-  primaryColor: Color.fromARGB(255, 6, 126, 142),
+  primaryColor: Color.fromARGB(255, 4, 61, 185),
   colorScheme: const ColorScheme(
-    primary: Color.fromRGBO(37, 137, 177, 1),
+    primary: Color.fromRGBO(37, 86, 177, 1),
     secondary: Color.fromRGBO(153, 209, 250, 1),
     tertiary: Color.fromRGBO(151, 209, 250, 1),
     surface: Colors.white,

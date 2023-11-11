@@ -7,8 +7,9 @@ import 'package:smart_baby_cradle/widgets/appbar_widget.dart';
 import '../screens/profile_screen.dart';
 import '../services/auth_service.dart';
 import '../user/user.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
 
-// This class handles the Page to edit the Name Section of the User Profile.
 class EditNameFormPage extends StatefulWidget {
   const EditNameFormPage({Key? key}) : super(key: key);
 
@@ -38,7 +39,6 @@ class EditNameFormPageState extends State<EditNameFormPage> {
       String? currentName = user.displayName;
       String newName = "${firstName.trim()} ${secondName.trim()}";
 
-      // Check if the new name is the same as the current one
       if (newName == currentName) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -49,7 +49,6 @@ class EditNameFormPageState extends State<EditNameFormPage> {
         return false;
       }
 
-      // If the name is different
       await user.updateDisplayName(newName);
       await _auth.saveFullName(firstName, secondName);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -64,116 +63,229 @@ class EditNameFormPageState extends State<EditNameFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(context),
-      body: FutureBuilder<User>(
-        future: _userData.getUser(),
-        builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-          // the function that returns a widget based on the snapshot
-          if (snapshot.hasData) {
-            User user = snapshot.data!;
-            firstNameController.text = user.fname;
-            secondNameController.text = user.lname;
-            return Form(
-              key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(
-                        width: 330,
-                        child: const Text(
-                          "What's Your Name?",
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(0, 40, 16, 0),
-                            child: SizedBox(
-                                height: 100,
-                                width: 150,
-                                child: TextFormField(
-                                  // Handles Form Validation for First Name
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your first name';
-                                    } else if (!isAlpha(value)) {
-                                      return 'Only Letters Please';
-                                    }
-                                    return null;
-                                  },
-                                  decoration:
-                                  InputDecoration(labelText: 'First Name'),
-                                  controller: firstNameController,
-                                ))),
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(0, 40, 16, 0),
-                            child: SizedBox(
-                                height: 100,
-                                width: 150,
-                                child: TextFormField(
-                                  // Handles Form Validation for Last Name
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your last name';
-                                    } else if (!isAlpha(value)) {
-                                      return 'Only Letters Please';
-                                    }
-                                    return null;
-                                  },
-                                  decoration:
-                                  const InputDecoration(labelText: 'Last Name'),
-                                  controller: secondNameController,
-                                )))
-                      ],
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(top: 150),
-                        child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: SizedBox(
-                              width: 330,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate() &&
-                                      isAlpha(firstNameController.text + secondNameController.text)) {
-                                    bool nameUpdated = await updateUserValue(firstNameController.text, secondNameController.text);
-                                    if (nameUpdated) {
-                                      Navigator.pop(context);
-                                    }
-                                  }
-                                },
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
 
-                                child: const Text(
-                                  'Update',
-                                  style: TextStyle(fontSize: 15),
+    return Theme(
+      data: currentTheme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Edit Name',
+            style: currentTheme.appBarTheme.titleTextStyle,
+          ),
+          backgroundColor: currentTheme.appBarTheme.backgroundColor,
+        ),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                currentTheme.colorScheme.primary.withOpacity(1),
+                //currentTheme.colorScheme.primary.withOpacity(.95),
+                currentTheme.colorScheme.secondary.withOpacity(1),
+                currentTheme.colorScheme.surface.withOpacity(1),
+                currentTheme.colorScheme.surface.withOpacity(1),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: FutureBuilder<User>(
+            future: _userData.getUser(),
+            builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+              if (snapshot.hasData) {
+                User user = snapshot.data!;
+                firstNameController.text = user.fname;
+                secondNameController.text = user.lname;
+                return Form(
+                  key: _formKey,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        bottom: -60,
+                        right: -60,
+                        child: Image(
+                          image: AssetImage('assets/image/cradle_bg.png'),
+                          width: 250,
+                          height: 250,
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          SizedBox(height: 20),
+                          SizedBox(
+                            width: 330,
+                            child: Text(
+                              "What's Your Name?",
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                color: currentTheme.colorScheme.surface,
+                              ),
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
+                                child: SizedBox(
+                                  height: 100,
+                                  width: 150,
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your first name';
+                                      } else if (!isAlpha(value)) {
+                                        return 'Only Letters Please';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                      labelText: 'First Name',
+                                      labelStyle: TextStyle(
+                                          color:
+                                              currentTheme.colorScheme.surface,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 18),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: currentTheme.primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: currentTheme.primaryColor,
+                                          width:
+                                              2, // Adjust the width as needed
+                                        ),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: currentTheme.primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    controller: firstNameController,
+                                    style: TextStyle(
+                                        color:
+                                            currentTheme.colorScheme.surface),
+                                  ),
                                 ),
                               ),
-                            )))
-                  ],
-                ),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            // if the Future is completed with an error
-            return Center(
-              child: Text('Something went wrong: ${snapshot.error}'),
-            );
-          } else {
-            // if the Future is still loading
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
+                                child: SizedBox(
+                                  height: 100,
+                                  width: 150,
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your last name';
+                                      } else if (!isAlpha(value)) {
+                                        return 'Only Letters Please';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                      labelText: 'Last Name',
+                                      labelStyle: TextStyle(
+                                          color:
+                                              currentTheme.colorScheme.surface,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 18),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: currentTheme.primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: currentTheme.primaryColor,
+                                          width:
+                                              2, // Adjust the width as needed
+                                        ),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: currentTheme.primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    controller: secondNameController,
+                                    style: TextStyle(
+                                        color:
+                                            currentTheme.colorScheme.surface),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 1),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: SizedBox(
+                                width: 150,
+                                height: 40,
+                                child: ElevatedButton.icon(
+                                  onPressed: () async {
+                                    if (_formKey.currentState!.validate() &&
+                                        isAlpha(firstNameController.text +
+                                            secondNameController.text)) {
+                                      bool nameUpdated = await updateUserValue(
+                                        firstNameController.text,
+                                        secondNameController.text,
+                                      );
+                                      if (nameUpdated) {
+                                        Navigator.pop(context);
+                                      }
+                                    }
+                                  },
+                                  icon: Icon(Icons.update),
+                                  label: Text(
+                                    'Update',
+                                    style: TextStyle(fontSize: 15),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text('Something went wrong: ${snapshot.error}'),
+                );
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
+        ),
       ),
     );
   }
