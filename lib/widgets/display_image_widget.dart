@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
 import 'package:flutter/material.dart';
 
 class DisplayImage extends StatelessWidget {
@@ -15,13 +16,14 @@ class DisplayImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Color.fromRGBO(64, 105, 225, 1);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
 
     return Center(
         child: Stack(children: [
-      buildImage(color),
+      buildImage(currentTheme.primaryColor),
       Positioned(
-        child: buildEditIcon(color),
+        child: buildEditIcon(context),
         right: 4,
         top: 10,
       )
@@ -45,11 +47,11 @@ class DisplayImage extends StatelessWidget {
   }
 
   // Builds Edit Icon on Profile Picture
-  Widget buildEditIcon(Color color) => buildCircle(
+  Widget buildEditIcon(context) => buildCircle(
       all: 8,
       child: Icon(
         Icons.edit,
-        color: color,
+        color: Theme.of(context).primaryColor,
         size: 20,
       ));
 

@@ -93,12 +93,33 @@ class ProfileState extends State<Profile> {
                         child: Container(
                           height: height / 1.4,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            gradient: LinearGradient(
+                              colors: [
+                                currentTheme.colorScheme.primary.withOpacity(1),
+                                currentTheme.colorScheme.primary
+                                    .withOpacity(.95),
+                                currentTheme.colorScheme.secondary
+                                    .withOpacity(1),
+                                currentTheme.colorScheme.surface.withOpacity(1),
+                                currentTheme.colorScheme.surface.withOpacity(1),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomRight,
+                            ),
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(45.0),
-                              topRight: Radius.circular(45.0),
+                              topLeft: Radius.circular(60.0),
+                              topRight: Radius.circular(60.0),
                             ),
                           ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: -60,
+                        right: -50,
+                        child: Image(
+                          image: AssetImage('assets/image/cradle_bg.png'),
+                          width: 200,
+                          height: 200,
                         ),
                       ),
                       Positioned(
@@ -138,24 +159,32 @@ class ProfileState extends State<Profile> {
                               ],
                             ),
                             SizedBox(
-                              height: 50,
+                              height: 30,
                             ),
                             buildUserInfoDisplay(
                                 user.name, 'Name', EditNameFormPage()),
                             buildUserInfoDisplay(
                                 user.device, 'Device ID', EditDeviceFormPage()),
                             SizedBox(
-                              height: 30,
+                              height: 15,
                             ),
-                            ElevatedButton(
+                            ElevatedButton.icon(
                               onPressed: () {
                                 Route route = MaterialPageRoute(
-                                    builder: (context) => ChangePassFormPage());
+                                  builder: (context) => ChangePassFormPage(),
+                                );
                                 Navigator.push(context, route).then(onGoBack);
                               },
-                              child: Text('Change Password'),
+                              icon: Icon(Icons.lock),
+                              label: Text('Change Password'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context)
+                                    .primaryColor, // Use your desired color
+                                foregroundColor: Colors
+                                    .white, // Set text/icon color to white
+                              ),
                             ),
-                            ElevatedButton(
+                            ElevatedButton.icon(
                               onPressed: () {
                                 themeProvider.currentTheme = girlTheme;
                                 auth.signOut().then((_) {
@@ -163,7 +192,14 @@ class ProfileState extends State<Profile> {
                                       .pushReplacementNamed(Wrapper.routeName);
                                 });
                               },
-                              child: Text('Log Out'),
+                              icon: Icon(Icons.exit_to_app),
+                              label: Text('Log Out'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context)
+                                    .primaryColor, // Use your desired color
+                                foregroundColor: Colors
+                                    .white, // Set text/icon color to white
+                              ),
                             ),
                           ],
                         ),
@@ -180,48 +216,66 @@ class ProfileState extends State<Profile> {
   // Widget builds the display item with the proper formatting to display the user's info
   Widget buildUserInfoDisplay(String getValue, String title, Widget editPage) =>
       Padding(
-          padding: EdgeInsets.only(bottom: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey,
+        padding: EdgeInsets.only(bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color:
+                    Theme.of(context).colorScheme.surface, // Use primary color
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              width: 350,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(
+                    20), // Set border radius for rounded corners
+                border: Border.all(
+                  color: Theme.of(context).primaryColor,
+                  width: 1,
                 ),
+                color: Colors.white,
               ),
-              SizedBox(
-                height: 1,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        navigateSecondPage(editPage);
+                      },
+                      child: Text(
+                        getValue,
+                        style: TextStyle(
+                          fontSize: 16,
+                          height: 1.4,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        right: 10), // Add padding on the right side
+                    child: Icon(
+                      Icons.edit_square,
+                      color: Theme.of(context).primaryColor,
+                      size: 20.0,
+                    ),
+                  )
+                ],
               ),
-              Container(
-                  width: 350,
-                  height: 40,
-                  decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                    color: Colors.grey,
-                    width: 1,
-                  ))),
-                  child: Row(children: [
-                    Expanded(
-                        child: TextButton(
-                            onPressed: () {
-                              navigateSecondPage(editPage);
-                            },
-                            child: Text(
-                              getValue,
-                              style: TextStyle(fontSize: 16, height: 1.4),
-                            ))),
-                    Icon(
-                      Icons.keyboard_arrow_right,
-                      color: Colors.grey,
-                      size: 40.0,
-                    )
-                  ]))
-            ],
-          ));
+            ),
+          ],
+        ),
+      );
 
   // Refreshes the Page after updating user info.
   FutureOr onGoBack(dynamic value) {

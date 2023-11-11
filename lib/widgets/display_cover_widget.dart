@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
 
 class DisplayCoverPhoto extends StatelessWidget {
   final String coverPhotoPath;
@@ -14,14 +16,15 @@ class DisplayCoverPhoto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Color.fromRGBO(64, 105, 225, 1);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
 
     return Center(
       child: Stack(
         children: [
-          buildCoverPhoto(color),
+          buildCoverPhoto(currentTheme.primaryColor),
           Positioned(
-            child: buildEditIcon(color),
+            child: buildEditIcon(context),
             right: 4,
             top: 10,
           )
@@ -48,17 +51,19 @@ class DisplayCoverPhoto extends StatelessWidget {
   }
 
   // Builds Edit Icon on Cover Photo
-  Widget buildEditIcon(Color color) => buildCircle(
+  Widget buildEditIcon(BuildContext context) => buildCircle(
+        context: context,
         all: 8,
         child: Icon(
           Icons.edit,
-          color: color,
+          color: Theme.of(context).primaryColor,
           size: 20,
         ),
       );
 
   // Builds/Makes Circle for Edit Icon on Cover Photo
   Widget buildCircle({
+    required BuildContext context,
     required Widget child,
     required double all,
   }) =>
