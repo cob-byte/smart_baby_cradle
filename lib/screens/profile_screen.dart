@@ -217,66 +217,64 @@ class ProfileState extends State<Profile> {
   Widget buildUserInfoDisplay(String getValue, String title, Widget editPage) =>
       Padding(
         padding: EdgeInsets.only(bottom: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-                color:
-                    Theme.of(context).colorScheme.surface, // Use primary color
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              width: 350,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(
-                    20), // Set border radius for rounded corners
-                border: Border.all(
-                  color: Theme.of(context).primaryColor,
-                  width: 1,
+        child: GestureDetector(
+          onTap: () {
+            navigateSecondPage(editPage);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  color: Theme.of(context).colorScheme.surface,
                 ),
-                color: Colors.white,
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {
-                        navigateSecondPage(editPage);
-                      },
-                      child: Text(
-                        getValue,
-                        style: TextStyle(
-                          fontSize: 16,
-                          height: 1.4,
-                          color: Theme.of(context).primaryColor,
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                width: 350,
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Theme.of(context).primaryColor,
+                    width: 1,
+                  ),
+                  color: Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          getValue,
+                          style: TextStyle(
+                            fontSize: 18,
+                            height: 1.4,
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        right: 10), // Add padding on the right side
-                    child: Icon(
-                      Icons.edit_square,
-                      color: Theme.of(context).primaryColor,
-                      size: 20.0,
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Icon(
+                        Icons.edit_square,
+                        color: Theme.of(context).primaryColor,
+                        size: 20.0,
+                      ),
                     ),
-                  )
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
-
   // Refreshes the Page after updating user info.
   FutureOr onGoBack(dynamic value) {
     setState(() {
