@@ -111,14 +111,15 @@ class AuthCardState extends State<AuthCard>
           _showError('Device ID Does Not Exist',
               'Please try again with a valid Device ID.');
         }
-      }
-      if (userCredential != null &&
-          userCredential.user != null &&
-          _authData['fName'] != null &&
-          _authData['lName'] != null) {
-        String fullName = _authData['fName']! + ' ' + _authData['lName']!;
-        await userCredential.user!.updateDisplayName(fullName);
-        await _auth.saveFullName(_authData['fName']!, _authData['lName']!);
+
+        if (userCredential != null &&
+            userCredential.user != null &&
+            _authData['fName'] != null &&
+            _authData['lName'] != null) {
+          String fullName = _authData['fName']! + ' ' + _authData['lName']!;
+          await userCredential.user!.updateDisplayName(fullName);
+          await _auth.saveFullName(_authData['fName']!, _authData['lName']!);
+        }
       }
       setState(() {
         _isLoading = false;

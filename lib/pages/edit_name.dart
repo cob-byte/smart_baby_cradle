@@ -25,7 +25,24 @@ class EditNameFormPageState extends State<EditNameFormPage> {
   final secondNameController = TextEditingController();
   final UserData _userData = UserData();
   final AuthService _auth = AuthService();
+  User? user;
 
+  @override
+  void initState() {
+    super.initState();
+
+    _userData.getUser().then((userData) {
+      if (userData != null) {
+        setState(() {
+          user = userData;
+          firstNameController.text = user!.fname;
+          secondNameController.text = user!.lname;
+        });
+      }
+    });
+  }
+
+  @override
   @override
   void dispose() {
     firstNameController.dispose();
@@ -34,9 +51,9 @@ class EditNameFormPageState extends State<EditNameFormPage> {
   }
 
   Future<bool> updateUserValue(String firstName, String secondName) async {
-    var user = auth.FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      String? currentName = user.displayName;
+    var currentUser = auth.FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      String? currentName = currentUser.displayName;
       String newName = "${firstName.trim()} ${secondName.trim()}";
 
       if (newName == currentName) {
@@ -49,7 +66,7 @@ class EditNameFormPageState extends State<EditNameFormPage> {
         return false;
       }
 
-      await user.updateDisplayName(newName);
+      await currentUser.updateDisplayName(newName);
       await _auth.saveFullName(firstName, secondName);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -81,7 +98,6 @@ class EditNameFormPageState extends State<EditNameFormPage> {
             gradient: LinearGradient(
               colors: [
                 currentTheme.colorScheme.primary.withOpacity(1),
-                //currentTheme.colorScheme.primary.withOpacity(.95),
                 currentTheme.colorScheme.secondary.withOpacity(1),
                 currentTheme.colorScheme.surface.withOpacity(1),
                 currentTheme.colorScheme.surface.withOpacity(1),
@@ -90,199 +106,176 @@ class EditNameFormPageState extends State<EditNameFormPage> {
               end: Alignment.bottomRight,
             ),
           ),
-          child: FutureBuilder<User>(
-            future: _userData.getUser(),
-            builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-              if (snapshot.hasData) {
-                User user = snapshot.data!;
-                firstNameController.text = user.fname;
-                secondNameController.text = user.lname;
-                return Form(
-                  key: _formKey,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        bottom: -60,
-                        right: -60,
-                        child: Image(
-                          image: AssetImage('assets/image/cradle_bg.png'),
-                          width: 250,
-                          height: 250,
+          child: Form(
+            key: _formKey,
+            child: Stack(
+              children: [
+                Positioned(
+                  bottom: -60,
+                  right: -60,
+                  child: Image(
+                    image: AssetImage('assets/image/cradle_bg.png'),
+                    width: 250,
+                    height: 250,
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(height: 20),
+                    SizedBox(
+                      width: 330,
+                      child: Text(
+                        "What's Your Name?",
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: currentTheme.colorScheme.surface,
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(height: 20),
-                          SizedBox(
-                            width: 330,
-                            child: Text(
-                              "What's Your Name?",
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
+                          child: SizedBox(
+                            height: 100,
+                            width: 150,
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your first name';
+                                } else if (!isAlpha(value)) {
+                                  return 'Only Letters Please';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'First Name',
+                                labelStyle: TextStyle(
+                                    color: currentTheme.colorScheme.surface,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 18),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: currentTheme.primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: currentTheme.primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: currentTheme.primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              controller: firstNameController,
                               style: TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold,
-                                color: currentTheme.colorScheme.surface,
-                              ),
+                                  color: currentTheme.colorScheme.surface),
                             ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
-                                child: SizedBox(
-                                  height: 100,
-                                  width: 150,
-                                  child: TextFormField(
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter your first name';
-                                      } else if (!isAlpha(value)) {
-                                        return 'Only Letters Please';
-                                      }
-                                      return null;
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: 'First Name',
-                                      labelStyle: TextStyle(
-                                          color:
-                                              currentTheme.colorScheme.surface,
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 18),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: currentTheme.primaryColor,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: currentTheme.primaryColor,
-                                          width:
-                                              2, // Adjust the width as needed
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: currentTheme.primaryColor,
-                                          width: 2,
-                                        ),
-                                      ),
-                                    ),
-                                    controller: firstNameController,
-                                    style: TextStyle(
-                                        color:
-                                            currentTheme.colorScheme.surface),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
+                          child: SizedBox(
+                            height: 100,
+                            width: 150,
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your last name';
+                                } else if (!isAlpha(value)) {
+                                  return 'Only Letters Please';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'Last Name',
+                                labelStyle: TextStyle(
+                                    color: currentTheme.colorScheme.surface,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 18),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: currentTheme.primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: currentTheme.primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: currentTheme.primaryColor,
+                                    width: 2,
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
-                                child: SizedBox(
-                                  height: 100,
-                                  width: 150,
-                                  child: TextFormField(
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter your last name';
-                                      } else if (!isAlpha(value)) {
-                                        return 'Only Letters Please';
-                                      }
-                                      return null;
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: 'Last Name',
-                                      labelStyle: TextStyle(
-                                          color:
-                                              currentTheme.colorScheme.surface,
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 18),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: currentTheme.primaryColor,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: currentTheme.primaryColor,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: currentTheme.primaryColor,
-                                          width: 2,
-                                        ),
-                                      ),
-                                    ),
-                                    controller: secondNameController,
-                                    style: TextStyle(
-                                        color:
-                                            currentTheme.colorScheme.surface),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 1),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: SizedBox(
-                                width: 150,
-                                height: 40,
-                                child: ElevatedButton.icon(
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate() &&
-                                        isAlpha(firstNameController.text +
-                                            secondNameController.text)) {
-                                      bool nameUpdated = await updateUserValue(
-                                        firstNameController.text,
-                                        secondNameController.text,
-                                      );
-                                      if (nameUpdated) {
-                                        Navigator.pop(context);
-                                      }
-                                    }
-                                  },
-                                  icon: Icon(Icons.update),
-                                  label: Text(
-                                    'Update',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                              ),
+                              controller: secondNameController,
+                              style: TextStyle(
+                                  color: currentTheme.colorScheme.surface),
                             ),
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 1),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: 150,
+                          height: 40,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate() &&
+                                  isAlpha(firstNameController.text +
+                                      secondNameController.text)) {
+                                bool nameUpdated = await updateUserValue(
+                                  firstNameController.text,
+                                  secondNameController.text,
+                                );
+                                if (nameUpdated) {
+                                  Navigator.pop(context);
+                                }
+                              }
+                            },
+                            icon: Icon(Icons.update),
+                            label: Text(
+                              'Update',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                              Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text('Something went wrong: ${snapshot.error}'),
-                );
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

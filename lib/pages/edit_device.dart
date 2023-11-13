@@ -8,9 +8,9 @@ import '../user/user.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 
-// This class handles the Page to edit the Device ID Section of the User Profile.
 class EditDeviceFormPage extends StatefulWidget {
   const EditDeviceFormPage({Key? key}) : super(key: key);
+
   @override
   EditDeviceFormPageState createState() {
     return EditDeviceFormPageState();
@@ -22,6 +22,20 @@ class EditDeviceFormPageState extends State<EditDeviceFormPage> {
   final deviceController = TextEditingController();
   final UserData _userData = UserData();
   final AuthService _auth = AuthService();
+  late User _user; // Declare a variable to store the user data
+
+  @override
+  void initState() {
+    super.initState();
+    _userData.getUser().then((user) {
+      if (user != null) {
+        setState(() {
+          _user = user;
+          deviceController.text = user.device;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -30,11 +44,8 @@ class EditDeviceFormPageState extends State<EditDeviceFormPage> {
   }
 
   Future<bool> updateUserValue(String device) async {
-    // Get the current device ID
-    User user = await _userData.getUser();
-    String currentDeviceID = user.device;
+    String currentDeviceID = _user.device;
 
-    // Check if the new device ID is the same as the current one
     if (device.trim() == currentDeviceID) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -42,10 +53,9 @@ class EditDeviceFormPageState extends State<EditDeviceFormPage> {
           backgroundColor: Colors.blue,
         ),
       );
-      return false; // Return false to indicate no change
+      return false;
     }
 
-    // If the device ID is different
     final deviceIDExists = await _auth.checkDeviceIDExists(device.trim());
     if (deviceIDExists) {
       await _auth.saveDeviceID(device.trim());
@@ -94,137 +104,121 @@ class EditDeviceFormPageState extends State<EditDeviceFormPage> {
               end: Alignment.bottomRight,
             ),
           ),
-          child: FutureBuilder<User>(
-            future: _userData.getUser(),
-            builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                User user = snapshot.data!;
-                deviceController.text = user.device;
-                return Form(
-                  key: _formKey,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        bottom: -60,
-                        right: -60,
-                        child: Image(
-                          image: AssetImage('assets/image/cradle_bg.png'),
-                          width: 250,
-                          height: 250,
+          child: Form(
+            key: _formKey,
+            child: Stack(
+              children: [
+                Positioned(
+                  bottom: -60,
+                  right: -60,
+                  child: Image(
+                    image: AssetImage('assets/image/cradle_bg.png'),
+                    width: 250,
+                    height: 250,
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(height: 20),
+                    SizedBox(
+                      width: 330,
+                      child: Text(
+                        "What's Your Device ID?",
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.surface,
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(height: 20),
-                          SizedBox(
-                            width: 330,
-                            child: Text(
-                              "What's Your Device ID?",
-                              style: TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.surface,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 40),
+                      child: SizedBox(
+                        height: 100,
+                        width: 330,
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your Device ID';
+                            } else if (isAlpha(value)) {
+                              return 'Only Numbers Please';
+                            }
+                            return null;
+                          },
+                          controller: deviceController,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.surface,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500),
+                          decoration: InputDecoration(
+                            labelText: 'Your Device ID',
+                            labelStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.surface,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 18,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 40),
-                            child: SizedBox(
-                              height: 100,
-                              width: 330,
-                              child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your Device ID';
-                                  } else if (isAlpha(value)) {
-                                    return 'Only Numbers Please';
-                                  }
-                                  return null;
-                                },
-                                controller: deviceController,
-                                style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500),
-                                decoration: InputDecoration(
-                                  labelText: 'Your Device ID',
-                                  labelStyle: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 18,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(context).primaryColor,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(context).primaryColor,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(context).primaryColor,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 10),
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: SizedBox(
-                                width: 150,
-                                height: 40,
-                                child: ElevatedButton.icon(
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      bool deviceIDExists =
-                                          await updateUserValue(
-                                              deviceController.text);
-                                      if (deviceIDExists) {
-                                        Navigator.pop(context);
-                                      }
-                                    }
-                                  },
-                                  icon: Icon(Icons.update),
-                                  label: Text(
-                                    'Update',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ],
-                  ),
-                );
-              }
-            },
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: SizedBox(
+                          width: 150,
+                          height: 40,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                bool deviceIDExists =
+                                await updateUserValue(deviceController.text);
+                                if (deviceIDExists) {
+                                  Navigator.pop(context);
+                                }
+                              }
+                            },
+                            icon: Icon(Icons.update),
+                            label: Text(
+                              'Update',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                              Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
