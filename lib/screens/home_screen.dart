@@ -113,6 +113,80 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _sendCommand(String command) async {
+    String url = 'http://192.168.254.183:5000/$command';
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    try {
+      final response = await http.get(Uri.parse(url), headers: headers);
+      if (response.statusCode == 200) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Success'),
+              content: Text('${command[0].toUpperCase()}${command.substring(1)} was successful.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Failed'),
+              content: Text('Something went wrong, please try again.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  void _showConfirmationDialog(String command) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmation'),
+          content: Text('Are you sure you want to $command?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _sendCommand(command);
+              },
+            ),
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void checkLoginStatus() {
     final isLoggedIn = FirebaseAuth.instance.currentUser != null;
     if (isLoggedIn) {
@@ -207,6 +281,24 @@ class HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                     ),
                     onPressed: toggleTheme,
+                  ),
+                if (isRaspberryPiOn)
+                  PopupMenuButton<String>(
+                    onSelected: (String result) {
+                      if (result == 'Shutdown' || result == 'Reboot') {
+                        _showConfirmationDialog(result.toLowerCase());
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'Shutdown',
+                        child: Text('Shutdown'),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'Reboot',
+                        child: Text('Reboot'),
+                      ),
+                    ],
                   ),
               ],
             ),
