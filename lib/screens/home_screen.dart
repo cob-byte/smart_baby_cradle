@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:smart_baby_cradle/theme/boy_theme.dart';
 import 'package:smart_baby_cradle/theme/girl_theme.dart';
 
@@ -9,7 +10,6 @@ import '../widgets/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -110,6 +110,8 @@ class HomeScreenState extends State<HomeScreen> {
       _rootRef =
           FirebaseDatabase.instance.ref().child("devices").child(deviceID!);
       _timestampRef = _rootRef.child("timestamp");
+      String? token = await _fcm.getToken();
+      FirebaseDatabase.instance.ref().child('devices').child(deviceID!).child('tokens').child(token!).set(true);
     }
   }
 
@@ -202,23 +204,65 @@ class HomeScreenState extends State<HomeScreen> {
     fetchDeviceID();
     checkLoginStatus();
 
+    _fcm.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    ).then((NotificationSettings settings) {
+      print('Settings registered: $settings');
+      if (settings.authorizationStatus == AuthorizationStatus.denied) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Permission Denied'),
+            content: Text('We recommend enabling notifications for the best experience.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Ok'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+
     _fcm.getToken().then((token) => _logger.info(token));
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       _logger.info("onMessage: ${message.data}");
-      final snackbar = SnackBar(
-        content: Text(message.notification?.title ?? "No Title"),
-        action: SnackBarAction(
-          label: 'Go',
-          onPressed: () {},
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: ListTile(
+              title: Text(notification.title ?? ''),
+              subtitle: Text(notification.body ?? ''),
+            ),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.amber,
+                ),
+                child: Text('Ok'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      }
     });
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
       if (message != null) {
         _logger.info("onMessageOpenedApp: $message");
       }
     });
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     _fcm.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         _logger.info("onLaunch: $message");
@@ -234,6 +278,11 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   bool isGirlTheme = true; // Initialize with girl theme
+
+  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    await Firebase.initializeApp();
+    print('Handling a background message ${message.messageId}');
+  }
 
   void toggleTheme() {
     setState(() {
@@ -260,7 +309,7 @@ class HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Dashboard ✨',
+            'Dashboard',
             style: currentTheme.appBarTheme.titleTextStyle,
           ),
           backgroundColor: currentTheme.appBarTheme.backgroundColor,
