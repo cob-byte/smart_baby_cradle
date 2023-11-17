@@ -68,7 +68,13 @@ class ChangePassFormPageState extends State<ChangePassFormPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('The current password is incorrect'),
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 8),
+              Text('The current password is incorrect'),
+            ],
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -366,8 +372,15 @@ class ChangePassFormPageState extends State<ChangePassFormPage> {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
-                                              content: Text(
-                                                  'Password successfully changed'),
+                                              content: Row(
+                                                children: [
+                                                  Icon(Icons.check,
+                                                      color: Colors.white),
+                                                  SizedBox(width: 8),
+                                                  Text(
+                                                      'Password successfully changed'),
+                                                ],
+                                              ),
                                               backgroundColor: Colors.green,
                                             ),
                                           );
@@ -376,8 +389,15 @@ class ChangePassFormPageState extends State<ChangePassFormPage> {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(
-                                            content: Text(
-                                                'The current password is incorrect'),
+                                            content: Row(
+                                              children: [
+                                                Icon(Icons.error,
+                                                    color: Colors.white),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                    'The current password is incorrect'),
+                                              ],
+                                            ),
                                             backgroundColor: Colors.red,
                                           ),
                                         );

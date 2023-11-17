@@ -73,7 +73,12 @@ class AuthCardState extends State<AuthCard>
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            child: const Text("Okay"),
+            child: Text(
+              "Okay",
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
           ),
         ],
       ),

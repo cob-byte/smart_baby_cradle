@@ -59,7 +59,13 @@ class EditNameFormPageState extends State<EditNameFormPage> {
       if (newName == currentName) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('No changes were made.'),
+            content: Row(
+              children: [
+                Icon(Icons.info, color: Colors.white),
+                SizedBox(width: 8),
+                Text('No changes were made.'),
+              ],
+            ),
             backgroundColor: Colors.blue,
           ),
         );
@@ -70,7 +76,13 @@ class EditNameFormPageState extends State<EditNameFormPage> {
       await _auth.saveFullName(firstName, secondName);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Name Updated Successfully'),
+          content: Row(
+            children: [
+              Icon(Icons.check, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Name Updated Successfully'),
+            ],
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -264,8 +276,7 @@ class EditNameFormPageState extends State<EditNameFormPage> {
                               style: TextStyle(fontSize: 15),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                              Theme.of(context).primaryColor,
+                              backgroundColor: Theme.of(context).primaryColor,
                               foregroundColor: Colors.white,
                             ),
                           ),

@@ -49,7 +49,13 @@ class EditDeviceFormPageState extends State<EditDeviceFormPage> {
     if (device.trim() == currentDeviceID) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('No changes were made.'),
+          content: Row(
+            children: [
+              Icon(Icons.info, color: Colors.white),
+              SizedBox(width: 8),
+              Text('No changes were made.'),
+            ],
+          ),
           backgroundColor: Colors.blue,
         ),
       );
@@ -61,14 +67,26 @@ class EditDeviceFormPageState extends State<EditDeviceFormPage> {
       await _auth.saveDeviceID(device.trim());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Device ID Updated Successfully'),
+          content: Row(
+            children: [
+              Icon(Icons.check, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Device ID Updated Successfully'),
+            ],
+          ),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please try again with a valid Device ID.'),
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Please try again with a valid Device ID.'),
+            ],
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -194,8 +212,8 @@ class EditDeviceFormPageState extends State<EditDeviceFormPage> {
                           child: ElevatedButton.icon(
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                bool deviceIDExists =
-                                await updateUserValue(deviceController.text);
+                                bool deviceIDExists = await updateUserValue(
+                                    deviceController.text);
                                 if (deviceIDExists) {
                                   Navigator.pop(context);
                                 }
@@ -207,8 +225,7 @@ class EditDeviceFormPageState extends State<EditDeviceFormPage> {
                               style: TextStyle(fontSize: 15),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                              Theme.of(context).primaryColor,
+                              backgroundColor: Theme.of(context).primaryColor,
                               foregroundColor: Colors.white,
                             ),
                           ),
