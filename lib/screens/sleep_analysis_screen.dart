@@ -165,18 +165,13 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
                       InkWell(
                         onTap: () {
                           Navigator.pushNamed(
-                              context, WakeUpTimesScreen.routeName);
+                              context, BabyMoodTrackerWidget.routeName);
                         },
                         child: _buildCardWithIcon(
                             'Wake-Up', 'Times', Icons.alarm_on),
                       ),
                     ],
                   ),
-                ),
-                Column(
-                  children: <Widget>[
-                    _buildNonClickableCard('Sleep Information'),
-                  ],
                 ),
                 const SizedBox(height: 10),
               ],
@@ -233,118 +228,6 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildNonClickableCard(String content) {
-    return Card(
-      elevation: 5,
-      color: Colors.white.withOpacity(0.7),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: const Column(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.airline_seat_flat_angled_rounded, size: 30),
-                    SizedBox(width: 8), // Icon for sleep duration
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          '3 h and 31 m',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text('Deep Sleep'),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Icon(Icons.nightlight_round, size: 30),
-                    SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          '1 h and 25 m',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text('Fell Asleep'),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 16.0), // Add some vertical spacing
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Icon(Icons.airline_seat_individual_suite_rounded, size: 30),
-                    SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          '9 : 00 P.M',
-                          style: TextStyle(
-                            fontSize: 18, // Adjust the font size as desired
-                            fontWeight: FontWeight.bold, // Make the text bold
-                          ),
-                        ),
-                        Text('Went to Bed'),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Icon(Icons.accessibility_rounded, size: 30),
-                    SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          '3 h and 31 m',
-                          style: TextStyle(
-                            fontSize: 18, // Adjust the font size as desired
-                            fontWeight: FontWeight.bold, // Make the text bold
-                          ),
-                        ),
-                        Text('Wake Up'),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

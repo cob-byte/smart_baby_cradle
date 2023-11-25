@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   intl: ^0.17.0 # Add intl dependency
   fl_chart: ^0.41.0 # Add fl_chart dependency
+  table_calendar: ^3.0.8
 
   # Add your other dependencies here
 
