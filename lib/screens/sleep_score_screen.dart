@@ -1,260 +1,298 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:smart_baby_cradle/screens/sleep_pattern_screen.dart';
+import 'package:smart_baby_cradle/screens/sleep_efficiency_screen.dart';
 
 void main() => runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: SleepScoreScreen(85), // Pass the actual sleep score here
+        home: SleepScoreScreen(),
       ),
     );
 
 class SleepScoreScreen extends StatelessWidget {
   static const routeName = '/sleep-score';
 
-  final int sleepScore; // Pass the actual sleep score as a parameter
-
-  SleepScoreScreen(this.sleepScore);
-
-  Color _getStatusBarColor(int score) {
-    if (score >= 80) {
-      return Colors.green; // Green color for good sleep score
-    } else if (score >= 60) {
-      return Colors.yellow; // Yellow color for average sleep score
-    } else {
-      return Colors.red; // Red color for low sleep score
-    }
-  }
-
-  String _getStatusText(int score) {
-    if (score >= 80) {
-      return 'Excellent Sleep';
-    } else if (score >= 60) {
-      return 'Good Sleep';
-    } else {
-      return 'Poor Sleep';
-    }
-  }
-
-  Widget _buildOverallProgressBar() {
-    return LinearProgressIndicator(
-      value: sleepScore / 100.0, // Use the sleepScore to determine the progress
-      backgroundColor: Colors.grey,
-      valueColor: AlwaysStoppedAnimation<Color>(
-        _getStatusBarColor(sleepScore),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Sleep Score'),
       ),
-    );
-  }
-
-  Widget _buildExpandedCard(String title, String value, IconData icon,
-      Color cardColor, double progress) {
-    return Expanded(
-      child: Card(
-        elevation: 5,
-        color: cardColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(22.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
           child: Column(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Row(
-                    children: [
-                      Icon(
-                        icon,
-                        color: Colors.black,
-                        size: 24,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SleepQualityCard(),
               SizedBox(height: 16),
-              _buildOverallProgressBar(),
-              SizedBox(height: 8),
-              Text(
-                '${(progress * 100).round()}% Progress',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
+              SleepPatternCard(),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+class SleepQualityCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Sleep Quality Metrics',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
+            SleepInfoRow(
+                icon: Icons.access_time,
+                label: 'Sleep Efficiency',
+                value: '85%'),
+            SizedBox(height: 16),
+            Container(
+              height: 200,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PieChart(
+                      PieChartData(
+                        sections: [
+                          PieChartSectionData(
+                            value: 70,
+                            color: Colors.blue,
+                            title: 'Sleep',
+                            radius: 50,
+                          ),
+                          PieChartSectionData(
+                            value: 30,
+                            color: Colors.red,
+                            title: 'In Bed',
+                            radius: 50,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      PieChartPercentage(label: 'Sleep', percentage: '70%'),
+                      PieChartPercentage(label: 'In Bed', percentage: '30%'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+            SleepInfoRow(
+                icon: Icons.nightlight_round,
+                label: 'Total Awakenings',
+                value: '3'),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SleepEfficiencyScreen()),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.expand_more),
+                  SizedBox(width: 8),
+                  Text('See More'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PieChartPercentage extends StatelessWidget {
+  final String label;
+  final String percentage;
+
+  PieChartPercentage({required this.label, required this.percentage});
 
   @override
   Widget build(BuildContext context) {
-    List<Color> cardColors = [
-      Color.fromARGB(255, 131, 197, 255), // Customize colors as needed
-      Color.fromARGB(255, 125, 164, 248),
-      Color.fromARGB(255, 255, 161, 247),
-      Color.fromARGB(255, 255, 195, 248),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Sleep Score'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 16,
+            height: 16,
+            color: label == 'Sleep' ? Colors.blue : Colors.red,
+          ),
+          SizedBox(width: 8),
+          Text(
+            '$label: $percentage',
+            style: TextStyle(fontSize: 12),
+          ),
+        ],
       ),
-      extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/image/night-bg.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(height: 100),
-                Container(
-                  height: 150,
-                  width: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
+    );
+  }
+}
+
+class SleepPatternCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Sleep Pattern Overview',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
+            SleepInfoRow(
+                icon: Icons.access_time,
+                label: 'Time Put to Bed',
+                value: '10:00 PM'),
+            SizedBox(height: 16),
+            SleepInfoRow(
+                icon: Icons.access_time,
+                label: 'Time Fell Asleep',
+                value: '10:00 PM'),
+            SizedBox(height: 16),
+            SleepInfoRow(
+                icon: Icons.wb_sunny, label: 'Wake Up Time', value: '6:00 AM'),
+            SizedBox(height: 16),
+            SleepInfoRow(
+                icon: Icons.hourglass_empty,
+                label: 'Sleep Onset Latency',
+                value: '15 mins'),
+            SizedBox(height: 16),
+            SleepInfoRow(icon: Icons.mood, label: 'Mood', value: 'Great Mood'),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SleepPatternScreen(),
                   ),
-                  child: PieChart(
-                    PieChartData(
-                      sectionsSpace: 1,
-                      centerSpaceRadius: 55,
-                      sections: [
-                        PieChartSectionData(
-                          value: sleepScore.toDouble(),
-                          color: _getStatusBarColor(sleepScore),
-                          title: '',
-                          radius: 30, // Adjust thickness as needed
-                          showTitle: false,
-                        ),
-                        PieChartSectionData(
-                          value: (100 - sleepScore).toDouble(),
-                          color: Colors.transparent,
-                          radius: 30,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 30),
-                Text(
-                  'Your Sleep Score:',
-                  style: TextStyle(
-                    fontFamily: 'Medium',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: 0.01), // Add padding above the Text widget
-                  child: Text(
-                    '$sleepScore%', // Display the actual sleep score
-                    style: TextStyle(
-                      fontFamily: 'Bold',
-                      fontSize: 45,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  height: 30,
-                  margin: EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: _getStatusBarColor(sleepScore),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _getStatusText(sleepScore),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                    ),
-                    padding: EdgeInsets.all(15),
-                    child: ListView(
-                      padding: EdgeInsets.only(
-                          top: 0), // Remove space before the quality card
-                      children: [
-                        _buildExpandedCard(
-                          'Quality',
-                          'Excellent',
-                          Icons.star,
-                          cardColors[0],
-                          0.8, // Example progress value, adjust as needed
-                        ),
-                        _buildExpandedCard(
-                          'Duration',
-                          '7 hours',
-                          Icons.access_time,
-                          cardColors[1],
-                          0.6, // Example progress value, adjust as needed
-                        ),
-                        _buildExpandedCard(
-                          'Restfulness',
-                          'High',
-                          Icons.cloud,
-                          cardColors[2],
-                          0.7, // Example progress value, adjust as needed
-                        ),
-                        _buildExpandedCard(
-                          'Snoring',
-                          'Low',
-                          Icons.noise_aware,
-                          cardColors[3],
-                          0.5, // Example progress value, adjust as needed
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.expand_more),
+                  SizedBox(width: 8),
+                  Text('See More'),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class SleepInfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  SleepInfoRow({required this.icon, required this.label, required this.value});
+
+  // Define icons and colors for each mood
+  IconData? getMoodIcon() {
+    if (label.toLowerCase() == 'mood') {
+      switch (value.toLowerCase()) {
+        case 'bad mood':
+          return Icons.mood_bad;
+        case 'average mood':
+          return Icons.sentiment_satisfied;
+        case 'great mood':
+          return Icons.mood;
+        default:
+          return Icons
+              .sentiment_neutral; // Default icon if mood is not recognized
+      }
+    }
+    return null;
+  }
+
+  Color? getMoodColor() {
+    if (label.toLowerCase() == 'mood') {
+      switch (value.toLowerCase()) {
+        case 'bad mood':
+          return Colors.red;
+        case 'average mood':
+          return Colors.amber;
+        case 'great mood':
+          return Colors.green;
+        default:
+          return Colors.grey;
+      }
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: Colors.grey[200],
+      padding: EdgeInsets.all(12.0),
+      child: Row(
+        children: [
+          Icon(icon),
+          SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(fontSize: 16),
+          ),
+          if (label.toLowerCase() ==
+              'mood') // Conditionally add icon for 'Mood'
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    getMoodIcon()!,
+                    color: getMoodColor()!,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: getMoodColor()!,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (label.toLowerCase() != 'mood') // Show other values
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  value,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
