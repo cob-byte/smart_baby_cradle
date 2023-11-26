@@ -3,36 +3,60 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 
-class BabyMoodTrackerWidget extends StatefulWidget {
-  static const routeName = '/wake-up-times';
-
-  @override
-  _BabyMoodTrackerWidgetState createState() => _BabyMoodTrackerWidgetState();
+void main() {
+  runApp(MaterialApp(
+    home: BabySleepTrackerWidget(),
+  ));
 }
 
-class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
-  Map<DateTime, int> wakeUpTimes = {
-    DateTime.now().subtract(Duration(days: 2)): 1,
-    DateTime.now().subtract(Duration(days: 1)): 2,
-    DateTime.now(): 3,
+class BabySleepTrackerWidget extends StatefulWidget {
+  static const routeName = '/sleep-tracker';
+
+  @override
+  _BabySleepTrackerWidgetState createState() => _BabySleepTrackerWidgetState();
+}
+
+class SleepInfo {
+  final int mood;
+  final TimeOfDay timePutToBed;
+  final TimeOfDay timeFellAsleep;
+  final TimeOfDay wakeUpTime;
+
+  SleepInfo(this.mood, this.timePutToBed, this.timeFellAsleep, this.wakeUpTime);
+}
+
+class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
+  Map<DateTime, SleepInfo> sleepInfo = {
+    DateTime.now().subtract(Duration(days: 2)): SleepInfo(
+        1,
+        TimeOfDay(hour: 20, minute: 0),
+        TimeOfDay(hour: 22, minute: 0),
+        TimeOfDay(hour: 6, minute: 0)),
+    DateTime.now().subtract(Duration(days: 1)): SleepInfo(
+        2,
+        TimeOfDay(hour: 21, minute: 0),
+        TimeOfDay(hour: 23, minute: 0),
+        TimeOfDay(hour: 7, minute: 0)),
+    DateTime.now(): SleepInfo(3, TimeOfDay(hour: 22, minute: 0),
+        TimeOfDay(hour: 23, minute: 30), TimeOfDay(hour: 8, minute: 0)),
   };
+
   DateTime _selectedDay = DateTime.now();
-  int _selectedMood = 0;
-  bool _viewAllWakeUpTimes = false;
+  bool _viewAllSleepInfo = false;
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Baby Mood Tracker'),
+        title: Text('Baby Sleep Tracker'),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              if (!_viewAllWakeUpTimes)
+              if (!_viewAllSleepInfo)
                 TableCalendar(
                   headerVisible: true,
                   focusedDay: _selectedDay,
@@ -47,10 +71,9 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
                       _selectedDay = selectedDay;
                     });
 
-                    // Check if yung selected date is may wake-up times, if meron show details
-                    if (wakeUpTimes.containsKey(selectedDay)) {
-                      int mood = wakeUpTimes[selectedDay]!;
-                      _showDetailsDialog(selectedDay, mood);
+                    if (sleepInfo.containsKey(selectedDay)) {
+                      SleepInfo info = sleepInfo[selectedDay]!;
+                      _showDetailsDialog(selectedDay, info);
                     }
                   },
                   onFormatChanged: (format) {
@@ -77,30 +100,29 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
                     },
                   ),
                 ),
-              if (!_viewAllWakeUpTimes) SizedBox(height: 20),
-              if (!_viewAllWakeUpTimes)
-                ElevatedButton(
-                  onPressed: () {
-                    _showTimePicker();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.add_alarm),
-                      SizedBox(width: 8),
-                      Text('Add Wake-Up Time'),
-                    ],
-                  ),
+              if (!_viewAllSleepInfo) SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _showSleepInfoDialog();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
                 ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.local_hotel),
+                    SizedBox(width: 8),
+                    Text('Add Sleep Information'),
+                  ],
+                ),
+              ),
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Wake up Times and Mood',
+                    'Sleep Information',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -109,11 +131,11 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
                   TextButton(
                     onPressed: () {
                       setState(() {
-                        _viewAllWakeUpTimes = !_viewAllWakeUpTimes;
+                        _viewAllSleepInfo = !_viewAllSleepInfo;
                       });
                     },
                     child: Text(
-                      _viewAllWakeUpTimes ? 'Hide' : 'View All',
+                      _viewAllSleepInfo ? 'Hide' : 'View All',
                       style: TextStyle(
                         color: Theme.of(context).primaryColor,
                       ),
@@ -129,13 +151,12 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
                   color: const Color.fromARGB(255, 255, 255, 255),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
-                child: _getEventsForSelectedDay().isEmpty
+                child: _getSleepInfoForSelectedDay().isEmpty
                     ? Container(
                         padding: EdgeInsets.all(16.0),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 218, 54,
-                              43), // Change the background color as needed
+                          color: const Color.fromARGB(255, 218, 54, 43),
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: Row(
@@ -143,28 +164,26 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
                           children: [
                             Icon(
                               Icons.info,
-                              color: Colors
-                                  .white, // Change the icon color as needed
+                              color: Colors.white,
                             ),
                             SizedBox(width: 8),
                             Text(
                               'No events listed on this day',
                               style: TextStyle(
-                                color: Colors
-                                    .white, // Change the text color as needed
+                                color: Colors.white,
                               ),
                             ),
                           ],
                         ),
                       )
                     : ListView.builder(
-                        itemCount: _viewAllWakeUpTimes
-                            ? _getEventsForSelectedDay().length
-                            : min(3, _getEventsForSelectedDay().length),
+                        itemCount: _viewAllSleepInfo
+                            ? _getSleepInfoForSelectedDay().length
+                            : min(3, _getSleepInfoForSelectedDay().length),
                         itemBuilder: (context, index) {
-                          List<DateTime> events = _getEventsForSelectedDay();
-                          DateTime dateTime = events[index];
-                          int mood = wakeUpTimes[dateTime]!;
+                          List<DateTime> dates = _getSleepInfoForSelectedDay();
+                          DateTime date = dates[index];
+                          SleepInfo info = sleepInfo[date]!;
 
                           return Card(
                             elevation: 3,
@@ -188,14 +207,53 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
                                 ],
                               ),
                               child: ListTile(
-                                leading: _getMoodIcon(mood),
                                 title: Text(
-                                  '${DateFormat('h:mm a').format(dateTime.toLocal())}',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  'Time Put to Bed: ${_formatTimeOfDay(info.timePutToBed)}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                                subtitle: Text(
-                                  _getMoodLabel(mood),
-                                  style: TextStyle(color: _getMoodColor(mood)),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Time Fell Asleep: ${_formatTimeOfDay(info.timeFellAsleep)}',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.black),
+                                    ),
+                                    Text(
+                                      'Wake Up Time: ${_formatTimeOfDay(info.wakeUpTime)}',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Mood: ',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Icon(
+                                          _getMoodIcon(info.mood),
+                                          color: _getMoodColor(info.mood),
+                                          size: 18,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          _getMoodLabel(info.mood),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: _getMoodColor(info.mood),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -204,14 +262,14 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
                                       icon:
                                           Icon(Icons.edit, color: Colors.blue),
                                       onPressed: () {
-                                        _showEditDialog(dateTime, mood);
+                                        _showEditSleepInfoDialog(date, info);
                                       },
                                     ),
                                     IconButton(
                                       icon:
                                           Icon(Icons.delete, color: Colors.red),
                                       onPressed: () {
-                                        _showDeleteDialog(dateTime);
+                                        _showDeleteSleepInfoDialog(date);
                                       },
                                     ),
                                   ],
@@ -222,7 +280,6 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
                         },
                       ),
               ),
-              if (_selectedMood != 0) MoodSelectionButtons(),
             ],
           ),
         ),
@@ -230,76 +287,93 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
     );
   }
 
+  // Function to get the container height based on the view mode
   double _getContainerHeight() {
-    double fixedHeight = _viewAllWakeUpTimes ? 350.0 : 250.0;
-
+    double fixedHeight = _viewAllSleepInfo ? 350.0 : 250.0;
     return fixedHeight;
   }
 
-  List<DateTime> _getEventsForSelectedDay() {
+  // Function to get the list of dates with sleep information for the selected day
+  List<DateTime> _getSleepInfoForSelectedDay() {
     return [
-      for (var entry in wakeUpTimes.entries)
+      for (var entry in sleepInfo.entries)
         if (isSameDay(entry.key, _selectedDay)) entry.key
     ];
   }
 
-  void _showTimePicker() async {
-    TimeOfDay? selectedTime = await showTimePicker(
+  void _showSleepInfoDialog() async {
+    TimeOfDay? timePutToBed = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      helpText: 'Select Time Put to Bed',
     );
 
-    if (selectedTime != null) {
-      DateTime selectedDateTime = DateTime(
-        _selectedDay.year,
-        _selectedDay.month,
-        _selectedDay.day,
-        selectedTime.hour,
-        selectedTime.minute,
+    if (timePutToBed != null) {
+      TimeOfDay? timeFellAsleep = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+        helpText: 'Select Time Fell Asleep',
       );
 
-      // Allow entering details for past dates
-      _showMoodSelectionDialog(selectedDateTime);
-    }
-  }
-
-  void _showMoodSelectionDialog(DateTime selectedDateTime) async {
-    int? selectedMood = await showDialog<int>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Mood'),
-          content: SizedBox(
-            width: 300.0,
-            height: 200.0,
-            child: MoodSelectionButtons(),
-          ),
+      if (timeFellAsleep != null) {
+        TimeOfDay? wakeUpTime = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+          helpText: 'Select Wake Up Time',
         );
-      },
-    );
 
-    if (selectedMood != null) {
-      setState(() {
-        // Allow entering details for past dates
-        wakeUpTimes[selectedDateTime] = selectedMood;
-        _selectedMood = 0; // Reset selected mood after adding a wake-up time
+        if (wakeUpTime != null) {
+          int? selectedMood = await showDialog<int>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Select Mood'),
+                content: SizedBox(
+                  width: 300.0,
+                  height: 200.0,
+                  child: MoodSelectionButtons(),
+                ),
+              );
+            },
+          );
 
-        // Check if the selected date is in the past
-        if (selectedDateTime.isBefore(DateTime.now())) {
-          // Force a rebuild of the widget to update the past events
-          setState(() {});
+          if (selectedMood != null) {
+            DateTime selectedDateTime = DateTime(
+              _selectedDay.year,
+              _selectedDay.month,
+              _selectedDay.day,
+              timePutToBed.hour,
+              timePutToBed.minute,
+            );
+
+            SleepInfo newInfo = SleepInfo(
+                selectedMood, timePutToBed, timeFellAsleep, wakeUpTime);
+
+            setState(() {
+              sleepInfo[selectedDateTime] = newInfo;
+            });
+          }
         }
-      });
+      }
     }
   }
 
-  void _showDetailsDialog(DateTime dateTime, int mood) {
+  void _showDetailsDialog(DateTime dateTime, SleepInfo info) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Details for ${dateTime.toLocal()}'),
-          content: Text(_getMoodLabel(mood)),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Time Put to Bed: ${_formatTimeOfDay(info.timePutToBed)}'),
+              Text(
+                  'Time Fell Asleep: ${_formatTimeOfDay(info.timeFellAsleep)}'),
+              Text('Wake Up Time: ${_formatTimeOfDay(info.wakeUpTime)}'),
+              Text('Mood: ${_getMoodLabel(info.mood)}'),
+            ],
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -313,32 +387,62 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
     );
   }
 
-  void _showEditDialog(DateTime dateTime, int mood) async {
-    int? selectedMood = await showDialog<int>(
+  void _showEditSleepInfoDialog(DateTime dateTime, SleepInfo info) async {
+    TimeOfDay? timePutToBed = await showTimePicker(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Edit Mood'),
-          content: MoodSelectionButtons(),
-        );
-      },
+      initialTime: info.timePutToBed,
+      helpText: 'Select Time Put to Bed',
     );
 
-    if (selectedMood != null) {
-      setState(() {
-        wakeUpTimes[dateTime] = selectedMood;
-        _selectedMood = 0; // Reset selected mood after editing a wake-up time
-      });
+    if (timePutToBed != null) {
+      TimeOfDay? timeFellAsleep = await showTimePicker(
+        context: context,
+        initialTime: info.timeFellAsleep,
+        helpText: 'Select Time Fell Asleep',
+      );
+
+      if (timeFellAsleep != null) {
+        TimeOfDay? wakeUpTime = await showTimePicker(
+          context: context,
+          initialTime: info.wakeUpTime,
+          helpText: 'Select Wake Up Time',
+        );
+
+        if (wakeUpTime != null) {
+          int? selectedMood = await showDialog<int>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Select Mood'),
+                content: SizedBox(
+                  width: 300.0,
+                  height: 200.0,
+                  child: MoodSelectionButtons(),
+                ),
+              );
+            },
+          );
+
+          if (selectedMood != null) {
+            setState(() {
+              SleepInfo updatedInfo = SleepInfo(
+                  selectedMood, timePutToBed, timeFellAsleep, wakeUpTime);
+              sleepInfo[dateTime] = updatedInfo;
+            });
+          }
+        }
+      }
     }
   }
 
-  void _showDeleteDialog(DateTime dateTime) {
+  void _showDeleteSleepInfoDialog(DateTime dateTime) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Wake-Up Time'),
-          content: Text('Are you sure you want to delete this wake-up time?'),
+          title: Text('Delete Sleep Information'),
+          content:
+              Text('Are you sure you want to delete this sleep information?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -349,7 +453,7 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  wakeUpTimes.remove(dateTime);
+                  sleepInfo.remove(dateTime);
                 });
                 Navigator.of(context).pop();
               },
@@ -361,6 +465,16 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
     );
   }
 
+  // Function to format TimeOfDay as a string
+  String _formatTimeOfDay(TimeOfDay timeOfDay) {
+    final now = DateTime.now();
+    final dateTime = DateTime(
+        now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
+
+    return DateFormat('h:mm a').format(dateTime);
+  }
+
+  // Function to get the mood label
   String _getMoodLabel(int mood) {
     switch (mood) {
       case 1:
@@ -374,6 +488,7 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
     }
   }
 
+  // Function to get the mood color
   Color _getMoodColor(int mood) {
     switch (mood) {
       case 1:
@@ -387,25 +502,22 @@ class _BabyMoodTrackerWidgetState extends State<BabyMoodTrackerWidget> {
     }
   }
 
-  Widget _getMoodIcon(int mood) {
-    IconData icon;
+// Function to get the mood icon
+  IconData _getMoodIcon(int mood) {
     switch (mood) {
       case 1:
-        icon = Icons.mood_bad; // Bad Mood
-        break;
+        return Icons.mood_bad; // Bad Mood
       case 2:
-        icon = Icons.sentiment_neutral; // Average Mood
-        break;
+        return Icons.sentiment_neutral; // Average Mood
       case 3:
-        icon = Icons.mood; // Great Mood
-        break;
+        return Icons.mood; // Great Mood
       default:
-        icon = Icons.sentiment_very_satisfied; // Default icon
+        return Icons.sentiment_very_satisfied; // Default icon
     }
-    return Icon(icon, color: _getMoodColor(mood));
   }
 }
 
+// Class for the mood selection buttons
 class MoodSelectionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -431,7 +543,7 @@ class MoodSelectionButtons extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 8.0), // Add spacing between buttons
+        SizedBox(height: 8.0),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.amber,
@@ -452,7 +564,7 @@ class MoodSelectionButtons extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 8.0), // Add spacing between buttons
+        SizedBox(height: 8.0),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -476,10 +588,4 @@ class MoodSelectionButtons extends StatelessWidget {
       ],
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: BabyMoodTrackerWidget(),
-  ));
 }

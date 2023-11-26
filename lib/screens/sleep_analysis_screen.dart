@@ -157,18 +157,28 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
                       InkWell(
                         onTap: () {
                           Navigator.pushNamed(
-                              context, SleepScoreScreen.routeName);
+                            context,
+                            BabySleepTrackerWidget.routeName,
+                          );
                         },
                         child: _buildCardWithIcon(
-                            'Sleep', 'Score', Icons.nightlight_round),
+                          'Sleep',
+                          'Tracker',
+                          Icons.alarm_on,
+                        ),
                       ),
                       InkWell(
                         onTap: () {
                           Navigator.pushNamed(
-                              context, BabyMoodTrackerWidget.routeName);
+                            context,
+                            SleepScoreScreen.routeName,
+                          );
                         },
                         child: _buildCardWithIcon(
-                            'Wake-Up', 'Times', Icons.alarm_on),
+                          'Sleep',
+                          'Score',
+                          Icons.nightlight_round,
+                        ),
                       ),
                     ],
                   ),

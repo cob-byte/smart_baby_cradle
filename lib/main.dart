@@ -75,7 +75,8 @@ class _MyAppState extends State<MyApp> {
               SleepAnalysisScreen.routeName: (ctx) => SleepAnalysisScreen(),
               MusicPlayerScreen.routeName: (ctx) => MusicPlayerScreen(),
               SleepScoreScreen.routeName: (ctx) => SleepScoreScreen(),
-              BabyMoodTrackerWidget.routeName: (ctx) => BabyMoodTrackerWidget(),
+              BabySleepTrackerWidget.routeName: (ctx) =>
+                  BabySleepTrackerWidget(),
             },
           );
         },
