@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:smart_baby_cradle/screens/sleep_pattern_screen.dart';
 import 'package:smart_baby_cradle/screens/sleep_efficiency_screen.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(
       MaterialApp(
@@ -15,21 +18,60 @@ class SleepScoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Sleep Score'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SleepQualityCard(),
-              SizedBox(height: 16),
-              SleepPatternCard(),
-            ],
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
+
+    return Theme(
+      data: currentTheme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Sleep Score',
+            style: currentTheme.appBarTheme.titleTextStyle,
           ),
+          backgroundColor: currentTheme.appBarTheme.backgroundColor,
+        ),
+        body: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      currentTheme.colorScheme.primary,
+                      currentTheme.colorScheme.secondary,
+                      currentTheme.colorScheme.surface,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -60,
+              right: -50,
+              child: Image(
+                image: AssetImage('assets/image/cradle_bg.png'),
+                width: 200,
+                height: 200,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SleepQualityCard(),
+                    SizedBox(height: 16),
+                    SleepPatternCard(),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -95,22 +137,21 @@ class SleepQualityCard extends StatelessWidget {
                 label: 'Total Awakenings',
                 value: '3'),
             SizedBox(height: 16),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SleepEfficiencyScreen()),
+                    builder: (context) => SleepEfficiencyScreen(),
+                  ),
                 );
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.expand_more),
-                  SizedBox(width: 8),
-                  Text('See More'),
-                ],
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                minimumSize: Size(10, 35),
               ),
+              icon: Icon(Icons.expand_more),
+              label: Text('See More'),
             ),
           ],
         ),
@@ -149,7 +190,22 @@ class PieChartPercentage extends StatelessWidget {
 
 class SleepPatternCard extends StatelessWidget {
   @override
+  @override
   Widget build(BuildContext context) {
+    // DUMMY DATA
+    DateTime sleepStartTime = DateTime.parse('2023-01-01 22:00:00');
+    DateTime sleepEndTime = DateTime.parse('2023-01-02 06:00:00');
+    DateTime sleepOnsetTime = DateTime.parse('2023-01-01 22:15:00');
+
+    // Calculate sleep duration
+    Duration sleepDuration = sleepEndTime.difference(sleepStartTime);
+    int hours = sleepDuration.inHours;
+    int minutes = sleepDuration.inMinutes.remainder(60);
+
+    // Calculate sleep onset latency
+    Duration sleepOnsetLatency = sleepOnsetTime.difference(sleepStartTime);
+    int onsetMinutes = sleepOnsetLatency.inMinutes;
+
     return Card(
       elevation: 4,
       child: Padding(
@@ -163,24 +219,32 @@ class SleepPatternCard extends StatelessWidget {
             SleepInfoRow(
                 icon: Icons.access_time,
                 label: 'Time Put to Bed',
-                value: '10:00 PM'),
+                value: '${DateFormat.jm().format(sleepStartTime)}'),
             SizedBox(height: 16),
             SleepInfoRow(
                 icon: Icons.access_time,
                 label: 'Time Fell Asleep',
-                value: '10:00 PM'),
+                value:
+                    '${DateFormat.jm().format(sleepOnsetTime)}'), // Use sleep onset time
             SizedBox(height: 16),
             SleepInfoRow(
-                icon: Icons.wb_sunny, label: 'Wake Up Time', value: '6:00 AM'),
+                icon: Icons.wb_sunny,
+                label: 'Wake Up Time',
+                value: '${DateFormat.jm().format(sleepEndTime)}'),
+            SizedBox(height: 16),
+            SleepInfoRow(
+                icon: Icons.hourglass_empty,
+                label: 'Sleep Duration',
+                value: '$hours hours and $minutes minutes'),
             SizedBox(height: 16),
             SleepInfoRow(
                 icon: Icons.hourglass_empty,
                 label: 'Sleep Onset Latency',
-                value: '15 mins'),
+                value: '$onsetMinutes minutes'),
             SizedBox(height: 16),
             SleepInfoRow(icon: Icons.mood, label: 'Mood', value: 'Great Mood'),
             SizedBox(height: 16),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -189,14 +253,12 @@ class SleepPatternCard extends StatelessWidget {
                   ),
                 );
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.expand_more),
-                  SizedBox(width: 8),
-                  Text('See More'),
-                ],
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                minimumSize: Size(10, 35),
               ),
+              icon: Icon(Icons.expand_more),
+              label: Text('See More'),
             ),
           ],
         ),
@@ -223,8 +285,7 @@ class SleepInfoRow extends StatelessWidget {
         case 'great mood':
           return Icons.mood;
         default:
-          return Icons
-              .sentiment_neutral; // Default icon if mood is not recognized
+          return Icons.sentiment_neutral;
       }
     }
     return null;
@@ -260,8 +321,7 @@ class SleepInfoRow extends StatelessWidget {
             label,
             style: TextStyle(fontSize: 16),
           ),
-          if (label.toLowerCase() ==
-              'mood') // Conditionally add icon for 'Mood'
+          if (label.toLowerCase() == 'mood')
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -282,7 +342,7 @@ class SleepInfoRow extends StatelessWidget {
                 ],
               ),
             ),
-          if (label.toLowerCase() != 'mood') // Show other values
+          if (label.toLowerCase() != 'mood')
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,

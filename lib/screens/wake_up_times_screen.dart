@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -47,241 +49,302 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Baby Sleep Tracker'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              if (!_viewAllSleepInfo)
-                TableCalendar(
-                  headerVisible: true,
-                  focusedDay: _selectedDay,
-                  firstDay: DateTime.utc(2022, 1, 1),
-                  lastDay: DateTime.utc(2023, 12, 31),
-                  calendarFormat: _calendarFormat,
-                  selectedDayPredicate: (DateTime date) {
-                    return isSameDay(_selectedDay, date);
-                  },
-                  onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDay = selectedDay;
-                    });
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
 
-                    if (sleepInfo.containsKey(selectedDay)) {
-                      SleepInfo info = sleepInfo[selectedDay]!;
-                      _showDetailsDialog(selectedDay, info);
-                    }
-                  },
-                  onFormatChanged: (format) {
-                    setState(() {
-                      _calendarFormat = format;
-                    });
-                  },
-                  calendarBuilders: CalendarBuilders(
-                    selectedBuilder: (context, date, events) {
-                      return Container(
-                        margin: const EdgeInsets.all(4.0),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        child: Text(
-                          '${date.day}',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              if (!_viewAllSleepInfo) SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  _showSleepInfoDialog();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.local_hotel),
-                    SizedBox(width: 8),
-                    Text('Add Sleep Information'),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Sleep Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _viewAllSleepInfo = !_viewAllSleepInfo;
-                      });
-                    },
-                    child: Text(
-                      _viewAllSleepInfo ? 'Hide' : 'View All',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Container(
-                height: _getContainerHeight(),
-                width: 400,
+    return Theme(
+      data: currentTheme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Sleep Tracker',
+            style: currentTheme.appBarTheme.titleTextStyle,
+          ),
+          backgroundColor: currentTheme.appBarTheme.backgroundColor,
+        ),
+        body: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  borderRadius: BorderRadius.circular(10.0),
+                  gradient: LinearGradient(
+                    colors: [
+                      currentTheme.colorScheme.primary,
+                      currentTheme.colorScheme.secondary,
+                      currentTheme.colorScheme.surface,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                child: _getSleepInfoForSelectedDay().isEmpty
-                    ? Container(
+              ),
+            ),
+            Positioned(
+              bottom: -60,
+              right: -50,
+              child: Image(
+                image: AssetImage('assets/image/cradle_bg.png'),
+                width: 200,
+                height: 200,
+              ),
+            ),
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Column(
+                  children: [
+                    if (!_viewAllSleepInfo)
+                      // Wrap your TableCalendar widget with a Container
+                      Container(
                         padding: EdgeInsets.all(16.0),
-                        width: double.infinity,
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 218, 54, 43),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.info,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'No events listed on this day',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.4),
+                              spreadRadius: 3,
+                              blurRadius: 7,
+                              offset: Offset(0, 2),
                             ),
                           ],
                         ),
-                      )
-                    : ListView.builder(
-                        itemCount: _viewAllSleepInfo
-                            ? _getSleepInfoForSelectedDay().length
-                            : min(3, _getSleepInfoForSelectedDay().length),
-                        itemBuilder: (context, index) {
-                          List<DateTime> dates = _getSleepInfoForSelectedDay();
-                          DateTime date = dates[index];
-                          SleepInfo info = sleepInfo[date]!;
+                        child: TableCalendar(
+                          headerVisible: true,
+                          focusedDay: _selectedDay,
+                          firstDay: DateTime.utc(2022, 1, 1),
+                          lastDay: DateTime.utc(2023, 12, 31),
+                          calendarFormat: _calendarFormat,
+                          selectedDayPredicate: (DateTime date) {
+                            return isSameDay(_selectedDay, date);
+                          },
+                          onDaySelected: (selectedDay, focusedDay) {
+                            setState(() {
+                              _selectedDay = selectedDay;
+                            });
 
-                          return Card(
-                            elevation: 3,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 8),
-                            child: Container(
+                            if (sleepInfo.containsKey(selectedDay)) {
+                              SleepInfo info = sleepInfo[selectedDay]!;
+                              _showDetailsDialog(selectedDay, info);
+                            }
+                          },
+                          onFormatChanged: (format) {
+                            setState(() {
+                              _calendarFormat = format;
+                            });
+                          },
+                          calendarBuilders: CalendarBuilders(
+                            selectedBuilder: (context, date, events) {
+                              return Container(
+                                margin: const EdgeInsets.all(4.0),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                child: Text(
+                                  '${date.day}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    if (!_viewAllSleepInfo) SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        _showSleepInfoDialog();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.local_hotel),
+                          SizedBox(width: 8),
+                          Text('Add Sleep Information'),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Sleep Information',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _viewAllSleepInfo = !_viewAllSleepInfo;
+                            });
+                          },
+                          child: Text(
+                            _viewAllSleepInfo ? 'Hide' : 'View All',
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      height: _getContainerHeight(),
+                      width: 400,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: _getSleepInfoForSelectedDay().isEmpty
+                          ? Container(
+                              padding: EdgeInsets.all(16.0),
+                              width: double.infinity,
                               decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer,
-                                borderRadius: BorderRadius.circular(5.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color:
-                                        const Color.fromARGB(255, 219, 217, 217)
-                                            .withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                    offset: Offset(0, 2),
+                                color: const Color.fromARGB(255, 218, 54, 43),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.info,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'No events listed on this day',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ],
                               ),
-                              child: ListTile(
-                                title: Text(
-                                  'Time Put to Bed: ${_formatTimeOfDay(info.timePutToBed)}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Time Fell Asleep: ${_formatTimeOfDay(info.timeFellAsleep)}',
-                                      style: TextStyle(
-                                          fontSize: 16, color: Colors.black),
-                                    ),
-                                    Text(
-                                      'Wake Up Time: ${_formatTimeOfDay(info.wakeUpTime)}',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Mood: ',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        Icon(
-                                          _getMoodIcon(info.mood),
-                                          color: _getMoodColor(info.mood),
-                                          size: 18,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          _getMoodLabel(info.mood),
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: _getMoodColor(info.mood),
-                                          ),
+                            )
+                          : ListView.builder(
+                              itemCount: _viewAllSleepInfo
+                                  ? _getSleepInfoForSelectedDay().length
+                                  : min(
+                                      3, _getSleepInfoForSelectedDay().length),
+                              itemBuilder: (context, index) {
+                                List<DateTime> dates =
+                                    _getSleepInfoForSelectedDay();
+                                DateTime date = dates[index];
+                                SleepInfo info = sleepInfo[date]!;
+
+                                return Card(
+                                  elevation: 3,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 8),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondaryContainer,
+                                      borderRadius: BorderRadius.circular(5.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color.fromARGB(
+                                                  255, 219, 217, 217)
+                                              .withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: Offset(0, 2),
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon:
-                                          Icon(Icons.edit, color: Colors.blue),
-                                      onPressed: () {
-                                        _showEditSleepInfoDialog(date, info);
-                                      },
+                                    child: ListTile(
+                                      title: Text(
+                                        'Time Put to Bed: ${_formatTimeOfDay(info.timePutToBed)}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Time Fell Asleep: ${_formatTimeOfDay(info.timeFellAsleep)}',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black),
+                                          ),
+                                          Text(
+                                            'Wake Up Time: ${_formatTimeOfDay(info.wakeUpTime)}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Mood: ',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              Icon(
+                                                _getMoodIcon(info.mood),
+                                                color: _getMoodColor(info.mood),
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 8),
+                                              Text(
+                                                _getMoodLabel(info.mood),
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color:
+                                                      _getMoodColor(info.mood),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Icons.edit,
+                                                color: Colors.blue),
+                                            onPressed: () {
+                                              _showEditSleepInfoDialog(
+                                                  date, info);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.delete,
+                                                color: Colors.red),
+                                            onPressed: () {
+                                              _showDeleteSleepInfoDialog(date);
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    IconButton(
-                                      icon:
-                                          Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        _showDeleteSleepInfoDialog(date);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            )
+          ],
         ),
       ),
     );
