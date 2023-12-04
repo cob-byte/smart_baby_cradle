@@ -34,7 +34,7 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
     super.dispose();
   }
 
-  Future<String> _getCurrentDateAndDay() async {
+  String _getCurrentDateAndDay() {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('MMMM d, yyyy (EEEE)').format(now);
     return formattedDate;
@@ -80,23 +80,14 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  FutureBuilder<String>(
-                    future: _getCurrentDateAndDay(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Container();
-                      } else {
-                        return Text(
-                          'Today is ${snapshot.data}',
-                          style: TextStyle(
-                            fontFamily: 'Medium',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                    Text(
+                      'Today is ${_getCurrentDateAndDay()}',
+                      style: TextStyle(
+                        fontFamily: 'Medium',
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
                 ]),
           ),
           const SizedBox(height: 20),

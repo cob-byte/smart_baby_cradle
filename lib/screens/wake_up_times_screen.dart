@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
+import '../services/status_service.dart';
 import '../theme_provider.dart';
 
 void main() {
@@ -19,33 +22,25 @@ class BabySleepTrackerWidget extends StatefulWidget {
 }
 
 class SleepInfo {
-  final int mood;
   final TimeOfDay timePutToBed;
   final TimeOfDay timeFellAsleep;
   final TimeOfDay wakeUpTime;
 
-  SleepInfo(this.mood, this.timePutToBed, this.timeFellAsleep, this.wakeUpTime);
+  SleepInfo(this.timePutToBed, this.timeFellAsleep, this.wakeUpTime);
 }
 
 class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
-  Map<DateTime, SleepInfo> sleepInfo = {
-    DateTime.now().subtract(Duration(days: 2)): SleepInfo(
-        1,
-        TimeOfDay(hour: 20, minute: 0),
-        TimeOfDay(hour: 22, minute: 0),
-        TimeOfDay(hour: 6, minute: 0)),
-    DateTime.now().subtract(Duration(days: 1)): SleepInfo(
-        2,
-        TimeOfDay(hour: 21, minute: 0),
-        TimeOfDay(hour: 23, minute: 0),
-        TimeOfDay(hour: 7, minute: 0)),
-    DateTime.now(): SleepInfo(3, TimeOfDay(hour: 22, minute: 0),
-        TimeOfDay(hour: 23, minute: 30), TimeOfDay(hour: 8, minute: 0)),
-  };
-
   DateTime _selectedDay = DateTime.now();
   bool _viewAllSleepInfo = false;
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  late Future<List<SleepInfo>> _sleepInfoFuture;
+  Map<SleepInfo, Map<String, dynamic>> sleepInfoMap = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _sleepInfoFuture = _getSleepInfoForSelectedDay();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,67 +89,75 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                 padding: const EdgeInsets.all(14.0),
                 child: Column(
                   children: [
-                    if (!_viewAllSleepInfo)
-                      // Wrap your TableCalendar widget with a Container
-                      Container(
-                        padding: EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.4),
-                              spreadRadius: 3,
-                              blurRadius: 7,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TableCalendar(
-                          headerVisible: true,
-                          focusedDay: _selectedDay,
-                          firstDay: DateTime.utc(2022, 1, 1),
-                          lastDay: DateTime.utc(2023, 12, 31),
-                          calendarFormat: _calendarFormat,
-                          selectedDayPredicate: (DateTime date) {
-                            return isSameDay(_selectedDay, date);
-                          },
-                          onDaySelected: (selectedDay, focusedDay) {
-                            setState(() {
-                              _selectedDay = selectedDay;
-                            });
-
-                            if (sleepInfo.containsKey(selectedDay)) {
-                              SleepInfo info = sleepInfo[selectedDay]!;
-                              _showDetailsDialog(selectedDay, info);
-                            }
-                          },
-                          onFormatChanged: (format) {
-                            setState(() {
-                              _calendarFormat = format;
-                            });
-                          },
-                          calendarBuilders: CalendarBuilders(
-                            selectedBuilder: (context, date, events) {
-                              return Container(
-                                margin: const EdgeInsets.all(4.0),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                child: Text(
-                                  '${date.day}',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                    AnimatedSwitcher(
+                      duration: Duration(milliseconds: 500),
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: child,
                       ),
-                    if (!_viewAllSleepInfo) SizedBox(height: 20),
+                      child: !_viewAllSleepInfo
+                          ? Column(
+                        key: ValueKey('calendar'),
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.4),
+                                  spreadRadius: 3,
+                                  blurRadius: 7,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: TableCalendar(
+                              headerVisible: true,
+                              focusedDay: _selectedDay,
+                              firstDay: DateTime.utc(2022, 1, 1),
+                              lastDay: DateTime.utc(2023, 12, 31),
+                              calendarFormat: _calendarFormat,
+                              selectedDayPredicate: (DateTime date) {
+                                return isSameDay(_selectedDay, date);
+                              },
+                              onDaySelected: (selectedDay, focusedDay) {
+                                setState(() {
+                                  _selectedDay = selectedDay;
+                                  _sleepInfoFuture = _getSleepInfoForSelectedDay();
+                                });
+                              },
+                              onFormatChanged: (format) {
+                                setState(() {
+                                  _calendarFormat = format;
+                                });
+                              },
+                              calendarBuilders: CalendarBuilders(
+                                selectedBuilder: (context, date, events) {
+                                  return Container(
+                                    margin: const EdgeInsets.all(4.0),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    child: Text(
+                                      '${date.day}',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                        ],
+                      )
+                          : SizedBox.shrink(),
+                    ),
                     ElevatedButton(
                       onPressed: () {
                         _showSleepInfoDialog();
@@ -198,15 +201,47 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                       ],
                     ),
                     SizedBox(height: 10),
-                    Container(
+                    AnimatedContainer(
                       height: _getContainerHeight(),
+                      duration: Duration(seconds: 1),
+                      curve: Curves.easeInOut,
                       width: 400,
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 255, 255, 255),
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      child: _getSleepInfoForSelectedDay().isEmpty
-                          ? Container(
+                      child: FutureBuilder<List<SleepInfo>>(
+                        future: _sleepInfoFuture,
+                        builder: (BuildContext context, AsyncSnapshot<List<SleepInfo>> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Container(
+                              padding: EdgeInsets.all(16.0),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 218, 54, 43),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.info,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Failed to fetch data",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+                            return Container(
                               padding: EdgeInsets.all(16.0),
                               width: double.infinity,
                               decoration: BoxDecoration(
@@ -229,18 +264,18 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                   ),
                                 ],
                               ),
-                            )
-                          : ListView.builder(
+                            );
+                          } else {
+                            // Display the list of SleepInfo in a ListView
+                            return ListView.builder(
                               itemCount: _viewAllSleepInfo
-                                  ? _getSleepInfoForSelectedDay().length
-                                  : min(
-                                      3, _getSleepInfoForSelectedDay().length),
+                                  ? snapshot.data!.length
+                                  : min(3, snapshot.data!.length),
                               itemBuilder: (context, index) {
-                                List<DateTime> dates =
-                                    _getSleepInfoForSelectedDay();
-                                DateTime date = dates[index];
-                                SleepInfo info = sleepInfo[date]!;
-
+                                SleepInfo info = snapshot.data![index];
+                                Map<String, dynamic>? infoData = sleepInfoMap[info];
+                                String dateTime = infoData?['dateTime'];
+                                String uniqueID = infoData?['uniqueID'];
                                 return Card(
                                   elevation: 3,
                                   margin: EdgeInsets.symmetric(
@@ -254,7 +289,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                       boxShadow: [
                                         BoxShadow(
                                           color: const Color.fromARGB(
-                                                  255, 219, 217, 217)
+                                              255, 219, 217, 217)
                                               .withOpacity(0.5),
                                           spreadRadius: 2,
                                           blurRadius: 5,
@@ -272,7 +307,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                       ),
                                       subtitle: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Time Fell Asleep: ${_formatTimeOfDay(info.timeFellAsleep)}',
@@ -287,31 +322,6 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Mood: ',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              Icon(
-                                                _getMoodIcon(info.mood),
-                                                color: _getMoodColor(info.mood),
-                                                size: 18,
-                                              ),
-                                              SizedBox(width: 8),
-                                              Text(
-                                                _getMoodLabel(info.mood),
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color:
-                                                      _getMoodColor(info.mood),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
                                         ],
                                       ),
                                       trailing: Row(
@@ -321,15 +331,14 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                             icon: Icon(Icons.edit,
                                                 color: Colors.blue),
                                             onPressed: () {
-                                              _showEditSleepInfoDialog(
-                                                  date, info);
+                                              _showEditSleepInfoDialog(dateTime, info, uniqueID);
                                             },
                                           ),
                                           IconButton(
                                             icon: Icon(Icons.delete,
                                                 color: Colors.red),
                                             onPressed: () {
-                                              _showDeleteSleepInfoDialog(date);
+                                              _showDeleteSleepInfoDialog(dateTime, uniqueID);
                                             },
                                           ),
                                         ],
@@ -338,7 +347,10 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                   ),
                                 );
                               },
-                            ),
+                            );
+                          }
+                        },
+                      )
                     ),
                   ],
                 ),
@@ -356,12 +368,96 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
     return fixedHeight;
   }
 
-  // Function to get the list of dates with sleep information for the selected day
-  List<DateTime> _getSleepInfoForSelectedDay() {
-    return [
-      for (var entry in sleepInfo.entries)
-        if (isSameDay(entry.key, _selectedDay)) entry.key
-    ];
+  Future<List<SleepInfo>> _getSleepInfoForSelectedDay() async {
+    String? deviceID = await auth.getDeviceID();
+
+    List<SleepInfo> sleepInfos = [];
+
+    if (deviceID != null) {
+      String formattedDate = "${_selectedDay.year}-${_selectedDay.month
+          .toString().padLeft(2, '0')}-${_selectedDay.day.toString().padLeft(
+          2, '0')}";
+
+      // Fetch sleep info data from Firebase for the selected date
+      DataSnapshot snapshot;
+      try {
+        snapshot = (await FirebaseDatabase.instance
+            .ref()
+            .child("devices")
+            .child(deviceID)
+            .child("tracker")
+            .child(formattedDate)
+            .once()).snapshot;
+      } catch (e) {
+        print("Failed to fetch data from Firebase: $e");
+        return sleepInfos;
+      }
+
+      if (snapshot.value != null) {
+        Map<dynamic, dynamic> sleepData = snapshot.value as Map<dynamic, dynamic>;
+        sleepData.forEach((key, value) {
+          try {
+            // Convert data from Firebase to SleepInfo object
+            SleepInfo info = SleepInfo(
+              _parseTimeOfDay(value['timePutToBed']),
+              _parseTimeOfDay(value['timeFellAsleep']),
+              _parseTimeOfDay(value['wakeUpTime']),
+            );
+
+            // Store the dateTime and uniqueID in a separate map
+            sleepInfoMap[info] = {
+              'dateTime': formattedDate,
+              'uniqueID': key,
+            };
+
+            sleepInfos.add(info);
+          } catch (e) {
+            print("Failed to parse sleep info data: $e");
+          }
+        });
+      }
+    }
+
+    return sleepInfos;
+  }
+
+  // Function to parse Firebase time string to TimeOfDay
+  TimeOfDay _parseTimeOfDay(String timeString) {
+    List<String> parts = timeString.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+
+  Future<void> saveSleepInfoToFirebase(DateTime date, SleepInfo info) async {
+    String? deviceID = await auth.getDeviceID();
+
+    if (deviceID != null) {
+      // Get Firebase database reference
+      DatabaseReference rootRef = FirebaseDatabase.instance.ref().child("devices").child(deviceID).child("tracker");
+
+      // Convert TimeOfDay to String
+      String timePutToBed = _formatTOD(info.timePutToBed);
+      String timeFellAsleep = _formatTOD(info.timeFellAsleep);
+      String wakeUpTime = _formatTOD(info.wakeUpTime);
+
+      // Generate a unique identifier for the sleep record
+      String uniqueID = DateTime.now().millisecondsSinceEpoch.toString(); // Using timestamp as ID
+
+      // Create a map containing sleep info data
+      Map<String, dynamic> sleepInfoData = {
+        "timePutToBed": timePutToBed,
+        "timeFellAsleep": timeFellAsleep,
+        "wakeUpTime": wakeUpTime,
+      };
+
+      String formattedDate = "${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}";
+
+      // Set the sleep info data in Firebase under the specified date and unique ID
+      rootRef.child(formattedDate).child(uniqueID).set(sleepInfoData);
+    }
+  }
+
+  String _formatTOD(TimeOfDay time) {
+    return "${time.hour}:${time.minute}";
   }
 
   void _showSleepInfoDialog() async {
@@ -386,36 +482,22 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
         );
 
         if (wakeUpTime != null) {
-          int? selectedMood = await showDialog<int>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Select Mood'),
-                content: SizedBox(
-                  width: 300.0,
-                  height: 200.0,
-                  child: MoodSelectionButtons(),
-                ),
-              );
-            },
+          DateTime selectedDateTime = DateTime(
+            _selectedDay.year,
+            _selectedDay.month,
+            _selectedDay.day,
+            timePutToBed.hour,
+            timePutToBed.minute,
           );
 
-          if (selectedMood != null) {
-            DateTime selectedDateTime = DateTime(
-              _selectedDay.year,
-              _selectedDay.month,
-              _selectedDay.day,
-              timePutToBed.hour,
-              timePutToBed.minute,
-            );
+          SleepInfo newInfo = SleepInfo(
+              timePutToBed, timeFellAsleep, wakeUpTime);
 
-            SleepInfo newInfo = SleepInfo(
-                selectedMood, timePutToBed, timeFellAsleep, wakeUpTime);
+          saveSleepInfoToFirebase(selectedDateTime, newInfo);
 
-            setState(() {
-              sleepInfo[selectedDateTime] = newInfo;
-            });
-          }
+          setState(() {
+            _sleepInfoFuture = _getSleepInfoForSelectedDay();
+          });
         }
       }
     }
@@ -434,7 +516,6 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
               Text(
                   'Time Fell Asleep: ${_formatTimeOfDay(info.timeFellAsleep)}'),
               Text('Wake Up Time: ${_formatTimeOfDay(info.wakeUpTime)}'),
-              Text('Mood: ${_getMoodLabel(info.mood)}'),
             ],
           ),
           actions: [
@@ -450,7 +531,31 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
     );
   }
 
-  void _showEditSleepInfoDialog(DateTime dateTime, SleepInfo info) async {
+  Future<void> editSleepInfo(String date, SleepInfo info, String unique) async {
+    String? deviceID = await auth.getDeviceID();
+
+    if (deviceID != null) {
+      // Get Firebase database reference
+      DatabaseReference rootRef = FirebaseDatabase.instance.ref().child("devices").child(deviceID).child("tracker");
+
+      // Convert TimeOfDay to String
+      String timePutToBed = _formatTOD(info.timePutToBed);
+      String timeFellAsleep = _formatTOD(info.timeFellAsleep);
+      String wakeUpTime = _formatTOD(info.wakeUpTime);
+
+      // Create a map containing sleep info data
+      Map<String, dynamic> sleepInfoData = {
+        "timePutToBed": timePutToBed,
+        "timeFellAsleep": timeFellAsleep,
+        "wakeUpTime": wakeUpTime,
+      };
+
+      // Set the sleep info data in Firebase under the specified date and unique ID
+      rootRef.child(date).child(unique).set(sleepInfoData);
+    }
+  }
+
+  void _showEditSleepInfoDialog(String dateTime, SleepInfo info, String uniqueID) async {
     TimeOfDay? timePutToBed = await showTimePicker(
       context: context,
       initialTime: info.timePutToBed,
@@ -472,33 +577,32 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
         );
 
         if (wakeUpTime != null) {
-          int? selectedMood = await showDialog<int>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Select Mood'),
-                content: SizedBox(
-                  width: 300.0,
-                  height: 200.0,
-                  child: MoodSelectionButtons(),
-                ),
-              );
-            },
-          );
-
-          if (selectedMood != null) {
+          SleepInfo updatedInfo = SleepInfo(
+            timePutToBed, timeFellAsleep, wakeUpTime);
+            editSleepInfo(dateTime ,updatedInfo, uniqueID);
             setState(() {
-              SleepInfo updatedInfo = SleepInfo(
-                  selectedMood, timePutToBed, timeFellAsleep, wakeUpTime);
-              sleepInfo[dateTime] = updatedInfo;
-            });
-          }
+              _sleepInfoFuture = _getSleepInfoForSelectedDay();
+          });
         }
       }
     }
   }
 
-  void _showDeleteSleepInfoDialog(DateTime dateTime) {
+  Future<void> deleteSleepInfoFromFirebase(String date, String uniqueID) async {
+    String? deviceID = await auth.getDeviceID();
+
+    if (deviceID != null) {
+      // Get Firebase database reference
+      DatabaseReference rootRef = FirebaseDatabase.instance.ref().child("devices").child(deviceID).child("tracker");
+      rootRef.child(date).child(uniqueID).remove();
+
+      setState(() {
+        _sleepInfoFuture = _getSleepInfoForSelectedDay();
+      });
+    }
+  }
+
+  void _showDeleteSleepInfoDialog(String dateTime, String uniqueID) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -515,9 +619,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
             ),
             TextButton(
               onPressed: () {
-                setState(() {
-                  sleepInfo.remove(dateTime);
-                });
+                deleteSleepInfoFromFirebase(dateTime, uniqueID);
                 Navigator.of(context).pop();
               },
               child: Text('Delete'),
@@ -535,120 +637,5 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
         now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
 
     return DateFormat('h:mm a').format(dateTime);
-  }
-
-  // Function to get the mood label
-  String _getMoodLabel(int mood) {
-    switch (mood) {
-      case 1:
-        return 'Bad Mood';
-      case 2:
-        return 'Average Mood';
-      case 3:
-        return 'Great Mood';
-      default:
-        return '';
-    }
-  }
-
-  // Function to get the mood color
-  Color _getMoodColor(int mood) {
-    switch (mood) {
-      case 1:
-        return Colors.red; // Bad Mood
-      case 2:
-        return Colors.amber; // Average Mood
-      case 3:
-        return Colors.green; // Great Mood
-      default:
-        return Colors.black; // Default color
-    }
-  }
-
-// Function to get the mood icon
-  IconData _getMoodIcon(int mood) {
-    switch (mood) {
-      case 1:
-        return Icons.mood_bad; // Bad Mood
-      case 2:
-        return Icons.sentiment_neutral; // Average Mood
-      case 3:
-        return Icons.mood; // Great Mood
-      default:
-        return Icons.sentiment_very_satisfied; // Default icon
-    }
-  }
-}
-
-// Class for the mood selection buttons
-class MoodSelectionButtons extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop(1); // Bad Mood
-          },
-          child: SizedBox(
-            height: 50.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.mood_bad),
-                SizedBox(width: 8.0),
-                Text('Bad Mood'),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(height: 8.0),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.amber,
-            foregroundColor: Colors.black,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop(2); // Average Mood
-          },
-          child: SizedBox(
-            height: 50.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.sentiment_neutral),
-                SizedBox(width: 8.0),
-                Text('Average Mood'),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(height: 8.0),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop(3); // Great Mood
-          },
-          child: SizedBox(
-            height: 50.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.mood),
-                SizedBox(width: 8.0),
-                Text('Great Mood'),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
