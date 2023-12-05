@@ -1,10 +1,24 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_baby_cradle/screens/wake_up_times_screen.dart';
+import '../services/status_service.dart';
 import '../theme_provider.dart';
 
 class SleepEfficiencyScreen extends StatelessWidget {
   final List<String> daysOfWeek = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+  ];
+
+  final List<String> daysShorten = [
     'Mon',
     'Tue',
     'Wed',
@@ -17,6 +31,66 @@ class SleepEfficiencyScreen extends StatelessWidget {
   // Dummy data for sleep efficiency, hours of sleep, and hours in cradle
   final List<double> hoursOfSleepData = [8, 7, 6, 9, 5, 10, 8];
   final List<double> hoursInCradleData = [9, 8, 7, 10, 6, 11, 9];
+
+  Future<Map<String, List<SleepInfo>>> _getSleepInfo() async {
+    String? deviceID = await auth.getDeviceID();
+
+    Map<String, List<SleepInfo>> sleepInfos = {};
+
+    if (deviceID != null) {
+      // Fetch sleep info data from Firebase
+      DataSnapshot snapshot;
+      try {
+        snapshot = (await FirebaseDatabase.instance
+            .ref()
+            .child("devices")
+            .child(deviceID)
+            .child("tracker")
+            .once()).snapshot;
+      } catch (e) {
+        print("Failed to fetch data from Firebase: $e");
+        return sleepInfos;
+      }
+
+      if (snapshot.value != null) {
+        Map<dynamic, dynamic> sleepData = snapshot.value as Map<dynamic, dynamic>;
+        sleepData.forEach((key, value) {
+          try {
+            // key is the date
+            DateTime date = DateTime.parse(key);
+            String dayOfWeek = DateFormat('EEEE').format(date); // 'EEEE' gives full name of the day of week ex Monday Tuesday wed etc
+            // value is a map of timestamps
+            Map<dynamic, dynamic> timestamps = value as Map<dynamic, dynamic>;
+            timestamps.forEach((timestamp, sleepInfoData) {
+              // Convert data from Firebase to SleepInfo object
+              SleepInfo info = SleepInfo(
+                _parseTimeOfDay(sleepInfoData['timePutToBed']),
+                _parseTimeOfDay(sleepInfoData['timeFellAsleep']),
+                _parseTimeOfDay(sleepInfoData['wakeUpTime']),
+              );
+
+              // If there's no list for this day of the week, create one
+              if (!sleepInfos.containsKey(dayOfWeek)) {
+                sleepInfos[dayOfWeek] = [];
+              }
+
+              // Add the SleepInfo object to the list for this day of the week
+              sleepInfos[dayOfWeek]!.add(info);
+            });
+          } catch (e) {
+            print("Failed to parse sleep info data: $e");
+          }
+        });
+      }
+    }
+
+    return sleepInfos;
+  }
+
+  TimeOfDay _parseTimeOfDay(String timeString) {
+    List<String> parts = timeString.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,10 +140,9 @@ class SleepEfficiencyScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text(
+                      Text(
                       'Sleep Efficiency Graph',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 16),
                     Container(
@@ -79,37 +152,72 @@ class SleepEfficiencyScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           Expanded(
-                            child: BarChart(
-                              BarChartData(
-                                barGroups: _buildBarGroups(),
-                                titlesData: _buildTitlesData(),
-                                borderData: FlBorderData(show: true),
-                                axisTitleData: FlAxisTitleData(
-                                  leftTitle: AxisTitle(
-                                    showTitle: true,
-                                    titleText: 'Number of hours',
-                                    margin: 12,
-                                  ),
-                                  bottomTitle: AxisTitle(
-                                    showTitle: true,
-                                    titleText: 'Days of the Week',
-                                    margin: 4,
-                                  ),
-                                ),
-                              ),
+                            child: FutureBuilder<Map<String, List<SleepInfo>>>(
+                              future: _getSleepInfo(),
+                              builder: (BuildContext context, AsyncSnapshot<Map<String, List<SleepInfo>>> snapshot) {
+                                if (snapshot.hasData) {
+                                  Map<String, List<SleepInfo>> sleepInfos = snapshot.data!;
+                                  List<List<double>> hoursOfSleepData = List.generate(daysOfWeek.length, (index) => []);
+                                  List<List<double>> hoursInCradleData = List.generate(daysOfWeek.length, (index) => []);
+
+                                  sleepInfos.forEach((day, infos) {
+                                    int index = daysOfWeek.indexOf(day);
+                                    if (index != -1) {
+                                      hoursOfSleepData[index] = infos.map((info) {
+                                        Duration fellAsleep = Duration(hours: info.timeFellAsleep.hour, minutes: info.timeFellAsleep.minute);
+                                        Duration wokeUp = Duration(hours: info.wakeUpTime.hour, minutes: info.wakeUpTime.minute);
+                                        if (wokeUp < fellAsleep) {
+                                          wokeUp += Duration(hours: 24);
+                                        }
+                                        return (wokeUp.inMinutes - fellAsleep.inMinutes) / 60;
+                                      }).toList();
+
+                                      hoursInCradleData[index] = infos.map((info) {
+                                        Duration putToBed = Duration(hours: info.timePutToBed.hour, minutes: info.timePutToBed.minute);
+                                        Duration wokeUp = Duration(hours: info.wakeUpTime.hour, minutes: info.wakeUpTime.minute);
+                                        if (wokeUp < putToBed) {
+                                          wokeUp += Duration(hours: 24);
+                                        }
+                                        return (wokeUp.inMinutes - putToBed.inMinutes)/60;
+                                      }).toList();
+                                    }
+                                  });
+
+                                  return BarChart(
+                                    BarChartData(
+                                      barGroups: _buildBarGroups(hoursOfSleepData, hoursInCradleData),
+                                      titlesData: _buildTitlesData(),
+                                      borderData: FlBorderData(show: true),
+                                      axisTitleData: FlAxisTitleData(
+                                        leftTitle: AxisTitle(
+                                          showTitle: true,
+                                          titleText: 'Number of hours',
+                                          margin: 12,
+                                        ),
+                                        bottomTitle: AxisTitle(
+                                          showTitle: true,
+                                          titleText: 'Days of the Week',
+                                          margin: 4,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                } else {
+                                  // Return a loading indicator while waiting for the future to complete
+                                  return CircularProgressIndicator();
+                                }
+                              },
                             ),
                           ),
                           SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              ChartLegend(Color.fromARGB(255, 0, 2, 122),
-                                  'Hours of Sleep'),
+                              ChartLegend(Color.fromARGB(255, 0, 2, 122), 'Hours of Sleep'),
                               SizedBox(width: 10),
-                              ChartLegend(
-                                Color.fromARGB(255, 255, 167, 52),
-                                'Hours in Cradle',
-                              ),
+                              ChartLegend(Color.fromARGB(255, 255, 167, 52), 'Hours in Cradle'),
                             ],
                           ),
                         ],
@@ -137,65 +245,98 @@ class SleepEfficiencyScreen extends StatelessWidget {
                           ),
                           Container(
                             height: 300, // Adjust the height as needed
-                            child: ListView.builder(
-                              // Wrap content
-                              scrollDirection: Axis.vertical,
-                              itemCount: daysOfWeek.length,
-                              itemBuilder: (context, index) {
-                                double sleepEfficiency =
-                                    (hoursOfSleepData[index] /
-                                            hoursInCradleData[index]) *
-                                        100;
+                            child: FutureBuilder<Map<String, List<SleepInfo>>>(
+                              future: _getSleepInfo(),
+                              builder: (BuildContext context, AsyncSnapshot<Map<String, List<SleepInfo>>> snapshot) {
+                                if (snapshot.hasData) {
+                                  Map<String, List<SleepInfo>> sleepInfos = snapshot.data!;
+                                  List<List<double>> hoursOfSleepData = List.generate(daysOfWeek.length, (index) => []);
+                                  List<List<double>> hoursInCradleData = List.generate(daysOfWeek.length, (index) => []);
 
-                                return Card(
-                                  color:
-                                      Theme.of(context).colorScheme.surfaceTint,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              daysOfWeek[index],
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
+                                  sleepInfos.forEach((day, infos) {
+                                    int index = daysOfWeek.indexOf(day);
+                                    if (index != -1) {
+                                      hoursOfSleepData[index] = infos.isNotEmpty ? infos.map((info) {
+                                        Duration fellAsleep = Duration(hours: info.timeFellAsleep.hour, minutes: info.timeFellAsleep.minute);
+                                        Duration wokeUp = Duration(hours: info.wakeUpTime.hour, minutes: info.wakeUpTime.minute);
+                                        if (wokeUp < fellAsleep) {
+                                          wokeUp += Duration(hours: 24);
+                                        }
+                                        return (wokeUp.inMinutes - fellAsleep.inMinutes) / 60;
+                                      }).toList() : [0.0];
+
+                                      hoursInCradleData[index] = infos.isNotEmpty ? infos.map((info) {
+                                        Duration putToBed = Duration(hours: info.timePutToBed.hour, minutes: info.timePutToBed.minute);
+                                        Duration wokeUp = Duration(hours: info.wakeUpTime.hour, minutes: info.wakeUpTime.minute);
+                                        if (wokeUp < putToBed) {
+                                          wokeUp += Duration(hours: 24);
+                                        }
+                                        return (wokeUp.inMinutes - putToBed.inMinutes)/60;
+                                      }).toList() : [0.0];
+                                    }
+                                  });
+
+                                  return ListView.builder(
+                                    // Wrap content
+                                    scrollDirection: Axis.vertical,
+                                    itemCount: daysOfWeek.length,
+                                    itemBuilder: (context, index) {
+                                      double sleepEfficiency =
+                                          (hoursOfSleepData[index].isNotEmpty ? hoursOfSleepData[index].reduce((a, b) => a + b) : 0) /
+                                              (hoursInCradleData[index].isNotEmpty ? hoursInCradleData[index].reduce((a, b) => a + b) : 1) *
+                                              100;
+
+                                      return Card(
+                                        color: Theme.of(context).colorScheme.surfaceTint,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    daysOfWeek[index],
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 8),
+                                                  Text('Hours of Sleep: ${hoursOfSleepData[index].isNotEmpty ? hoursOfSleepData[index].reduce((a, b) => a + b) : 0}'),
+                                                  Text('Hours Spent in Cradle: ${hoursInCradleData[index].isNotEmpty ? hoursInCradleData[index].reduce((a, b) => a + b) : 0}'),
+                                                ],
                                               ),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                                'Hours of Sleep: ${hoursOfSleepData[index]}'),
-                                            Text(
-                                                'Hours Spent in Cradle: ${hoursInCradleData[index]}'),
-                                          ],
-                                        ),
-                                        Container(
-                                          width: 60,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: _getColorForPercentage(
-                                                sleepEfficiency),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${sleepEfficiency.toStringAsFixed(1)}%',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
+                                              Container(
+                                                width: 60,
+                                                height: 60,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: _getColorForPercentage(sleepEfficiency),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    '${sleepEfficiency.toStringAsFixed(1)}%',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                );
+                                      );
+                                    },
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                } else {
+                                  // Return a loading indicator while waiting for the future to complete
+                                  return CircularProgressIndicator();
+                                }
                               },
                             ),
                           ),
@@ -212,22 +353,25 @@ class SleepEfficiencyScreen extends StatelessWidget {
     );
   }
 
-  List<BarChartGroupData> _buildBarGroups() {
+  List<BarChartGroupData> _buildBarGroups(List<List<double>> hoursOfSleepData, List<List<double>> hoursInCradleData) {
     List<BarChartGroupData> barGroups = [];
 
     for (int i = 0; i < daysOfWeek.length; i++) {
+      double hoursOfSleep = hoursOfSleepData[i].isEmpty ? 0 : hoursOfSleepData[i].reduce((a, b) => a + b);
+      double hoursInCradle = hoursInCradleData[i].isEmpty ? 0 : hoursInCradleData[i].reduce((a, b) => a + b);
+
       barGroups.add(
         BarChartGroupData(
           x: i,
           barRods: [
             BarChartRodData(
-              y: hoursOfSleepData[i],
+              y: hoursOfSleep,
               colors: [Color.fromARGB(255, 0, 2, 122)],
               width: 16,
               borderRadius: BorderRadius.circular(2),
             ),
             BarChartRodData(
-              y: hoursInCradleData[i],
+              y: hoursInCradle,
               colors: [const Color.fromARGB(255, 255, 167, 52)],
               width: 16,
               borderRadius: BorderRadius.circular(2),
@@ -258,13 +402,13 @@ class SleepEfficiencyScreen extends StatelessWidget {
       topTitles: SideTitles(showTitles: false),
       leftTitles: SideTitles(
         showTitles: true,
-        interval: 2, // Set the interval to 2
+        interval: 10, // Set the interval to 2
       ),
       bottomTitles: SideTitles(
         showTitles: true,
         getTitles: (value) {
-          if (value >= 0 && value < daysOfWeek.length) {
-            return daysOfWeek[value.toInt()];
+          if (value >= 0 && value < daysShorten.length) {
+            return daysShorten[value.toInt()];
           }
           return '';
         },

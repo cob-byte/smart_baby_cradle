@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -35,11 +37,31 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   late Future<List<SleepInfo>> _sleepInfoFuture;
   Map<SleepInfo, Map<String, dynamic>> sleepInfoMap = {};
+  StreamSubscription<DatabaseEvent>? _subscription;
 
   @override
   void initState() {
     super.initState();
     _sleepInfoFuture = _getSleepInfoForSelectedDay();
+
+    subscription();
+  }
+
+  Future<void> subscription() async {
+    String? deviceID = await auth.getDeviceID();
+    DatabaseReference rootRef = FirebaseDatabase.instance.ref().child("devices").child(deviceID!).child("tracker");
+
+    _subscription = rootRef.onValue.listen((event) {
+      setState(() {
+        _sleepInfoFuture = _getSleepInfoForSelectedDay();
+      });
+    });
+  }
+
+    @override
+  void dispose() {
+    _subscription?.cancel();  // Cancel the subscription when the widget is disposed.
+    super.dispose();
   }
 
   @override

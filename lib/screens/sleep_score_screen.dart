@@ -242,8 +242,6 @@ class SleepPatternCard extends StatelessWidget {
                 label: 'Sleep Onset Latency',
                 value: '$onsetMinutes minutes'),
             SizedBox(height: 16),
-            SleepInfoRow(icon: Icons.mood, label: 'Mood', value: 'Great Mood'),
-            SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -274,39 +272,6 @@ class SleepInfoRow extends StatelessWidget {
 
   SleepInfoRow({required this.icon, required this.label, required this.value});
 
-  // Define icons and colors for each mood
-  IconData? getMoodIcon() {
-    if (label.toLowerCase() == 'mood') {
-      switch (value.toLowerCase()) {
-        case 'bad mood':
-          return Icons.mood_bad;
-        case 'average mood':
-          return Icons.sentiment_satisfied;
-        case 'great mood':
-          return Icons.mood;
-        default:
-          return Icons.sentiment_neutral;
-      }
-    }
-    return null;
-  }
-
-  Color? getMoodColor() {
-    if (label.toLowerCase() == 'mood') {
-      switch (value.toLowerCase()) {
-        case 'bad mood':
-          return Colors.red;
-        case 'average mood':
-          return Colors.amber;
-        case 'great mood':
-          return Colors.green;
-        default:
-          return Colors.grey;
-      }
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -321,37 +286,15 @@ class SleepInfoRow extends StatelessWidget {
             label,
             style: TextStyle(fontSize: 16),
           ),
-          if (label.toLowerCase() == 'mood')
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Icon(
-                    getMoodIcon()!,
-                    color: getMoodColor()!,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: getMoodColor()!,
-                    ),
-                  ),
-                ],
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                value,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
-          if (label.toLowerCase() != 'mood')
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  value,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
+          ),
         ],
       ),
     );
