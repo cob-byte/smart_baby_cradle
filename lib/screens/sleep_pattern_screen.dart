@@ -1,6 +1,10 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_baby_cradle/screens/wake_up_times_screen.dart';
+import '../services/status_service.dart';
 import '../theme_provider.dart';
 
 class SleepPatternScreen extends StatefulWidget {
@@ -29,38 +33,66 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
     'Sat',
     'Sun'
   ];
-  final List<double> hoursOfSleepData = [8, 7, 6, 9, 5, 10, 8];
-  final List<double> hoursInCradleData = [9, 8, 7, 10, 6, 11, 9];
-  final List<double> sleepOnsetLatencyData = [15, 10, 20, 12, 23, 18, 15];
-  final List<DateTime> wakeUpTimesData = [
-    DateTime(2023, 1, 1, 7, 0), // 7:00 AM
-    DateTime(2023, 1, 1, 6, 30), // 6:30 AM
-    DateTime(2023, 1, 1, 8, 0), // 8:00 AM
-    DateTime(2023, 1, 1, 7, 30), // 7:30 AM
-    DateTime(2023, 1, 1, 6, 0), // 6:00 AM
-    DateTime(2023, 1, 1, 8, 30), // 8:30 AM
-    DateTime(2023, 1, 1, 7, 0), // 7:00 AM
-  ];
 
-  final List<DateTime> timePutToBedData = [
-    DateTime(2023, 1, 1, 23, 0), // 11:00 PM
-    DateTime(2023, 1, 1, 22, 0), // 10:00 PM
-    DateTime(2023, 1, 1, 23, 30), // 11:30 PM
-    DateTime(2023, 1, 1, 22, 30), // 10:30 PM
-    DateTime(2023, 1, 1, 22, 0), // 10:00 PM
-    DateTime(2023, 1, 1, 24, 0), // 12:00 AM
-    DateTime(2023, 1, 1, 23, 0), // 11:00 PM
-  ];
+  Future<Map<String, List<SleepInfo>>> _getSleepInfo() async {
+    String? deviceID = await auth.getDeviceID();
 
-  final List<DateTime> timeFellAsleepData = [
-    DateTime(2023, 1, 1, 23, 15), // 11:15 PM
-    DateTime(2023, 1, 1, 22, 10), // 10:10 PM
-    DateTime(2023, 1, 1, 23, 50), // 11:50 PM
-    DateTime(2023, 1, 1, 22, 50), // 10:50 PM
-    DateTime(2023, 1, 1, 22, 0), // 10:00 PM
-    DateTime(2023, 1, 1, 24, 0), // 12:00 AM
-    DateTime(2023, 1, 1, 23, 15), // 11:15 PM
-  ];
+    Map<String, List<SleepInfo>> sleepInfos = {};
+
+    if (deviceID != null) {
+      // Fetch sleep info data from Firebase
+      DataSnapshot snapshot;
+      try {
+        snapshot = (await FirebaseDatabase.instance
+            .ref()
+            .child("devices")
+            .child(deviceID)
+            .child("tracker")
+            .once()).snapshot;
+      } catch (e) {
+        print("Failed to fetch data from Firebase: $e");
+        return sleepInfos;
+      }
+
+      if (snapshot.value != null) {
+        Map<dynamic, dynamic> sleepData = snapshot.value as Map<dynamic, dynamic>;
+        sleepData.forEach((key, value) {
+          try {
+            // key is the date
+            DateTime date = DateTime.parse(key);
+            String dayOfWeek = DateFormat('EEEE').format(date); // 'EEEE' gives full name of the day of week ex Monday Tuesday wed etc
+            // value is a map of timestamps
+            Map<dynamic, dynamic> timestamps = value as Map<dynamic, dynamic>;
+            timestamps.forEach((timestamp, sleepInfoData) {
+              // Convert data from Firebase to SleepInfo object
+              SleepInfo info = SleepInfo(
+                _parseTimeOfDay(sleepInfoData['timePutToBed']),
+                _parseTimeOfDay(sleepInfoData['timeFellAsleep']),
+                _parseTimeOfDay(sleepInfoData['wakeUpTime']),
+              );
+
+              // If there's no list for this day of the week, create one
+              if (!sleepInfos.containsKey(dayOfWeek)) {
+                sleepInfos[dayOfWeek] = [];
+              }
+
+              // Add the SleepInfo object to the list for this day of the week
+              sleepInfos[dayOfWeek]!.add(info);
+            });
+          } catch (e) {
+            print("Failed to parse sleep info data: $e");
+          }
+        });
+      }
+    }
+
+    return sleepInfos;
+  }
+
+  TimeOfDay _parseTimeOfDay(String timeString) {
+    List<String> parts = timeString.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +154,7 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Container(
-                        width: 450,
+                        width: 375,
                         padding: const EdgeInsets.all(24.0),
                         color: Colors.white,
                         height: 470,
@@ -130,32 +162,46 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
                           children: [
                             SizedBox(height: 24),
                             Expanded(
-                              child: LineChart(
-                                LineChartData(
-                                  lineBarsData: _buildLineBarsData(),
-                                  titlesData: _buildTitlesData(),
-                                  borderData: FlBorderData(show: true),
-                                  gridData: FlGridData(show: true),
-                                  axisTitleData: FlAxisTitleData(
-                                    leftTitle: AxisTitle(
-                                      showTitle: true,
-                                      titleText: selectedSleepInfoType ==
-                                                  SleepInfoType.timePutToBed ||
-                                              selectedSleepInfoType ==
-                                                  SleepInfoType.wakeUpTimes ||
-                                              selectedSleepInfoType ==
-                                                  SleepInfoType.timeFellAsleep
-                                          ? 'Time'
-                                          : 'Number of Hours',
-                                      margin: 2,
-                                    ),
-                                    bottomTitle: AxisTitle(
-                                      showTitle: true,
-                                      titleText: 'Days of the Week',
-                                      margin: 2,
-                                    ),
-                                  ),
-                                ),
+                              child: FutureBuilder<Map<String, List<SleepInfo>>>(
+                                future: _getSleepInfo(),
+                                builder: (BuildContext context, AsyncSnapshot<Map<String, List<SleepInfo>>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    Map<String, List<SleepInfo>> sleepInfos = snapshot.data!;
+                                    // Calculate averages and other necessary data here
+
+                                    return LineChart(
+                                      LineChartData(
+                                        lineBarsData: _buildLineBarsData(sleepInfos), // Pass the fetched data to _buildLineBarsData
+                                        titlesData: _buildTitlesData(),
+                                        borderData: FlBorderData(show: true),
+                                        gridData: FlGridData(show: true),
+                                        axisTitleData: FlAxisTitleData(
+                                          leftTitle: AxisTitle(
+                                            showTitle: true,
+                                            titleText: selectedSleepInfoType ==
+                                                SleepInfoType.timePutToBed ||
+                                                selectedSleepInfoType ==
+                                                    SleepInfoType.wakeUpTimes ||
+                                                selectedSleepInfoType ==
+                                                    SleepInfoType.timeFellAsleep
+                                                ? 'Time'
+                                                : 'Number of Hours',
+                                            margin: 2,
+                                          ),
+                                          bottomTitle: AxisTitle(
+                                            showTitle: true,
+                                            titleText: 'Days of the Week',
+                                            margin: 2,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
+                                },
                               ),
                             ),
                             SizedBox(height: 16),
@@ -164,8 +210,7 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
                               children: <Widget>[
                                 SizedBox(width: 10),
                                 ChartLegend(
-                                  _getColorForSleepInfoType(
-                                      selectedSleepInfoType),
+                                  _getColorForSleepInfoType(selectedSleepInfoType),
                                   _getLegendText(selectedSleepInfoType),
                                 ),
                               ],
@@ -255,14 +300,170 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
     }
   }
 
-  List<LineChartBarData> _buildLineBarsData() {
+  Map<String, double> _calculateAverageHoursOfSleep(Map<String, List<SleepInfo>> sleepInfos) {
+    Map<String, double> averages = {};
+
+    sleepInfos.forEach((day, infos) {
+      double totalHoursOfSleep = 0;
+
+      infos.forEach((info) {
+        if (info.timeFellAsleep != null && info.wakeUpTime != null) {
+          Duration fellAsleep = Duration(hours: info.timeFellAsleep.hour, minutes: info.timeFellAsleep.minute);
+          Duration wokeUp = Duration(hours: info.wakeUpTime.hour, minutes: info.wakeUpTime.minute);
+          if (wokeUp < fellAsleep) {
+            wokeUp += Duration(hours: 24);
+          }
+          totalHoursOfSleep += (wokeUp.inMinutes - fellAsleep.inMinutes) / 60;
+        }
+      });
+
+      averages[day] = infos.isNotEmpty ? totalHoursOfSleep / infos.length : 0;
+    });
+
+    return averages;
+  }
+
+  Map<String, double> _calculateAverageHoursInCradle(Map<String, List<SleepInfo>> sleepInfos) {
+    Map<String, double> averages = {};
+
+    sleepInfos.forEach((day, infos) {
+      double totalHoursInCradle = 0;
+
+      infos.forEach((info) {
+        if (info.timePutToBed != null && info.wakeUpTime != null) {
+          Duration putToBed = Duration(hours: info.timePutToBed.hour, minutes: info.timePutToBed.minute);
+          Duration wokeUp = Duration(hours: info.wakeUpTime.hour, minutes: info.wakeUpTime.minute);
+          if (wokeUp < putToBed) {
+            wokeUp += Duration(hours: 24);
+          }
+          totalHoursInCradle += (wokeUp.inMinutes - putToBed.inMinutes) / 60;
+        }
+      });
+
+      averages[day] = infos.isNotEmpty ? totalHoursInCradle / infos.length : 0;
+    });
+
+    return averages;
+  }
+
+  Map<String, double> _calculateAverageSleepOnsetLatency(Map<String, List<SleepInfo>> sleepInfos) {
+    Map<String, double> averages = {};
+
+    sleepInfos.forEach((day, infos) {
+      double totalSleepOnsetLatency = 0;
+
+      infos.forEach((info) {
+        if (info.timePutToBed != null && info.timeFellAsleep != null) {
+          Duration putToBed = Duration(hours: info.timePutToBed.hour, minutes: info.timePutToBed.minute);
+          Duration fellAsleep = Duration(hours: info.timeFellAsleep.hour, minutes: info.timeFellAsleep.minute);
+          if (fellAsleep < putToBed) {
+            fellAsleep += Duration(hours: 24);
+          }
+          totalSleepOnsetLatency += (fellAsleep.inMinutes - putToBed.inMinutes) / 60;
+        }
+      });
+
+      averages[day] = infos.isNotEmpty ? totalSleepOnsetLatency / infos.length : 0;
+    });
+
+    return averages;
+  }
+
+  Map<String, double> _calculateAverageWakeUpTimes(Map<String, List<SleepInfo>> sleepInfos) {
+    Map<String, double> averages = {};
+
+    sleepInfos.forEach((day, infos) {
+      double totalWakeUpTimes = 0;
+
+      infos.forEach((info) {
+        if (info.wakeUpTime != null) {
+          totalWakeUpTimes += info.wakeUpTime.hour * 60 + info.wakeUpTime.minute;
+        }
+      });
+
+      averages[day] = infos.isNotEmpty ? totalWakeUpTimes / infos.length : 0;
+    });
+
+    return averages;
+  }
+
+  Map<String, double> _calculateAverageTimePutToBed(Map<String, List<SleepInfo>> sleepInfos) {
+    Map<String, double> averages = {};
+
+    sleepInfos.forEach((day, infos) {
+      double totalTimePutToBed = 0;
+
+      infos.forEach((info) {
+        if (info.timePutToBed != null) {
+          totalTimePutToBed += info.timePutToBed.hour * 60 + info.timePutToBed.minute;
+        }
+      });
+
+      averages[day] = infos.isNotEmpty ? totalTimePutToBed / infos.length : 0;
+    });
+
+    return averages;
+  }
+
+  Map<String, double> _calculateAverageTimeFellAsleep(Map<String, List<SleepInfo>> sleepInfos) {
+    Map<String, double> averages = {};
+
+    sleepInfos.forEach((day, infos) {
+      double totalTimeFellAsleep = 0;
+
+      infos.forEach((info) {
+        if (info.timeFellAsleep != null) {
+          totalTimeFellAsleep += info.timeFellAsleep.hour * 60 + info.timeFellAsleep.minute;
+        }
+      });
+
+      averages[day] = infos.isNotEmpty ? totalTimeFellAsleep / infos.length : 0;
+    });
+
+    return averages;
+  }
+
+  List<double> _convertMapToList(Map<String, double> map) {
+    List<String> orderedKeys = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    return orderedKeys.map((key) => map[key] ?? 0).toList();
+  }
+
+  List<DateTime> _convertListToDateTime(List<double> list) {
+    return list.map((minutesPastMidnight) {
+      int hours = (minutesPastMidnight / 60).floor();
+      int minutes = (minutesPastMidnight % 60).floor();
+      return DateTime(2023, 1, 1, hours, minutes);
+    }).toList();
+  }
+
+  List<LineChartBarData> _buildLineBarsData(Map<String, List<SleepInfo>> sleepInfos) {
     List<LineChartBarData> lineBarsData = [];
+
+    // Calculate averages for each day of the week
+    Map<String, double> averageHoursOfSleep = _calculateAverageHoursOfSleep(sleepInfos);
+    List<double> hoursOfSleepD = _convertMapToList(averageHoursOfSleep);
+
+    Map<String, double> averageHoursInCradle = _calculateAverageHoursInCradle(sleepInfos);
+    List<double> hoursInCradleD = _convertMapToList(averageHoursInCradle);
+
+    Map<String, double> averageSleepLatency = _calculateAverageSleepOnsetLatency(sleepInfos);
+    List<double> sleepLatencyD = _convertMapToList(averageSleepLatency);
+
+    Map<String, double> averageWakeUpTimes = _calculateAverageWakeUpTimes(sleepInfos);
+    List<double> wakeUpTimesD = _convertMapToList(averageWakeUpTimes);
+
+    Map<String, double> averageTimePutToBed = _calculateAverageTimePutToBed(sleepInfos);
+    List<double> timePutToBedD = _convertMapToList(averageTimePutToBed);
+
+    Map<String, double> averageTimeFellAsleep = _calculateAverageTimeFellAsleep(sleepInfos);
+    List<double> timeFellAsleepD = _convertMapToList(averageTimeFellAsleep);
+
 
     switch (selectedSleepInfoType) {
       case SleepInfoType.hoursOfSleep:
         lineBarsData.add(
           LineChartBarData(
-            spots: _buildSpots(hoursOfSleepData),
+            spots: _buildSpots(hoursOfSleepD),
             isCurved: false,
             colors: [Color.fromARGB(255, 0, 2, 122)],
             dotData: FlDotData(show: false),
@@ -274,7 +475,7 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
       case SleepInfoType.hoursInCradle:
         lineBarsData.add(
           LineChartBarData(
-            spots: _buildSpots(hoursInCradleData),
+            spots: _buildSpots(hoursInCradleD),
             isCurved: false,
             colors: [Color.fromARGB(255, 255, 167, 52)],
             dotData: FlDotData(show: false),
@@ -286,7 +487,7 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
       case SleepInfoType.wakeUpTimes:
         lineBarsData.add(
           LineChartBarData(
-            spots: _buildDateTimeSpots(wakeUpTimesData),
+            spots: _buildDateTimeSpots(_convertListToDateTime(wakeUpTimesD)),
             isCurved: false,
             colors: [Colors.green],
             dotData: FlDotData(show: false),
@@ -298,7 +499,7 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
       case SleepInfoType.timePutToBed:
         lineBarsData.add(
           LineChartBarData(
-            spots: _buildDateTimeSpots(timePutToBedData),
+            spots: _buildDateTimeSpots(_convertListToDateTime(timePutToBedD)),
             isCurved: false,
             colors: [Colors.orange],
             dotData: FlDotData(show: false),
@@ -308,10 +509,9 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
         );
         break;
       case SleepInfoType.sleepOnsetLatency:
-        // Add sleep onset latency data
         lineBarsData.add(
           LineChartBarData(
-            spots: _buildSpots(sleepOnsetLatencyData),
+            spots: _buildSpots(sleepLatencyD),
             isCurved: false,
             colors: [Colors.purple],
             dotData: FlDotData(show: false),
@@ -321,10 +521,9 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
         );
         break;
       case SleepInfoType.timeFellAsleep:
-        // Add sleep duration data
         lineBarsData.add(
           LineChartBarData(
-            spots: _buildDateTimeSpots(timeFellAsleepData),
+            spots: _buildDateTimeSpots(_convertListToDateTime(timeFellAsleepD)),
             isCurved: false,
             colors: [Colors.red],
             dotData: FlDotData(show: false),

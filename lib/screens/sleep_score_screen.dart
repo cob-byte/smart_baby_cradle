@@ -295,79 +295,153 @@ class PieChartPercentage extends StatelessWidget {
 
 class SleepPatternCard extends StatelessWidget {
   @override
-  @override
   Widget build(BuildContext context) {
-    // DUMMY DATA
-    DateTime sleepStartTime = DateTime.parse('2023-01-01 22:00:00');
-    DateTime sleepEndTime = DateTime.parse('2023-01-02 06:00:00');
-    DateTime sleepOnsetTime = DateTime.parse('2023-01-01 22:15:00');
+    return FutureBuilder<Map<String, List<SleepInfo>>>(
+      future: _getSleepInfo(),
+      builder: (BuildContext context, AsyncSnapshot<Map<String, List<SleepInfo>>> snapshot) {
+        if (snapshot.hasData) {
+          Map<String, List<SleepInfo>> sleepInfos = snapshot.data!;
+          List<double> dailyMinutesOfSleep = [];
+          List<double> dailyMinutesInCradle = [];
 
-    // Calculate sleep duration
-    Duration sleepDuration = sleepEndTime.difference(sleepStartTime);
-    int hours = sleepDuration.inHours;
-    int minutes = sleepDuration.inMinutes.remainder(60);
+          List<double> dailyPutToBedMinutes = [];
+          List<double> dailyFellAsleepMinutes = [];
+          List<double> dailyWokeUpMinutes = [];
 
-    // Calculate sleep onset latency
-    Duration sleepOnsetLatency = sleepOnsetTime.difference(sleepStartTime);
-    int onsetMinutes = sleepOnsetLatency.inMinutes;
+          sleepInfos.forEach((day, infos) {
+            double dailySleep = 0;
+            double dailyCradle = 0;
 
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Sleep Pattern Overview',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-            SleepInfoRow(
-                icon: Icons.access_time,
-                label: 'Time Put to Bed',
-                value: '${DateFormat.jm().format(sleepStartTime)}'),
-            SizedBox(height: 16),
-            SleepInfoRow(
-                icon: Icons.access_time,
-                label: 'Time Fell Asleep',
-                value:
-                    '${DateFormat.jm().format(sleepOnsetTime)}'), // Use sleep onset time
-            SizedBox(height: 16),
-            SleepInfoRow(
-                icon: Icons.wb_sunny,
-                label: 'Wake Up Time',
-                value: '${DateFormat.jm().format(sleepEndTime)}'),
-            SizedBox(height: 16),
-            SleepInfoRow(
-                icon: Icons.hourglass_empty,
-                label: 'Sleep Duration',
-                value: '$hours hours and $minutes minutes'),
-            SizedBox(height: 16),
-            SleepInfoRow(
-                icon: Icons.hourglass_empty,
-                label: 'Sleep Onset Latency',
-                value: '$onsetMinutes minutes'),
-            SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SleepPatternScreen(),
+            double dailyPutToBed = 0;
+            double dailyFellAsleep = 0;
+            double dailyWokeUp = 0;
+
+            int count = 0;
+
+            infos.forEach((info) {
+              Duration fellAsleep = Duration(hours: info.timeFellAsleep.hour, minutes: info.timeFellAsleep.minute);
+              Duration wokeUp = Duration(hours: info.wakeUpTime.hour, minutes: info.wakeUpTime.minute);
+              if (wokeUp < fellAsleep) {
+                wokeUp += Duration(hours: 24);
+              }
+              dailySleep += wokeUp.inMinutes - fellAsleep.inMinutes;
+
+              Duration putToBed = Duration(hours: info.timePutToBed.hour, minutes: info.timePutToBed.minute);
+              if (wokeUp < putToBed) {
+                wokeUp += Duration(hours: 24);
+              }
+              dailyCradle += wokeUp.inMinutes - putToBed.inMinutes;
+
+              dailyPutToBed += info.timePutToBed.hour * 60 + info.timePutToBed.minute;
+              dailyFellAsleep += info.timeFellAsleep.hour * 60 + info.timeFellAsleep.minute;
+              dailyWokeUp += info.wakeUpTime.hour * 60 + info.wakeUpTime.minute;
+
+              count++;
+            });
+
+            dailyPutToBedMinutes.add(dailyPutToBed / count);
+            dailyFellAsleepMinutes.add(dailyFellAsleep / count);
+            dailyWokeUpMinutes.add(dailyWokeUp / count);
+
+            dailyMinutesOfSleep.add(dailySleep);
+            dailyMinutesInCradle.add(dailyCradle);
+          });
+
+          double totalMinutesOfSleep = dailyMinutesOfSleep.reduce((a, b) => a + b) / dailyMinutesOfSleep.length;
+          double totalMinutesInCradle = dailyMinutesInCradle.reduce((a, b) => a + b) / dailyMinutesInCradle.length;
+
+          double averagePutToBedMinutes = dailyPutToBedMinutes.reduce((a, b) => a + b) / dailyPutToBedMinutes.length;
+          double averageFellAsleepMinutes = dailyFellAsleepMinutes.reduce((a, b) => a + b) / dailyFellAsleepMinutes.length;
+          double averageWokeUpMinutes = dailyWokeUpMinutes.reduce((a, b) => a + b) / dailyWokeUpMinutes.length;
+
+          // Calculate average sleep start time, sleep onset time, and sleep end time
+          TimeOfDay averagePutToBedTime = TimeOfDay(hour: (averagePutToBedMinutes ~/ 60).toInt(), minute: (averagePutToBedMinutes % 60).toInt());
+          TimeOfDay averageFellAsleepTime = TimeOfDay(hour: (averageFellAsleepMinutes ~/ 60).toInt(), minute: (averageFellAsleepMinutes % 60).toInt());
+          TimeOfDay averageWokeUpTime = TimeOfDay(hour: (averageWokeUpMinutes ~/ 60).toInt(), minute: (averageWokeUpMinutes % 60).toInt());
+
+          // Calculate sleep duration
+          Duration sleepDuration = Duration(minutes: totalMinutesOfSleep.toInt());
+          int hours = sleepDuration.inHours;
+          int minutes = sleepDuration.inMinutes.remainder(60);
+
+          // Calculate sleep onset latency
+          Duration sleepOnsetLatency = Duration(minutes: totalMinutesInCradle.toInt() - sleepDuration.inMinutes);
+          int onsetMinutes = sleepOnsetLatency.inMinutes;
+
+          return Card(
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('Sleep Pattern Overview',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+                  SleepInfoRow(
+                      icon: Icons.access_time,
+                      label: 'Time Put to Bed',
+                      value: '${DateFormat.jm().format(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, averagePutToBedTime.hour, averagePutToBedTime.minute))}'
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                minimumSize: Size(10, 35),
+                  SizedBox(height: 16),
+                  SleepInfoRow(
+                      icon: Icons.access_time,
+                      label: 'Time Fell Asleep',
+                      value: '${DateFormat.jm().format(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, averageFellAsleepTime.hour, averageFellAsleepTime.minute))}'
+                  ),
+                  SizedBox(height: 16),
+                  SleepInfoRow(
+                      icon: Icons.wb_sunny,
+                      label: 'Wake Up Time',
+                      value: '${DateFormat.jm().format(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, averageWokeUpTime.hour, averageWokeUpTime.minute))}'
+                  ),
+                  SizedBox(height: 16),
+                  SleepInfoRow(
+                      icon: Icons.hourglass_empty,
+                      label: 'Sleep Duration',
+                      value: '$hours hours and $minutes minutes'),
+                  SizedBox(height: 16),
+                  SleepInfoRow(
+                      icon: Icons.hourglass_empty,
+                      label: 'Sleep Onset Latency',
+                      value: '$onsetMinutes minutes'),
+                  SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SleepPatternScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      minimumSize: Size(10, 35),
+                    ),
+                    icon: Icon(Icons.expand_more),
+                    label: Text('See More'),
+                  ),
+                ],
               ),
-              icon: Icon(Icons.expand_more),
-              label: Text('See More'),
             ),
-          ],
-        ),
-      ),
+          );
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
     );
   }
+}
+
+double timeToAngle(TimeOfDay time) {
+  return (time.hour + time.minute / 60) * 15;
+}
+
+TimeOfDay angleToTime(double angle) {
+  int hour = angle ~/ 15;
+  int minute = ((angle % 15) * 4).round();
+  return TimeOfDay(hour: hour, minute: minute);
 }
 
 class SleepInfoRow extends StatelessWidget {

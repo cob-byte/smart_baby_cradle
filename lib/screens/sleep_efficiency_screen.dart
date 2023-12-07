@@ -342,7 +342,7 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                             child: FutureBuilder<Map<String, List<SleepInfo>>>(
                               future: _getSleepInfo(selectedDate, isWeekly),
                               builder: (BuildContext context, AsyncSnapshot<Map<String, List<SleepInfo>>> snapshot) {
-                                if (snapshot.hasData) {
+                                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                                   Map<String, List<SleepInfo>> sleepInfos = snapshot.data!;
                                   List<List<double>> hoursOfSleepData = List.generate(daysOfWeek.length, (index) => []);
                                   List<List<double>> hoursInCradleData = List.generate(daysOfWeek.length, (index) => []);
@@ -391,6 +391,31 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                                   );
                                 } else if (snapshot.hasError) {
                                   return Text('Error: ${snapshot.error}');
+                                } else if (snapshot.data!.isEmpty){
+                                  return Container(
+                                    padding: EdgeInsets.all(16.0),
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.error,
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.info,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'No events listed on this selection.',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
                                 } else {
                                   // Return a loading indicator while waiting for the future to complete
                                   return CircularProgressIndicator();
