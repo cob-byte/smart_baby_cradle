@@ -288,7 +288,6 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                               ),
                             );
                           } else {
-                            // Display the list of SleepInfo in a ListView
                             return ListView.builder(
                               itemCount: _viewAllSleepInfo
                                   ? snapshot.data!.length
@@ -301,7 +300,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                 return Card(
                                   elevation: 3,
                                   margin: EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 8),
+                                      vertical: 8, horizontal: 7),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Theme.of(context)
@@ -320,25 +319,13 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                       ],
                                     ),
                                     child: ListTile(
-                                      title: Text(
-                                        'Time Put to Bed: ${_formatTimeOfDay(info.timePutToBed)}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
+                                      title: Row(
+                                        children: <Widget>[
+                                          Icon(Icons.access_time,
+                                          color: Theme.of(context).primaryColor), // replace with your desired icon
+                                          SizedBox(width: 5), // you can adjust the size as needed
                                           Text(
-                                            'Time Fell Asleep: ${_formatTimeOfDay(info.timeFellAsleep)}',
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.black),
-                                          ),
-                                          Text(
-                                            'Wake Up Time: ${_formatTimeOfDay(info.wakeUpTime)}',
+                                            'Time Put to Bed: ${_formatTimeOfDay(info.timePutToBed)}',
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.black,
@@ -346,19 +333,53 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                           ),
                                         ],
                                       ),
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(height: 8),
+                                          Row(
+                                            children: <Widget>[
+                                              Icon(Icons.nightlight,
+                                              color: Theme.of(context).primaryColor
+                                              ), 
+                                              SizedBox(width: 5), 
+                                              Text(
+                                                'Time Fell Asleep: ${_formatTimeOfDay(info.timeFellAsleep)}',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 8),
+                                          Row(
+                                            children: <Widget>[
+                                              Icon(Icons.sunny,
+                                              color: Theme.of(context).primaryColor), 
+                                              SizedBox(width: 5),
+                                              Text(
+                                                'Wake Up Time: ${_formatTimeOfDay(info.wakeUpTime)}',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                       trailing: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           IconButton(
-                                            icon: Icon(Icons.edit,
-                                                color: Colors.blue),
+                                            icon: Icon(Icons.edit, color:Theme.of(context).primaryColor),
                                             onPressed: () {
                                               _showEditSleepInfoDialog(dateTime, info, uniqueID);
                                             },
                                           ),
                                           IconButton(
-                                            icon: Icon(Icons.delete,
-                                                color: Theme.of(context).colorScheme.error),
+                                            icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                                             onPressed: () {
                                               _showDeleteSleepInfoDialog(dateTime, uniqueID);
                                             },
@@ -366,8 +387,8 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                         ],
                                       ),
                                     ),
-                                  ),
-                                );
+                                  ),                
+                                  );
                               },
                             );
                           }
