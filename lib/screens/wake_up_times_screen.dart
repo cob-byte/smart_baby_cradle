@@ -267,7 +267,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                               padding: EdgeInsets.all(16.0),
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 218, 54, 43),
+                                color: Theme.of(context).colorScheme.error,
                                 borderRadius: BorderRadius.circular(10.0),
                               ),
                               child: Row(
@@ -358,7 +358,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                           ),
                                           IconButton(
                                             icon: Icon(Icons.delete,
-                                                color: Colors.red),
+                                                color: Theme.of(context).colorScheme.error),
                                             onPressed: () {
                                               _showDeleteSleepInfoDialog(dateTime, uniqueID);
                                             },
@@ -483,6 +483,33 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
   }
 
   void _showSleepInfoDialog() async {
+  DateTime selectedDateTime = DateTime(
+    _selectedDay.year,
+    _selectedDay.month,
+    _selectedDay.day,
+  );
+
+  // Check if the selected date is in the future
+  if (selectedDateTime.isAfter(DateTime.now())) {
+    ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+    content: Row(
+      children: [
+        Icon(
+          Icons.warning,
+          color: Colors.yellow,
+        ),
+        SizedBox(width: 8),
+        Text(
+          'Cannot add sleep information for future dates.',
+          style: TextStyle(color: Colors.white),  // Customize text color
+        ),
+      ],
+    ),
+    backgroundColor: Theme.of(context).colorScheme.error,
+  ),
+);
+  } else {
     TimeOfDay? timePutToBed = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -504,16 +531,11 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
         );
 
         if (wakeUpTime != null) {
-          DateTime selectedDateTime = DateTime(
-            _selectedDay.year,
-            _selectedDay.month,
-            _selectedDay.day,
-            timePutToBed.hour,
-            timePutToBed.minute,
-          );
-
           SleepInfo newInfo = SleepInfo(
-              timePutToBed, timeFellAsleep, wakeUpTime);
+            timePutToBed,
+            timeFellAsleep,
+            wakeUpTime,
+          );
 
           saveSleepInfoToFirebase(selectedDateTime, newInfo);
 
@@ -524,6 +546,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
       }
     }
   }
+}
 
   void _showDetailsDialog(DateTime dateTime, SleepInfo info) {
     showDialog(

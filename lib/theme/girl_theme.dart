@@ -10,7 +10,7 @@ final ThemeData girlTheme = ThemeData(
     tertiary: Color.fromRGBO(217, 217, 217, 0),
     surface: Colors.white,
     background: Colors.white,
-    error: Colors.red,
+    error: Color.fromARGB(255, 171, 18, 18),
     onPrimary: Colors.white,
     onSecondary: Color.fromRGBO(204, 117, 134, 1),
     onSurface: Colors.black,
