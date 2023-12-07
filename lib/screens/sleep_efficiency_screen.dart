@@ -7,7 +7,22 @@ import 'package:smart_baby_cradle/screens/wake_up_times_screen.dart';
 import '../services/status_service.dart';
 import '../theme_provider.dart';
 
-class SleepEfficiencyScreen extends StatelessWidget {
+class SleepEfficiencyScreen extends StatefulWidget {
+  @override
+  _SleepEfficiencyScreenState createState() => _SleepEfficiencyScreenState();
+}
+
+class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
+  bool isWeekly = true; // Track whether it's weekly or monthly view
+  DateTime selectedDate = DateTime.now();
+  Future<List<DropdownMenuItem<DateTime>>>? _dropdownMenuItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _dropdownMenuItems = _buildDropdownItems();
+  }
+
   final List<String> daysOfWeek = [
     'Monday',
     'Tuesday',
@@ -28,11 +43,114 @@ class SleepEfficiencyScreen extends StatelessWidget {
     'Sun'
   ];
 
-  // Dummy data for sleep efficiency, hours of sleep, and hours in cradle
-  final List<double> hoursOfSleepData = [8, 7, 6, 9, 5, 10, 8];
-  final List<double> hoursInCradleData = [9, 8, 7, 10, 6, 11, 9];
+  Future<Map<DateTime, List<SleepInfo>>> _getSleepInfo2() async {
+    String? deviceID = await auth.getDeviceID();
 
-  Future<Map<String, List<SleepInfo>>> _getSleepInfo() async {
+    Map<DateTime, List<SleepInfo>> sleepInfos = {};
+
+    if (deviceID != null) {
+      // Fetch sleep info data from Firebase
+      DataSnapshot snapshot;
+      try {
+        snapshot = (await FirebaseDatabase.instance
+            .ref()
+            .child("devices")
+            .child(deviceID)
+            .child("tracker")
+            .once()).snapshot;
+      } catch (e) {
+        print("Failed to fetch data from Firebase: $e");
+        return sleepInfos;
+      }
+
+      if (snapshot.value != null) {
+        Map<dynamic, dynamic> sleepData = snapshot.value as Map<dynamic, dynamic>;
+        sleepData.forEach((key, value) {
+          try {
+            // key is the date
+            DateTime date = DateTime.parse(key);
+            // value is a map of timestamps
+            Map<dynamic, dynamic> timestamps = value as Map<dynamic, dynamic>;
+            timestamps.forEach((timestamp, sleepInfoData) {
+              // Convert data from Firebase to SleepInfo object
+              SleepInfo info = SleepInfo(
+                _parseTimeOfDay(sleepInfoData['timePutToBed']),
+                _parseTimeOfDay(sleepInfoData['timeFellAsleep']),
+                _parseTimeOfDay(sleepInfoData['wakeUpTime']),
+              );
+
+              // If there's no list for this date, create one
+              if (!sleepInfos.containsKey(date)) {
+                sleepInfos[date] = [];
+              }
+
+              // Add the SleepInfo object to the list for this date
+              sleepInfos[date]!.add(info);
+            });
+          } catch (e) {
+            print("Failed to parse sleep info data: $e");
+          }
+        });
+      }
+    }
+    return sleepInfos;
+  }
+
+  Future<List<DropdownMenuItem<DateTime>>> _buildDropdownItems() async {
+    List<DropdownMenuItem<DateTime>> items = [];
+    if (isWeekly) {
+      // Get the sleep info data as a map of dates and sleep infos
+      Map<DateTime, List<SleepInfo>> sleepData = await _getSleepInfo2();
+
+      // Get the list of dates from the sleep data map
+      List<DateTime> dates = sleepData.keys.toList();
+
+      // Sort the dates in ascending order
+      dates.sort();
+
+      // Set the currentDate to the start of the week of the first date
+      DateTime currentDate = dates.first.subtract(Duration(days: (dates.first.weekday - 1) % 7)); // This will set the currentDate to the previous Monday
+
+      // Set the endDate to the end of the week of the last date
+      DateTime endDate = dates.last.add(Duration(days: (7 - dates.last.weekday) % 7)); // This will set the endDate to the next Sunday
+
+      // Iterate through all weeks from the week of the first date to the week of the last date
+      while (currentDate.isBefore(endDate)) {
+        DateTime weekEnd = currentDate.add(Duration(days: 6));
+        items.add(DropdownMenuItem<DateTime>(
+          value: currentDate,
+          child: Text(
+              '${DateFormat('MMM d').format(currentDate)} - ${DateFormat('MMM d').format(weekEnd)}'),
+        ));
+        currentDate = currentDate.add(Duration(days: 7));
+      }
+
+      items = items.reversed.toList();
+    } else {
+      // Implement logic to generate monthly dropdown items
+      // Iterate through months from January to December of the current year
+      // Populate a list of DropdownMenuItems<DateTime> for each month
+
+      // Get the current year
+      int year = DateTime.now().year;
+      // Use a loop to iterate through the months
+      for (int i = 1; i <= 12; i++) {
+        // Create a date object for the first day of each month
+        DateTime monthStart = DateTime(year, i, 1);
+        // Create a dropdown menu item for the current month
+        // The value is the start date of the month
+        // The child is a text widget showing the month name
+        items.add(DropdownMenuItem<DateTime>(
+          value: monthStart,
+          child: Text(DateFormat('MMMM').format(monthStart)),
+        ));
+      }
+    }
+    // Return the generated dropdown items
+    return items;
+  }
+
+  Future<Map<String, List<SleepInfo>>> _getSleepInfo(DateTime selectedDate, bool isWeekly) async {
     String? deviceID = await auth.getDeviceID();
 
     Map<String, List<SleepInfo>> sleepInfos = {};
@@ -59,24 +177,17 @@ class SleepEfficiencyScreen extends StatelessWidget {
             // key is the date
             DateTime date = DateTime.parse(key);
             String dayOfWeek = DateFormat('EEEE').format(date); // 'EEEE' gives full name of the day of week ex Monday Tuesday wed etc
-            // value is a map of timestamps
-            Map<dynamic, dynamic> timestamps = value as Map<dynamic, dynamic>;
-            timestamps.forEach((timestamp, sleepInfoData) {
-              // Convert data from Firebase to SleepInfo object
-              SleepInfo info = SleepInfo(
-                _parseTimeOfDay(sleepInfoData['timePutToBed']),
-                _parseTimeOfDay(sleepInfoData['timeFellAsleep']),
-                _parseTimeOfDay(sleepInfoData['wakeUpTime']),
-              );
 
-              // If there's no list for this day of the week, create one
-              if (!sleepInfos.containsKey(dayOfWeek)) {
-                sleepInfos[dayOfWeek] = [];
+            // Check if the date is in the selected week/month
+            if (isWeekly) {
+              if (date.isAfter(selectedDate.subtract(Duration(days: 1))) && date.isBefore(selectedDate.add(Duration(days: 7)))) {
+                processSleepData(value, sleepInfos, dayOfWeek);
               }
-
-              // Add the SleepInfo object to the list for this day of the week
-              sleepInfos[dayOfWeek]!.add(info);
-            });
+            } else { // Monthly
+              if (date.year == selectedDate.year && date.month == selectedDate.month) {
+                processSleepData(value, sleepInfos, dayOfWeek);
+              }
+            }
           } catch (e) {
             print("Failed to parse sleep info data: $e");
           }
@@ -85,6 +196,27 @@ class SleepEfficiencyScreen extends StatelessWidget {
     }
 
     return sleepInfos;
+  }
+
+  void processSleepData(dynamic value, Map<String, List<SleepInfo>> sleepInfos, String dayOfWeek) {
+    // value is a map of timestamps
+    Map<dynamic, dynamic> timestamps = value as Map<dynamic, dynamic>;
+    timestamps.forEach((timestamp, sleepInfoData) {
+      // Convert data from Firebase to SleepInfo object
+      SleepInfo info = SleepInfo(
+        _parseTimeOfDay(sleepInfoData['timePutToBed']),
+        _parseTimeOfDay(sleepInfoData['timeFellAsleep']),
+        _parseTimeOfDay(sleepInfoData['wakeUpTime']),
+      );
+
+      // If there's no list for this day of the week, create one
+      if (!sleepInfos.containsKey(dayOfWeek)) {
+        sleepInfos[dayOfWeek] = [];
+      }
+
+      // Add the SleepInfo object to the list for this day of the week
+      sleepInfos[dayOfWeek]!.add(info);
+    });
   }
 
   TimeOfDay _parseTimeOfDay(String timeString) {
@@ -140,11 +272,66 @@ class SleepEfficiencyScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                      Text(
+                    SizedBox(
+                      width: 100,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            isWeekly = !isWeekly;
+                            _dropdownMenuItems = _buildDropdownItems();
+                          });
+
+                          if(isWeekly){
+                            var items = await _dropdownMenuItems;
+                            if(items!.isNotEmpty){
+                              setState(() {
+                                selectedDate = items.first.value!; // Extract DateTime from DropdownMenuItem
+                              });
+                            }
+                          } else {
+                            selectedDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
+                          }
+                        },
+                        child: Text(isWeekly ? 'Weekly' : 'Monthly'),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 150,
+                      child: FutureBuilder<List<DropdownMenuItem<DateTime>>>(
+                        future: _dropdownMenuItems,
+                        builder: (BuildContext context, AsyncSnapshot<List<DropdownMenuItem<DateTime>>> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            // Check if selectedDate is in the list of dates
+                            if (!snapshot.data!.any((item) => item.value == selectedDate)) {
+                              // If not, assign the first date in the list to selectedDate
+                              selectedDate = snapshot.data!.first.value!;
+                            }
+                            return Center(
+                              child: DropdownButton<DateTime>(
+                                value: selectedDate,
+                                onChanged: (DateTime? newValue) {
+                                  if (newValue != null) {
+                                    setState(() {
+                                      selectedDate = newValue;
+                                    });
+                                  }
+                                },
+                                items: snapshot.data,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    Text(
                       'Sleep Efficiency Graph',
                       style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 16),
+                SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(16.0),
                       color: Colors.white, // Set the background color to white
@@ -153,7 +340,7 @@ class SleepEfficiencyScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: FutureBuilder<Map<String, List<SleepInfo>>>(
-                              future: _getSleepInfo(),
+                              future: _getSleepInfo(selectedDate, isWeekly),
                               builder: (BuildContext context, AsyncSnapshot<Map<String, List<SleepInfo>>> snapshot) {
                                 if (snapshot.hasData) {
                                   Map<String, List<SleepInfo>> sleepInfos = snapshot.data!;
@@ -246,7 +433,7 @@ class SleepEfficiencyScreen extends StatelessWidget {
                           Container(
                             height: 300, // Adjust the height as needed
                             child: FutureBuilder<Map<String, List<SleepInfo>>>(
-                              future: _getSleepInfo(),
+                              future: _getSleepInfo(selectedDate, isWeekly),
                               builder: (BuildContext context, AsyncSnapshot<Map<String, List<SleepInfo>>> snapshot) {
                                 if (snapshot.hasData) {
                                   Map<String, List<SleepInfo>> sleepInfos = snapshot.data!;
@@ -304,8 +491,8 @@ class SleepEfficiencyScreen extends StatelessWidget {
                                                     ),
                                                   ),
                                                   SizedBox(height: 8),
-                                                  Text('Hours of Sleep: ${hoursOfSleepData[index].isNotEmpty ? hoursOfSleepData[index].reduce((a, b) => a + b) : 0}'),
-                                                  Text('Hours Spent in Cradle: ${hoursInCradleData[index].isNotEmpty ? hoursInCradleData[index].reduce((a, b) => a + b) : 0}'),
+                                                  Text('Hours of Sleep: ${hoursOfSleepData[index].isNotEmpty ? hoursOfSleepData[index].reduce((a, b) => a + b).toStringAsFixed(2) : 0}'),
+                                                  Text('Hours Spent in Cradle: ${hoursInCradleData[index].isNotEmpty ? hoursInCradleData[index].reduce((a, b) => a + b).toStringAsFixed(2) : 0}'),
                                                 ],
                                               ),
                                               Container(
@@ -316,13 +503,13 @@ class SleepEfficiencyScreen extends StatelessWidget {
                                                   color: _getColorForPercentage(sleepEfficiency),
                                                 ),
                                                 child: Center(
-                                                  child: Text(
-                                                    '${sleepEfficiency.toStringAsFixed(1)}%',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
+                                                    child: Text(
+                                                      '${sleepEfficiency.toStringAsFixed(2)}%',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    )
                                                 ),
                                               ),
                                             ],
