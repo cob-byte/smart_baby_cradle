@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:smart_baby_cradle/screens/auto_manual_buttons.dart';
+import 'package:smart_baby_cradle/screens/auto_tracker.dart';
 import 'package:smart_baby_cradle/theme/boy_theme.dart';
 import 'package:smart_baby_cradle/theme/girl_theme.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
@@ -77,6 +79,8 @@ class _MyAppState extends State<MyApp> {
               SleepScoreScreen.routeName: (ctx) => SleepScoreScreen(),
               BabySleepTrackerWidget.routeName: (ctx) =>
                   BabySleepTrackerWidget(),
+              SleepTrackingScreen.routeName: (ctx) => SleepTrackingScreen(),
+              AutoTrackerScreen.routeName: (ctx) => AutoTrackerScreen(),
             },
           );
         },

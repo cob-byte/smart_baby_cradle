@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_baby_cradle/screens/wake_up_times_screen.dart';
+import 'package:smart_baby_cradle/screens/auto_manual_buttons.dart';
 import 'package:smart_baby_cradle/screens/sleep_score_screen.dart';
 
 class SleepAnalysisScreen extends StatefulWidget {
@@ -54,7 +54,7 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
         elevation: 0,
       ),
       extendBodyBehindAppBar: true,
-      body: Stack(
+      body:Stack(
         children: [
           Container(
             decoration: BoxDecoration(
@@ -149,7 +149,7 @@ class _SleepAnalysisScreenState extends State<SleepAnalysisScreen> {
                         onTap: () {
                           Navigator.pushNamed(
                             context,
-                            BabySleepTrackerWidget.routeName,
+                            SleepTrackingScreen.routeName,
                           );
                         },
                         child: _buildCardWithIcon(
