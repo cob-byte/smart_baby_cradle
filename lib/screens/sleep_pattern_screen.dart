@@ -157,7 +157,7 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
                         width: 375,
                         padding: const EdgeInsets.all(24.0),
                         color: Colors.white,
-                        height: 470,
+                        height: 420,
                         child: Column(
                           children: [
                             SizedBox(height: 24),
@@ -256,6 +256,8 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
                       icon: Icon(Icons.swap_horiz),
                       label: Text('Switch Graph'),
                     ),
+                    SizedBox(height: 12),
+                    _buildCombinedInsightsContainer()
                   ],
                 ),
               ),
@@ -265,6 +267,126 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
       ),
     );
   }
+
+ Widget _buildCombinedInsightsContainer() {
+  Map<String, List<SleepInfo>> sleepInfos = {};
+
+  Map<String, double> averageHoursOfSleep = _calculateAverageHoursOfSleep(sleepInfos);
+  double totalAverageHours = 0;
+  averageHoursOfSleep.forEach((day, hours) {
+    totalAverageHours += hours;
+  });
+  double overallAverageHours = totalAverageHours / averageHoursOfSleep.length;
+
+  String currentAgeCategory = 'New Born (0-4 weeks)';
+  
+  Map<String, double> averageTimeFellAsleep = _calculateAverageTimeFellAsleep(sleepInfos);
+  List<double> averageTimeList = _convertMapToList(averageTimeFellAsleep);
+  List<DateTime> averageTimeDateTime = _convertListToDateTime(averageTimeList);
+
+  List<Map<String, String>> ageCategories = [
+    {'age': 'New Born (0-4 weeks)', 'range': '14-18 hours'},
+    {'age': '1 month – 2 months', 'range': '11-15 hours'},
+    {'age': '3 months to 5 months', 'range': '12-16 hours'},
+    {'age': '6 months to 1 year old', 'range': '12-14 hours'},
+  ];
+
+  String generateSleepInsightsText(double lowerRange, double upperRange, double averageHours) {
+    if (averageHours >= lowerRange && averageHours <= upperRange) {
+      return "Congratulations! Your baby's sleep falls within the recommended range. This is beneficial for their overall health and development. Continue maintaining a consistent sleep schedule, providing a calming bedtime routine, and monitoring for any changes in their sleep patterns or behaviors.";
+    } else if (averageHours < lowerRange) {
+      return "Your baby may be getting less sleep than recommended. Inadequate sleep can impact their growth, mood, and cognitive development. Ensure a quiet, dimly lit sleep environment. Establish a consistent bedtime routine, soothing activities, and try to identify and address any potential discomfort or disruptions affecting their sleep.";
+    } else {
+      return "Your baby is sleeping more than the recommended amount. While sufficient sleep is crucial, excessive sleep might be a concern. Ensure your baby is active during waking hours with interactive play and tummy time. Monitor for any signs of lethargy or unusual behaviors. If you notice prolonged changes in sleep patterns, consider consulting with your pediatrician to rule out any underlying issues.";
+    }
+  }
+
+  String generateTimeFellAsleepInsightsText(DateTime lowerRange, DateTime upperRange, DateTime averageTime) {
+    if (averageTime.isAfter(lowerRange) && averageTime.isBefore(upperRange)) {
+      return "Your baby's bedtime falls within the recommended range, which is excellent for their sleep routine. Keep up the good work! Continue with a consistent bedtime routine, create a comfortable sleep space, and monitor for any signs of restlessness or changes in sleep patterns.";
+    } else if (averageTime.isBefore(lowerRange)) {
+      return "Your baby's bedtime is earlier than the recommended range. While early bedtime can be beneficial, ensure your baby is getting enough wakeful hours during the day for developmental activities. If you notice any disturbances in their sleep patterns or if they seem overly sleepy during the day, consider adjusting bedtime in consultation with your pediatrician.";
+    } else {
+      return "It seems your baby's bedtime is later than the recommended range. Adjusting bedtime earlier can contribute to better sleep quality. Ensure a calming bedtime routine, dim the lights, and create a soothing sleep environment to help your baby wind down and sleep more soundly.";
+    }
+  }
+
+  String sleepInsightsText;
+  if (currentAgeCategory == 'New Born (0-4 weeks)') {
+    sleepInsightsText = generateSleepInsightsText(14, 18, overallAverageHours);
+  } else if (currentAgeCategory == '1 month – 2 months') {
+    sleepInsightsText = generateSleepInsightsText(11, 15, overallAverageHours);
+  } else if (currentAgeCategory == '3 months to 5 months') {
+    sleepInsightsText = generateSleepInsightsText(12, 16, overallAverageHours);
+  } else if (currentAgeCategory == '6 months to 1 year old') {
+    sleepInsightsText = generateSleepInsightsText(12, 14, overallAverageHours);
+  } else {
+    sleepInsightsText = "Invalid age category"; // Handle unknown age categories
+  }
+
+  String timeFellAsleepInsightsText;
+  if (currentAgeCategory == 'New Born (0-4 weeks)') {
+    timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(DateTime(2023, 1, 1, 21, 0), DateTime(2023, 1, 1, 23, 0), averageTimeDateTime[0]);
+  } else if (currentAgeCategory == '1 month – 4 months') {
+    timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(DateTime(2023, 1, 1, 20, 0), DateTime(2023, 1, 1, 23, 0), averageTimeDateTime[0]);
+  } else if (currentAgeCategory == '5 months to 8 months') {
+    timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(DateTime(2023, 1, 1, 18, 0), DateTime(2023, 1, 1, 19, 30), averageTimeDateTime[0]);
+  } else if (currentAgeCategory == '9 months to 1 year old') {
+    timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(DateTime(2023, 1, 1, 18, 0), DateTime(2023, 1, 1, 20, 0), averageTimeDateTime[0]);
+  } else {
+    timeFellAsleepInsightsText = "Invalid age category"; // Handle unknown age categories
+  }
+
+  return Container(
+    width: 400,
+    padding: EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Sleep Insights:",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 10),
+        Text(sleepInsightsText,
+        textAlign: TextAlign.justify,),
+        SizedBox(height: 10),
+        Text(timeFellAsleepInsightsText,
+        textAlign: TextAlign.justify,),
+        SizedBox(height: 10),
+        Text(
+          "Disclaimer:",
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          "Remember, these are general guidelines, and each baby is unique. Always consult with your pediatrician for personalized advice based on your baby's specific needs and circumstances.",
+          style: TextStyle(
+            fontSize: 12,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   String _getTitleForGraph(SleepInfoType type) {
     switch (type) {
@@ -625,6 +747,8 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
     );
   }
 }
+
+
 
 class ChartLegend extends StatelessWidget {
   final Color color;
