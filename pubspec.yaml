@@ -58,6 +58,7 @@ dependencies:
   flutter_inappwebview:
   permission_handler:
   image_picker: ^0.8.4
+  firebase_app_check: ^0.2.0+1
   email_validator:
   string_validator:
   path_provider:

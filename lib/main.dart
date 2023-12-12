@@ -1,3 +1,4 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import 'package:smart_baby_cradle/theme_provider.dart';
 import 'package:smart_baby_cradle/screens/wake_up_times_screen.dart';
 import 'package:smart_baby_cradle/screens/sleep_score_screen.dart';
 
+import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import './services/music_service.dart';
 import './screens/home_screen.dart';
@@ -23,7 +25,10 @@ import './widgets/wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseAppCheck.instance.activate();
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(), // Provide the ThemeProvider

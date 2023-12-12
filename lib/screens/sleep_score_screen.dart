@@ -399,7 +399,7 @@ class SleepPatternCard extends StatelessWidget {
                   SleepInfoRow(
                       icon: Icons.hourglass_empty,
                       label: 'Sleep Duration',
-                      value: '$hours hours and $minutes minutes'),
+                      value: '$hours hrs and $minutes mins'),
                   SizedBox(height: 16),
                   SleepInfoRow(
                       icon: Icons.hourglass_empty,
