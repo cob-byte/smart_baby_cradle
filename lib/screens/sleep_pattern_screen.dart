@@ -94,6 +94,8 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 
+  bool showInsights = false;
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -256,8 +258,22 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
                       icon: Icon(Icons.swap_horiz),
                       label: Text('Switch Graph'),
                     ),
-                    SizedBox(height: 12),
-                    _buildCombinedInsightsContainer()
+                     SizedBox(height: 2),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  // Toggle visibility when the button is pressed
+                  showInsights = !showInsights;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+              ),
+              icon: Icon(Icons.info),
+              label: Text(' See Insights '),
+            ),
+            SizedBox(height: 12),
+            if (showInsights) _buildCombinedInsightsContainer(), // Show insights container if visibility is true
                   ],
                 ),
               ),
