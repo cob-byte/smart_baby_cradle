@@ -14,6 +14,7 @@ class SleepEfficiencyScreen extends StatefulWidget {
 
 class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
   bool isWeekly = true; // Track whether it's weekly or monthly view
+  bool showDetails = false; // Add this line to track visibility
   DateTime selectedDate = DateTime.now();
   Future<List<DropdownMenuItem<DateTime>>>? _dropdownMenuItems;
 
@@ -21,6 +22,12 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
   void initState() {
     super.initState();
     _dropdownMenuItems = _buildDropdownItems();
+  }
+
+   void toggleDetailsVisibility() {
+    setState(() {
+      showDetails = !showDetails;
+    });
   }
 
   final List<String> daysOfWeek = [
@@ -224,6 +231,9 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 
+  bool showInsights = false;
+  
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -273,27 +283,34 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                      width: 100,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            isWeekly = !isWeekly;
-                            _dropdownMenuItems = _buildDropdownItems();
-                          });
+                      width: 120,
+                      child: ElevatedButton.icon(
+                      onPressed: () async {
+                        setState(() {
+                          isWeekly = !isWeekly;
+                          _dropdownMenuItems = _buildDropdownItems();
+                        });
 
-                          if(isWeekly){
-                            var items = await _dropdownMenuItems;
-                            if(items!.isNotEmpty){
-                              setState(() {
-                                selectedDate = items.first.value!; // Extract DateTime from DropdownMenuItem
-                              });
-                            }
-                          } else {
-                            selectedDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
+                        if (isWeekly) {
+                          var items = await _dropdownMenuItems;
+                          if (items!.isNotEmpty) {
+                            setState(() {
+                              selectedDate = items.first.value!; // Extract DateTime from DropdownMenuItem
+                            });
                           }
-                        },
-                        child: Text(isWeekly ? 'Weekly' : 'Monthly'),
+                        } else {
+                          selectedDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
                       ),
+                      icon: Icon(
+                        isWeekly ? Icons.calendar_view_week : Icons.calendar_view_month,
+                      ),
+                      label: Text(isWeekly ? 'Weekly' : 'Monthly'),
+                    ),
+
                     ),
                     SizedBox(
                       width: 150,
@@ -436,7 +453,48 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                       ),
                     ),
                     SizedBox(height: 24),
-                    Container(
+                    Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        ElevatedButton.icon(
+          onPressed: toggleDetailsVisibility,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          icon: Icon(
+            Icons.expand_circle_down_rounded,
+            color: Colors.white,
+          ),
+          label: Text(
+            'Open Details',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            setState(() {
+              // Toggle visibility when the button is pressed
+              showInsights = !showInsights;
+            });
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
+          icon: Icon(Icons.info),
+          label: Text(' See Insights '),
+        ),
+      ],
+    ),
+
+    Visibility(
+      visible: showDetails,
+                      child: Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
@@ -487,7 +545,6 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                                       }).toList() : [0.0];
                                     }
                                   });
-
                                   return ListView.builder(
                                     // Wrap content
                                     scrollDirection: Axis.vertical,
@@ -497,7 +554,6 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                                           (hoursOfSleepData[index].isNotEmpty ? hoursOfSleepData[index].reduce((a, b) => a + b) : 0) /
                                               (hoursInCradleData[index].isNotEmpty ? hoursInCradleData[index].reduce((a, b) => a + b) : 1) *
                                               100;
-
                                       return Card(
                                         color: Theme.of(context).colorScheme.surfaceTint,
                                         child: Padding(
@@ -555,6 +611,9 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                         ],
                       ),
                     ),
+                    ),
+            SizedBox(height: 12),
+            if (showInsights) _buildCombinedInsightsContainer(),
                   ],
                 ),
               ),
@@ -564,6 +623,59 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
       ),
     );
   }
+
+ Widget _buildCombinedInsightsContainer() {
+  String sleepEfficiencyInsightsText;
+  double asleepEfficiency = 0;
+
+  if (asleepEfficiency >= 0 && asleepEfficiency <= 50) {
+    sleepEfficiencyInsightsText = "Your baby's sleep efficiency is in the lower range, suggesting potential sleep challenges. It's crucial to thoroughly assess the sleep environment, adjusting factors like noise, light, and temperature. Consider refining the bedtime routine with calming activities, and ensure the cradle provides optimal comfort. If challenges persist, consult with your pediatrician for a comprehensive evaluation and personalized recommendations tailored to your baby's needs.";
+  } else if (asleepEfficiency > 50 && asleepEfficiency <= 75) {
+    sleepEfficiencyInsightsText = "Your baby's sleep efficiency is in the moderate range, indicating there's room for improvement. Evaluate the bedtime routine by incorporating calming activities and minimizing disruptions in the sleep environment. Assess the cradle for comfort and support. Consistency in sleep schedules can contribute to enhanced sleep quality. Monitor for changes in sleep patterns and consider consulting with your pediatrician for additional guidance on optimizing your baby's sleep routine.";
+  } else if (asleepEfficiency > 75 && asleepEfficiency <= 85) {
+    sleepEfficiencyInsightsText = "Your baby's sleep efficiency is in the mid-to-upper range, suggesting effective sleep patterns. Maintain your positive approach with a consistent bedtime routine and a comfortable sleep environment. Continue monitoring for any changes in sleep patterns. If needed, fine-tune the routine for further improvement. Celebrate the success of fostering healthy sleep habits in your baby.";
+  } else if (asleepEfficiency > 85 && asleepEfficiency <= 95) {
+    sleepEfficiencyInsightsText = "Congratulations! Your baby's sleep efficiency is high, reflecting effective sleep patterns. Your current approach with a consistent bedtime routine, a comfortable sleep environment, and monitoring for changes in sleep patterns is working well. To maintain this positive trend, continue with the established routine, ensuring the sleep environment remains conducive to quality sleep. Regularly observe for any shifts in sleep patterns and celebrate the success of fostering healthy sleep habits in your baby.";
+    }else if (asleepEfficiency >= 96) {
+    sleepEfficiencyInsightsText = "Exceptional job! Your baby's sleep efficiency is at its peak, indicating highly effective sleep patterns. Your efforts with a consistent bedtime routine, a comfortable sleep environment, and vigilant monitoring have paid off. Continue the positive approach, ensuring the sleep environment remains conducive to quality sleep. Celebrate the success of fostering optimal sleep habits in your baby.";
+  } else {
+    sleepEfficiencyInsightsText = "Invalid sleep efficiency range"; // Handle unknown ranges
+  }
+
+  return Container(
+    width: 400,
+    padding: EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Sleep Efficiency Insights:",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 10),
+        Text(
+          sleepEfficiencyInsightsText,
+          textAlign: TextAlign.justify,
+        ),
+      ],
+    ),
+  );
+}
 
   List<BarChartGroupData> _buildBarGroups(List<List<double>> hoursOfSleepData, List<List<double>> hoursInCradleData) {
     List<BarChartGroupData> barGroups = [];
