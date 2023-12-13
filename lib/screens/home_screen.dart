@@ -604,6 +604,12 @@ _fcm.getToken().then((token) => _logger.info(token));
             await _rootRef.child("Sound Detection").update({
               "detected": "no",
             });
+
+            await _rootRef.child("track").update({
+              "faceDetection": false,
+              "isTracking": false,
+              "trackSleeping": false,
+            });
           } else {
             // Raspberry Pi is online
             if (mounted) {
@@ -655,6 +661,12 @@ _fcm.getToken().then((token) => _logger.info(token));
 
               await _rootRef.child("Sound Detection").update({
                 "detected": "no",
+              });
+
+              await _rootRef.child("track").update({
+                "faceDetection": false,
+                "isTracking": false,
+                "trackSleeping": false,
               });
             } else {
               // Raspberry Pi is online
