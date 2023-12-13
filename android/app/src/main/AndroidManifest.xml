@@ -14,6 +14,7 @@
         android:label="smart_baby_cradle"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <service android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingBackgroundService" android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

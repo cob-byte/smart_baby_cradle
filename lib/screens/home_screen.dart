@@ -3,9 +3,11 @@ import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_baby_cradle/theme/boy_theme.dart';
 import 'package:smart_baby_cradle/theme/girl_theme.dart';
 
+import '../pages/notification_provider.dart';
 import '../widgets/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -29,6 +31,19 @@ import '../widgets/music_player_item.dart';
 import '../widgets/sleep_analysis_item.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
 import 'package:smart_baby_cradle/theme/greyscale_theme.dart';
+
+import 'notification.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> notifications = prefs.getStringList('notifications') ?? [];
+  notifications.add(message.notification?.title ?? '');
+  notifications.add(message.notification?.body ?? '');
+  await prefs.setStringList('notifications', notifications);
+}
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -199,7 +214,6 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-
     // Initialize the root reference with a dummy value (it will be updated in checkDeviceID)
     fetchDeviceID();
     checkLoginStatus();
@@ -237,6 +251,8 @@ class HomeScreenState extends State<HomeScreen> {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
+        var _pd = Provider.of<NotificationPd>(context, listen: false);
+        _pd.addNotification(notification.title ?? '', notification.body ?? '');
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -266,6 +282,9 @@ class HomeScreenState extends State<HomeScreen> {
     _fcm.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         _logger.info("onLaunch: $message");
+
+        var _pd = Provider.of<NotificationPd>(context, listen: false);
+        _pd.loadNotifications();
       }
     });
     super.initState();
@@ -279,11 +298,6 @@ class HomeScreenState extends State<HomeScreen> {
 
   bool isGirlTheme = true; // Initialize with girl theme
 
-  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    await Firebase.initializeApp();
-    print('Handling a background message ${message.messageId}');
-  }
-
   void toggleTheme() {
     setState(() {
       isGirlTheme = !isGirlTheme; // Toggle the theme locally
@@ -295,6 +309,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final currentTheme = themeProvider.currentTheme;
+    var _pd = Provider.of<NotificationPd>(context, listen: false);
     if (deviceID == null) {
       return Center(
         child: SizedBox(
@@ -309,7 +324,7 @@ class HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Dashboard',
+            'Home',
             style: currentTheme.appBarTheme.titleTextStyle,
           ),
           backgroundColor: currentTheme.appBarTheme.backgroundColor,
@@ -331,6 +346,46 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                     onPressed: toggleTheme,
                   ),
+                IconButton(
+                  icon: Stack(
+                    children: <Widget>[
+                      Icon(
+                        Icons.notifications,
+                        color: Colors.white,
+                      ),
+                      // If there are any unread notifications, show a red dot.
+                      if (_pd.notificationRead.contains(false))
+                        Positioned(
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            constraints: BoxConstraints(
+                              minWidth: 12,
+                              minHeight: 12,
+                            ),
+                            child: Text(
+                              '${_pd.notificationRead.where((element) => element == false).length}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                    ],
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => NotificationPage()),
+                    );
+                  },
+                ),
                 if (isRaspberryPiOn)
                   PopupMenuButton<String>(
                     onSelected: (String result) {
