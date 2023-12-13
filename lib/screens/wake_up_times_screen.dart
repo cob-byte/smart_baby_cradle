@@ -322,8 +322,8 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                       title: Row(
                                         children: <Widget>[
                                           Icon(Icons.access_time,
-                                          color: Theme.of(context).primaryColor), // replace with your desired icon
-                                          SizedBox(width: 5), // you can adjust the size as needed
+                                          color: Theme.of(context).primaryColor),
+                                          SizedBox(width: 5),
                                           Text(
                                             'Time Put to Bed: ${_formatTimeOfDay(info.timePutToBed)}',
                                             style: TextStyle(
@@ -379,7 +379,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                                             },
                                           ),
                                           IconButton(
-                                            icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                                            icon: Icon(Icons.delete, color: Theme.of(context).primaryColor),
                                             onPressed: () {
                                               _showDeleteSleepInfoDialog(dateTime, uniqueID);
                                             },
