@@ -231,32 +231,44 @@ class HomeScreenState extends State<HomeScreen> {
       }
     });
 
-    _fcm.getToken().then((token) => _logger.info(token));
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      _logger.info("onMessage: ${message.data}");
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            content: ListTile(
-              title: Text(notification.title ?? ''),
-              subtitle: Text(notification.body ?? ''),
-            ),
-            actions: <Widget>[
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.amber,
+_fcm.getToken().then((token) => _logger.info(token));
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        _logger.info("onMessage: ${message.data}");
+        RemoteNotification? notification = message.notification;
+        AndroidNotification? android = message.notification?.android;
+        if (notification != null && android != null) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.circle_notifications_rounded),
+                    SizedBox(width: 8.0),
+                    Text(notification.title ?? ''),
+                    SizedBox(width: 12.0),
+                  ],
                 ),
-                child: Text('Ok'),
+              ),
+              content: Text(notification.body ?? ''),
+              actions: <Widget>[
+                TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Color.fromARGB(255, 25, 31, 36),
+                  fixedSize: Size(20, 20),
+                ),
+                child: Text(
+                  'OK',
+                ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
-            ],
-          ),
-        );
-      }
-    });
+              ],
+            ),
+          );
+        }
+      });
+
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
       if (message != null) {
         _logger.info("onMessageOpenedApp: $message");
