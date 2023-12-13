@@ -45,6 +45,18 @@ class AuthService {
     }
   }
 
+  Future<void> saveAge(int ageIndex) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final userRef = _databaseRef.child("users");
+      final userId = user.uid;
+      final userIDRef = userRef.child(userId);
+
+      // Set the age for the user
+      await userIDRef.child('age').set(ageIndex);
+    }
+  }
+
   Future<void> saveFullName(String fName, String lName) async {
     final user = _auth.currentUser;
     if (user != null) {
@@ -57,6 +69,7 @@ class AuthService {
       // Set the deviceID for the user
       await userIDRef.child('fname').set(fName);
       await userIDRef.child('lname').set(lName);
+      await userIDRef.child('age').set(0);
     }
   }
 

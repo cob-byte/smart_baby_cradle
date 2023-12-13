@@ -37,12 +37,6 @@ import 'notification.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print("Handling a background message: ${message.messageId}");
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> notifications = prefs.getStringList('notifications') ?? [];
-  notifications.add(message.notification?.title ?? '');
-  notifications.add(message.notification?.body ?? '');
-  await prefs.setStringList('notifications', notifications);
 }
 
 class HomeScreen extends StatefulWidget {
@@ -144,7 +138,10 @@ class HomeScreenState extends State<HomeScreen> {
               content: Text('${command[0].toUpperCase()}${command.substring(1)} was successful.'),
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(color: Colors.black),
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -162,7 +159,10 @@ class HomeScreenState extends State<HomeScreen> {
               content: Text('Something went wrong, please try again.'),
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(color: Colors.black),
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -186,16 +186,22 @@ class HomeScreenState extends State<HomeScreen> {
           content: Text('Are you sure you want to $command?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Yes'),
+              child: Text(
+                'No',
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
-                _sendCommand(command);
               },
             ),
             TextButton(
-              child: Text('No'),
+              child: Text(
+                'Yes',
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
+                _sendCommand(command);
               },
             ),
           ],
@@ -236,7 +242,10 @@ class HomeScreenState extends State<HomeScreen> {
             content: Text('We recommend enabling notifications for the best experience.'),
             actions: <Widget>[
               TextButton(
-                child: Text('Ok'),
+                child: Text(
+                  'OK',
+                  style: TextStyle(color: Colors.black),
+                ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -294,9 +303,6 @@ _fcm.getToken().then((token) => _logger.info(token));
     _fcm.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         _logger.info("onLaunch: $message");
-
-        var _pd = Provider.of<NotificationPd>(context, listen: false);
-        _pd.loadNotifications();
       }
     });
     super.initState();

@@ -166,28 +166,76 @@ class NotificationPageState extends State<NotificationPage> {
                     onSelected: (value) {
                       switch (value) {
                         case 1:
-                          _pd.notificationRead[index] = true;
-                          _pd.reload();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Notification Marked As Read'),
-                            ),
-                          );
+                          if (!_pd.notificationRead[index]) {
+                            _pd.notificationRead[index] = true;
+                            _pd.reload();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Notification Marked As Read'),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Notification Already Read'),
+                              ),
+                            );
+                          }
                           break;
                         case 2:
-                          _pd.deleteNotification(index);
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Confirm Delete'),
+                              content: Text('Are you sure you want to delete this notification?'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                TextButton(
+                                  child: Text(
+                                    'Delete',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  onPressed: () {
+                                    _pd.deleteNotification(index);
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Notification Deleted'),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
                           break;
                       }
                     },
                   ),
                   onTap: () {
-                    _pd.notificationRead[index] = true;
-                    _pd.reload();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Notification Marked As Read'),
-                      ),
-                    );
+                    if (!_pd.notificationRead[index]) {
+                      _pd.notificationRead[index] = true;
+                      _pd.reload();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Notification Marked As Read'),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Notification Already Read'),
+                        ),
+                      );
+                    }
                   },
                 ),
               ),

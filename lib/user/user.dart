@@ -6,6 +6,7 @@ class User {
   String email;
   String fname;
   String lname;
+  int age;
 
   // Constructor
   User({
@@ -16,6 +17,7 @@ class User {
     required this.email,
     required this.fname,
     required this.lname,
+    required this.age,
   });
 
   User copy({
@@ -26,6 +28,7 @@ class User {
     String? email,
     String? fname,
     String? lname,
+    int? age,
   }) =>
       User(
         image: imagePath ?? this.image,
@@ -35,6 +38,7 @@ class User {
         email: email ?? this.email,
         fname: fname ?? this.fname,
         lname: lname ?? this.lname,
+        age: age ?? this.age,
       );
 
   static User fromJson(Map<String, dynamic> json) => User(
@@ -45,6 +49,7 @@ class User {
         email: json['email'],
         fname: json['fname'],
         lname: json['lname'],
+        age: json['age'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -55,5 +60,6 @@ class User {
         'email': email,
         'fname': fname,
         'lname': lname,
+        'age': age,
       };
 }

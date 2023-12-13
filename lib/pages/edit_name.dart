@@ -43,7 +43,6 @@ class EditNameFormPageState extends State<EditNameFormPage> {
   }
 
   @override
-  @override
   void dispose() {
     firstNameController.dispose();
     secondNameController.dispose();

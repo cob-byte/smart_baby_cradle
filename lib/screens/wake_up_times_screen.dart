@@ -535,6 +535,16 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
       context: context,
       initialTime: TimeOfDay.now(),
       helpText: 'Select Time Put to Bed',
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.black, // changes the OK/Cancel button color
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (timePutToBed != null) {
@@ -542,6 +552,16 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
         context: context,
         initialTime: TimeOfDay.now(),
         helpText: 'Select Time Fell Asleep',
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                primary: Colors.black, // changes the OK/Cancel button color
+              ),
+            ),
+            child: child!,
+          );
+        },
       );
 
       if (timeFellAsleep != null) {
@@ -549,6 +569,16 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
           context: context,
           initialTime: TimeOfDay.now(),
           helpText: 'Select Wake Up Time',
+          builder: (BuildContext context, Widget? child) {
+            return Theme(
+              data: ThemeData.light().copyWith(
+                colorScheme: ColorScheme.light(
+                  primary: Colors.black, // changes the OK/Cancel button color
+                ),
+              ),
+              child: child!,
+            );
+          },
         );
 
         if (wakeUpTime != null) {
@@ -626,6 +656,16 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
       context: context,
       initialTime: info.timePutToBed,
       helpText: 'Select Time Put to Bed',
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.black, // changes the OK/Cancel button color
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (timePutToBed != null) {
@@ -633,6 +673,16 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
         context: context,
         initialTime: info.timeFellAsleep,
         helpText: 'Select Time Fell Asleep',
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                primary: Colors.black, // changes the OK/Cancel button color
+              ),
+            ),
+            child: child!,
+          );
+        },
       );
 
       if (timeFellAsleep != null) {
@@ -640,6 +690,16 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
           context: context,
           initialTime: info.wakeUpTime,
           helpText: 'Select Wake Up Time',
+          builder: (BuildContext context, Widget? child) {
+            return Theme(
+              data: ThemeData.light().copyWith(
+                colorScheme: ColorScheme.light(
+                  primary: Colors.black, // changes the OK/Cancel button color
+                ),
+              ),
+              child: child!,
+            );
+          },
         );
 
         if (wakeUpTime != null) {
@@ -681,14 +741,20 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
             TextButton(
               onPressed: () {
                 deleteSleepInfoFromFirebase(dateTime, uniqueID);
                 Navigator.of(context).pop();
               },
-              child: Text('Delete'),
+              child: Text(
+                'Delete',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
           ],
         );

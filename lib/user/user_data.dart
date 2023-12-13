@@ -20,6 +20,7 @@ class UserData {
     device: 'test',
     fname: 'test',
     lname: 'test',
+    age: 0,
   );
 
   Future<User> getUser() async {
@@ -40,7 +41,7 @@ class UserData {
             'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images';
         String coverPhoto = data['coverPhotoURL'] ??
             'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images';
-
+        int age = data['age'] ?? 0;
         return User(
           image: image,
           coverPhoto: coverPhoto,
@@ -49,6 +50,7 @@ class UserData {
           email: email,
           fname: fname,
           lname: lname,
+          age: age,
         );
       }
     }
