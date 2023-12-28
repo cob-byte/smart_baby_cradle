@@ -11,6 +11,7 @@ import 'package:smart_baby_cradle/pages/edit_name.dart';
 import 'package:smart_baby_cradle/pages/edit_device.dart';
 import '../pages/change_password.dart';
 import '../pages/edit_age.dart';
+import '../services/auth_service.dart';
 import '../services/status_service.dart';
 import '../theme/girl_theme.dart';
 import '../theme_provider.dart';
@@ -63,6 +64,19 @@ class ProfileState extends State<Profile> {
     } else {
       return 'Invalid age';
     }
+  }
+
+  Future<bool> _checkIfGoogleUser() async {
+    final authT.FirebaseAuth _auth = authT.FirebaseAuth.instance;
+    authT.User? firebaseUser = _auth.currentUser;
+    if (firebaseUser != null) {
+      for (authT.UserInfo userInfo in firebaseUser.providerData) {
+        if (userInfo.providerId == 'google.com') {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   Future<bool> saveAge(int ageIndex) async {
@@ -310,8 +324,53 @@ class ProfileState extends State<Profile> {
                             ),
                             buildUserInfoDisplay(
                                 user.name, 'Name', EditNameFormPage()),
-                            buildUserInfoDisplay(
-                                user.device, 'Device ID', EditDeviceFormPage()),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10),
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Device ID',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                        color: Theme.of(context).colorScheme.surface,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      width: 350,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Theme.of(context).primaryColor,
+                                          width: 1,
+                                        ),
+                                        color: Colors.white,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Center(
+                                              child: Text(
+                                                user.device,
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  height: 1.4,
+                                                  color: Theme.of(context).primaryColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ),
                             Padding(
                               padding: EdgeInsets.only(bottom: 10),
                               child: GestureDetector(
@@ -375,22 +434,21 @@ class ProfileState extends State<Profile> {
                             SizedBox(
                               height: 15,
                             ),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                Route route = MaterialPageRoute(
-                                  builder: (context) => ChangePassFormPage(),
-                                );
-                                Navigator.push(context, route).then(onGoBack);
-                              },
-                              icon: Icon(Icons.lock),
-                              label: Text('Change Password'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context)
-                                    .primaryColor, // Use your desired color
-                                foregroundColor: Colors
-                                    .white, // Set text/icon color to white
+                            if(!user.isGoogleUser)
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Route route = MaterialPageRoute(
+                                    builder: (context) => ChangePassFormPage(),
+                                  );
+                                  Navigator.push(context, route).then(onGoBack);
+                                },
+                                icon: Icon(Icons.lock),
+                                label: Text('Change Password'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).primaryColor,
+                                  foregroundColor: Colors.white,
+                                ),
                               ),
-                            ),
                             ElevatedButton.icon(
                               onPressed: () {
                                 themeProvider.currentTheme = girlTheme;
