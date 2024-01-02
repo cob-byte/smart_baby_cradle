@@ -77,7 +77,7 @@ class AppDrawer extends StatelessWidget {
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () => Navigator.of(context)
-                  .pushReplacementNamed(MusicPlayerScreen.routeName),
+                  .pushNamed(MusicPlayerScreen.routeName),
             ),
           ),
           const Divider(color: Colors.white),

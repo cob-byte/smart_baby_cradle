@@ -59,6 +59,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   final _logger = Logger('FCM');
   bool isRaspberryPiOn = true;
+  bool _initialized = false;
   Timer? _timer;
 
   Future<void> checkDeviceID() async {
@@ -254,12 +255,26 @@ class HomeScreenState extends State<HomeScreen> {
       }
     });
 
-_fcm.getToken().then((token) => _logger.info(token));
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        _logger.info("onMessage: ${message.data}");
-        RemoteNotification? notification = message.notification;
-        AndroidNotification? android = message.notification?.android;
-        if (notification != null && android != null) {
+    if (!_initialized) {
+      initializeFCM();
+      _initialized = true;
+    }
+
+    super.initState();
+  }
+
+  void initializeFCM() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String lastNotification = sharedPreferences.getString("lastNotification") ?? "";
+
+    _fcm.getToken().then((token) => _logger.info(token));
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      _logger.info("onMessage: ${message.data}");
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        // Check if the last notification is not the same as the current one
+        if (lastNotification != notification.body) {
           var _pd = Provider.of<NotificationPd>(context, listen: false);
           _pd.addNotification(notification.title ?? '', notification.body ?? '');
           showDialog(
@@ -279,20 +294,24 @@ _fcm.getToken().then((token) => _logger.info(token));
               content: Text(notification.body ?? ''),
               actions: <Widget>[
                 TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Color.fromARGB(255, 25, 31, 36),
-                  fixedSize: Size(20, 20),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Color.fromARGB(255, 25, 31, 36),
+                    fixedSize: Size(20, 20),
+                  ),
+                  child: Text(
+                    'OK',
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
-                child: Text(
-                  'OK',
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
               ],
             ),
           );
+          // Update the lastNotification with the current one
+          sharedPreferences.setString("lastNotification", notification.body ?? "");
+          lastNotification = notification.body ?? "";
         }
-      });
+      }
+    });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
       if (message != null) {
@@ -305,7 +324,6 @@ _fcm.getToken().then((token) => _logger.info(token));
         _logger.info("onLaunch: $message");
       }
     });
-    super.initState();
   }
 
   @override

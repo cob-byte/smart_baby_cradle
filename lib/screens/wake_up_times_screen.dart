@@ -139,7 +139,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
                               headerVisible: true,
                               focusedDay: _selectedDay,
                               firstDay: DateTime.utc(2022, 1, 1),
-                              lastDay: DateTime.utc(2023, 12, 31),
+                              lastDay: DateTime.utc(2024, 12, 31),
                               calendarFormat: _calendarFormat,
                               selectedDayPredicate: (DateTime date) {
                                 return isSameDay(_selectedDay, date);
