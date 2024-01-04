@@ -73,8 +73,8 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
         Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(24.0),
-          color: Colors.transparent, // Set the background color to white
-          height: 400, // Adjust the height as needed
+          color: Colors.transparent,
+          height: 400,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -85,7 +85,6 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                     context,
                     AutoTrackerScreen.routeName,
                   );
-                  // You can implement the logic for auto sleep tracking here
                 },
                 child: Container(
                   width: 250,

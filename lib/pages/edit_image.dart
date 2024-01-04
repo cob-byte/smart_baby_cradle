@@ -91,191 +91,180 @@ class _EditImagePageState extends State<EditImagePage> {
   @override
   Widget build(BuildContext context) {
     bool isLocalImage = false;
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final currentTheme = themeProvider.currentTheme;
 
-    return Theme(
-        data: currentTheme,
-        child: FutureBuilder<User>(
-          future: _userData.getUser(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else {
-              User user = snapshot.data;
-              return Scaffold(
-                appBar: buildAppBar(context),
-                body: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Theme.of(context).primaryColor,
-                            Colors.white,
-                          ],
+    return FutureBuilder(
+      future: _userData.getUser(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          User user = snapshot.data;
+          return Scaffold(
+            appBar: buildAppBar(context),
+            body: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Theme.of(context).primaryColor,
+                        Colors.white,
+                      ],
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                        width: 330,
+                        child: const Text(
+                          "Upload new display photo:",
+                          style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            height: 20,
-                          ),
-                          SizedBox(
-                            width: 330,
-                            child: const Text(
-                              "Upload new display photo:",
-                              style: TextStyle(
-                                fontSize: 23,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 20),
-                            child: SizedBox(
-                              width: 330,
-                              child: StatefulBuilder(
-                                builder: (BuildContext context,
-                                    StateSetter setState) {
-                                  return GestureDetector(
-                                    onTap: () async {
-                                      final image = await ImagePicker()
-                                          .pickImage(
-                                              source: ImageSource.gallery);
-                                      if (image == null) return;
+                      Padding(
+                        padding: EdgeInsets.only(top: 20),
+                        child: SizedBox(
+                          width: 330,
+                          child: StatefulBuilder(
+                            builder:
+                                (BuildContext context, StateSetter setState) {
+                              return GestureDetector(
+                                onTap: () async {
+                                  final image = await ImagePicker()
+                                      .pickImage(source: ImageSource.gallery);
+                                  if (image == null) return;
 
-                                      try {
-                                        File? croppedImage =
-                                            await _cropImage(image.path);
-                                        if (croppedImage != null) {
-                                          setState(() {
-                                            user.image = croppedImage.path;
-                                            isLocalImage = true;
-                                          });
-                                        }
-                                      } catch (e) {
-                                        print(
-                                            'Error during image cropping: $e');
-                                      }
-                                    },
-                                    child: isLocalImage
-                                        ? Image.file(File(user.image))
-                                        : Image.network(user.image),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 30),
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: SizedBox(
-                                width: 330,
-                                height: 50,
-                                child: ElevatedButton.icon(
-                                  onPressed: () async {
-                                    try {
-                                      final location =
-                                          await getApplicationDocumentsDirectory();
-                                      final name = basename(user.image);
-                                      final imageFile =
-                                          File('${location.path}/$name');
-                                      final newImage = await File(user.image)
-                                          .copy(imageFile.path);
-
-                                      // Use the user's UID as the file name
-                                      firebase_storage.Reference
-                                          storageReference = firebase_storage
-                                              .FirebaseStorage.instance
-                                              .ref()
-                                              .child('users/${userId}');
-                                      firebase_storage.UploadTask uploadTask =
-                                          storageReference
-                                              .putFile(File(user.image));
-                                      await uploadTask;
-
-                                      String imageUrl = await storageReference
-                                          .getDownloadURL();
-                                      await userIDRef
-                                          ?.child('imageURL')
-                                          .set(imageUrl);
-                                      Navigator.pop(context);
-
-                                      // Show a success message
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Row(
-                                            children: [
-                                              Icon(Icons.check,
-                                                  color: Colors.white),
-                                              SizedBox(width: 8),
-                                              Text(
-                                                  'Display Photo Updated Successfully'),
-                                            ],
-                                          ),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-                                    } catch (e) {
-                                      // Show an error message
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Row(
-                                            children: [
-                                              Icon(Icons.error,
-                                                  color: Colors.white),
-                                              SizedBox(width: 8),
-                                              Text(
-                                                  'An error occurred. Please try again.'),
-                                            ],
-                                          ),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
+                                  try {
+                                    File? croppedImage =
+                                    await _cropImage(image.path);
+                                    if (croppedImage != null) {
+                                      setState(() {
+                                        user.image = croppedImage.path;
+                                        isLocalImage = true;
+                                      });
                                     }
-                                  },
-                                  icon: Icon(Icons.upload),
-                                  label: Text(
-                                    'Upload',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
+                                  } catch (e) {
+                                    print('Error during image cropping: $e');
+                                  }
+                                },
+                                child: isLocalImage
+                                    ? Image.file(File(user.image))
+                                    : Image.network(user.image),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 40),
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: SizedBox(
+                            width: 330,
+                            height: 50,
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                try {
+                                  final location =
+                                  await getApplicationDocumentsDirectory();
+                                  final name = basename(user.image);
+                                  final imageFile =
+                                  File('${location.path}/$name');
+                                  final newImage = await File(user.image)
+                                      .copy(imageFile.path);
+
+                                  // Use the user's UID as the file name
+                                  firebase_storage.Reference storageReference =
+                                  firebase_storage.FirebaseStorage.instance
+                                      .ref()
+                                      .child('users/${userId}');
+                                  firebase_storage.UploadTask uploadTask =
+                                  storageReference
+                                      .putFile(File(user.image));
+                                  await uploadTask;
+
+                                  String imageUrl =
+                                  await storageReference.getDownloadURL();
+                                  await userIDRef
+                                      ?.child('imageURL')
+                                      .set(imageUrl);
+                                  Navigator.pop(context);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        children: [
+                                          Icon(Icons.check,
+                                              color: Colors.white),
+                                          SizedBox(width: 8),
+                                          Text(
+                                              'Display Image Updated Successfully'),
+                                        ],
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } catch (e) {
+                                  // Show an error message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        children: [
+                                          Icon(Icons.error,
+                                              color: Colors.white),
+                                          SizedBox(width: 8),
+                                          Text(
+                                              'An error occurred. Please try again.'),
+                                        ],
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+                              icon: Icon(Icons.upload),
+                              label: Text(
+                                'Upload',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
                               ),
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    Positioned(
-                      bottom: -75,
-                      right: -50,
-                      child: Image(
-                        image: AssetImage('assets/image/cradle_bg.png'),
-                        width: 200,
-                        height: 200,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              );
-            }
-          },
-        ));
+                Positioned(
+                  bottom: -60,
+                  right: -60,
+                  child: Image(
+                    image: AssetImage('assets/image/cradle_bg.png'),
+                    width: 210,
+                    height: 210,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
   }
 }

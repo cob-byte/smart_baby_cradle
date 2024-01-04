@@ -34,10 +34,32 @@ import 'package:smart_baby_cradle/theme/greyscale_theme.dart';
 
 import 'notification.dart';
 
+Future<String?> getLastProcessedMessageId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('lastProcessedMessageId');
+}
+
+Future<void> saveLastProcessedMessageId(String messageId) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('lastProcessedMessageId', messageId);
+}
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
+
+  // Check if the message has already been processed
+  if (message.messageId != null && message.messageId == await getLastProcessedMessageId()) {
+    print("Skipping duplicate message: ${message.messageId}");
+    return;
+  }
+
+  // Process the message
   print("Handling a background message: ${message.messageId}");
+
+  // Save the messageId to avoid processing it again
+  saveLastProcessedMessageId(message.messageId!);
 }
+
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -313,17 +335,7 @@ class HomeScreenState extends State<HomeScreen> {
       }
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
-      if (message != null) {
-        _logger.info("onMessageOpenedApp: $message");
-      }
-    });
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    _fcm.getInitialMessage().then((RemoteMessage? message) {
-      if (message != null) {
-        _logger.info("onLaunch: $message");
-      }
-    });
   }
 
   @override
