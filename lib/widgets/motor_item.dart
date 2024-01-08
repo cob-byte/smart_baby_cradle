@@ -94,21 +94,21 @@ class MotorItemState extends State<MotorItem> {
                     setState(() {});
                   },
                   child: SizedBox(
-                    height: 200,
+                    height: 196,
                     width: constraints.maxWidth * 0.75,
                     child: widget.isRaspberryPiOn
                         ? (_buttonStatus == 1
                             ? Transform.scale(
-                                scale: 1.5,
+                                scale: 1.4,
                                 child: Image.asset('assets/image/motor_on.png'),
                               )
                             : Transform.scale(
-                                scale: 1.5,
+                                scale: 1.4,
                                 child:
                                     Image.asset('assets/image/motor_off.png'),
                               ))
                         : Transform.scale(
-                            scale: 1.5,
+                            scale: 1.4,
                             child: Image.asset('assets/image/motor_dis.png')),
                   ),
                 ),
