@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../pages/notification_provider.dart';
+import '../theme_provider.dart';
 
 class NotificationPage extends StatefulWidget {
   static const routeName = '/notification';
@@ -15,8 +16,13 @@ class NotificationPage extends StatefulWidget {
 class NotificationPageState extends State<NotificationPage> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final currentTheme = themeProvider.currentTheme;
     var _pd = Provider.of<NotificationPd>(context, listen: false);
-    return Scaffold(
+
+    return Theme(
+      data: currentTheme,
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('Notification'),
         actions: <Widget>[
@@ -82,12 +88,47 @@ class NotificationPageState extends State<NotificationPage> {
           ),
         ],
       ),
-      body: Stack(
+      body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                currentTheme.colorScheme.primary,
+                currentTheme.colorScheme.secondary,
+                currentTheme.colorScheme.surface,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        child: Stack(
         children: [
+          Positioned(
+                bottom: -60,
+                right: -50,
+                child: Image(
+                  image: AssetImage('assets/image/cradle_bg.png'),
+                  width: 200,
+                  height: 200,
+                ),
+              ),
           _pd.notificationTitles.isEmpty
-              ? Center(child: Text(
-              'No Notification',
-              style: TextStyle(fontSize: 20),))
+            ? Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.notifications_off,
+                    size: 33,
+                    color: Colors.black,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    'No Notification',
+                    style: TextStyle(fontSize: 25, color: Colors.black,fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            )
               : ListView.builder(
             shrinkWrap: true,
             itemCount: _pd.notificationTitles.length,
@@ -243,6 +284,8 @@ class NotificationPageState extends State<NotificationPage> {
           },
         ),
       ],
+      ),
+      ),
       ),
     );
   }
