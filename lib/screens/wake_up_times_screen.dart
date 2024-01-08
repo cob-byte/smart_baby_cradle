@@ -74,7 +74,7 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Sleep Tracker',
+            'Manual Sleep Tracker',
             style: currentTheme.appBarTheme.titleTextStyle,
           ),
           backgroundColor: currentTheme.appBarTheme.backgroundColor,

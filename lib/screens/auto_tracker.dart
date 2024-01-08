@@ -148,7 +148,7 @@ class _AutoTrackerScreenState extends State<AutoTrackerScreen> with WidgetsBindi
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Auto Tracker',
+            'Auto Sleep Tracker',
             style: currentTheme.appBarTheme.titleTextStyle,
           ),
           backgroundColor: currentTheme.appBarTheme.backgroundColor,
