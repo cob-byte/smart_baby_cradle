@@ -127,29 +127,38 @@ class ProfileState extends State<Profile> {
   }
 
   void _showPicker(BuildContext ctx) {
-    showCupertinoModalPopup(
-      context: ctx,
-      builder: (_) => CupertinoActionSheet(
-        actions: [
-          Container(
-            height: 250,
-            child: CupertinoPicker(
-              backgroundColor: Colors.white,
-              itemExtent: 30,
-              scrollController: FixedExtentScrollController(initialItem: 0),
-              children: ageStrings.map((age) => Text(age)).toList(),
-              onSelectedItemChanged: (index) {
-                setState(() {
-                  _selectedAgeIndex = index;
-                });
-              },
-            ),
+  showCupertinoModalPopup(
+    context: ctx,
+    builder: (_) => CupertinoActionSheet(
+      actions: [
+        Container(
+          height: 240,
+          child: CupertinoPicker(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            itemExtent: 30,
+            scrollController: FixedExtentScrollController(initialItem: 0),
+            children: ageStrings.map((age) => Text(age)).toList(),
+            onSelectedItemChanged: (index) {
+              setState(() {
+                _selectedAgeIndex = index;
+              });
+            },
           ),
-        ],
-        message: CupertinoActionSheetAction(
-          child: Text(
-            'Save',
-            style: TextStyle(color: Colors.black),
+        ),
+        CupertinoActionSheetAction(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.save,
+                color:Theme.of(context).primaryColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Save',
+                style: TextStyle(color:Theme.of(context).primaryColor,fontWeight:FontWeight.bold),
+              ),
+            ],
           ),
           onPressed: () {
             showCupertinoDialog(
@@ -185,9 +194,11 @@ class ProfileState extends State<Profile> {
             );
           },
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
