@@ -146,107 +146,101 @@ class EditNameFormPageState extends State<EditNameFormPage> {
                         ),
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
-                          child: SizedBox(
-                            height: 100,
-                            width: 150,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your first name';
-                                } else if (!isAlpha(value)) {
-                                  return 'Only Letters Please';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'First Name',
-                                labelStyle: TextStyle(
-                                    color: currentTheme.colorScheme.surface,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 18),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: currentTheme.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: currentTheme.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: currentTheme.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
+                      child: SizedBox(
+                        height: 100,
+                        width: 250,
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your first name';
+                            } else if (!isAlpha(value)) {
+                              return 'Only Letters Please';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'First Name',
+                            labelStyle: TextStyle(
+                                color: currentTheme.colorScheme.surface,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 18),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: currentTheme.primaryColor,
+                                width: 2,
                               ),
-                              controller: firstNameController,
-                              style: TextStyle(
-                                  color: currentTheme.colorScheme.surface),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: currentTheme.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: currentTheme.primaryColor,
+                                width: 2,
+                              ),
                             ),
                           ),
+                          controller: firstNameController,
+                          style: TextStyle(
+                              color: currentTheme.colorScheme.surface),
                         ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 30, 16, 0),
-                          child: SizedBox(
-                            height: 100,
-                            width: 150,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your last name';
-                                } else if (!isAlpha(value)) {
-                                  return 'Only Letters Please';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'Last Name',
-                                labelStyle: TextStyle(
-                                    color: currentTheme.colorScheme.surface,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 18),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: currentTheme.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: currentTheme.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: currentTheme.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                      child: SizedBox(
+                        height: 100,
+                        width: 250,
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your last name';
+                            } else if (!isAlpha(value)) {
+                              return 'Only Letters Please';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Last Name',
+                            labelStyle: TextStyle(
+                                color: currentTheme.colorScheme.surface,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 18),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: currentTheme.primaryColor,
+                                width: 2,
                               ),
-                              controller: secondNameController,
-                              style: TextStyle(
-                                  color: currentTheme.colorScheme.surface),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: currentTheme.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: currentTheme.primaryColor,
+                                width: 2,
+                              ),
                             ),
                           ),
+                          controller: secondNameController,
+                          style: TextStyle(
+                              color: currentTheme.colorScheme.surface),
                         ),
-                      ],
+                      ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 1),

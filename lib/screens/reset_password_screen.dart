@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -51,18 +52,33 @@ class ResetPassState extends State<ResetPass> {
 
     Future<void> _resetPassword() async {
       final email = _emailController.text.trim();
-
-      if (email.isEmpty || !email.contains('@')) {
-        _showErrorSnackbar('Invalid e-mail address');
-        return;
+      if (email.trim().isEmpty == true) {
+        _showErrorSnackbar('E-mail is required!');
+      }
+      else if(email.contains('@') != true){
+        _showErrorSnackbar('Invalid email format. Please enter a valid email');
+      }
+      else {
+        String pattern =
+            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+        RegExp regex = new RegExp(pattern);
+        if (!regex.hasMatch(email)) {
+          _showErrorSnackbar('Invalid email format. Please enter a valid email');
+        }
       }
 
       try {
-        await _auth.sendPasswordResetEmail(email: email);
-        _showSuccessSnackbar(
-            'Password reset email sent. Please check your inbox.');
+        var connectivityResult = await (Connectivity().checkConnectivity());
+        if (connectivityResult == ConnectivityResult.none) {
+          _showErrorSnackbar('No internet connection. Please try again later.');
+        }
+        else{
+          _auth.sendPasswordResetEmail(email: email);
+          _showSuccessSnackbar(
+              'Password reset email sent. Please check your inbox.');
+        }
       } catch (error) {
-        _showErrorSnackbar('Password reset failed. Please try again.');
+        _showErrorSnackbar('Password reset unsuccessful. Please try again.');
       }
     }
 

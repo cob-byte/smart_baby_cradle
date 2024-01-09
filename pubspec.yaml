@@ -63,6 +63,7 @@ dependencies:
   string_validator:
   path_provider:
   image_cropper:
+  connectivity:
 
 dev_dependencies:
   flutter_test:

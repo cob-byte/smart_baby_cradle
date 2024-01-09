@@ -54,7 +54,7 @@ class CameraScreenState extends State<CameraScreen> {
             context: context,
             builder: (context) => AlertDialog(
               title: Text('Camera Livestream Not Found'),
-              content: Text('Please reboot the device or check your internet connection.'),
+              content: Text('Please reboot the device or check your internet connection. Make sure your device must be connected to the same WiFi network  the cradle is connected to.'),
               actions: <Widget>[
                 TextButton(
                   child: Text('Go Back'),

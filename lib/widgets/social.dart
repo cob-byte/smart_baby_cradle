@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -89,22 +90,35 @@ class Social extends StatelessWidget {
       children: <Widget>[
         GestureDetector(
           onTap: () async {
-            User? user =
-                await Authentication.signInWithGoogle(context: context);
-            if (user != null) {
-              // User is signed in
+            var connectivityResult = await (Connectivity().checkConnectivity());
+            if (connectivityResult == ConnectivityResult.none) {
               ScaffoldMessenger.of(context).showSnackBar(
-                Authentication.customSnackBar(
-                  content: 'User signed in: ${user.displayName}',
+                SnackBar(
+                  content: Text(
+                    'No internet connection. Log-in with Google requires an active network connection.',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.red,
                 ),
               );
             } else {
-              // User is not signed in
-              ScaffoldMessenger.of(context).showSnackBar(
-                Authentication.customSnackBar(
-                  content: 'User not signed in.',
-                ),
-              );
+              // Internet connection is available
+              User? user = await Authentication.signInWithGoogle(context: context);
+              if (user != null) {
+                // User is signed in
+                ScaffoldMessenger.of(context).showSnackBar(
+                  Authentication.customSnackBar(
+                    content: 'User signed in: ${user.displayName}',
+                  ),
+                );
+              } else {
+                // User is not signed in
+                ScaffoldMessenger.of(context).showSnackBar(
+                  Authentication.customSnackBar(
+                    content: 'User not signed in.',
+                  ),
+                );
+              }
             }
           },
           child: Container(

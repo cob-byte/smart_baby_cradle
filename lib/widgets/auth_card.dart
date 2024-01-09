@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -102,28 +103,58 @@ class AuthCardState extends State<AuthCard>
       UserCredential?
           userCredential; // Declare a nullable variable to store the user credential
       if (_authMode == AuthMode.login) {
-        userCredential = await _auth.signInWithEmailAndPassword(
-            _authData['email']!, _authData['password']!);
-      } else {
-        // Check if the deviceID already exists in the "devices" node
-        final deviceIDExists =
-            await _auth.checkDeviceIDExists(_authData['deviceID']!);
-        if (deviceIDExists) {
-          userCredential = await _auth.registerWithEmailAndPassword(
-              _authData['email']!, _authData['password']!);
-          await _auth.saveDeviceID(_authData['deviceID']!);
-        } else {
-          _showError('Device ID Does Not Exist',
-              'Please try again with a valid Device ID.');
+        try {
+          var connectivityResult = await (Connectivity().checkConnectivity());
+          if (connectivityResult == ConnectivityResult.none) {
+            _showError('No internet connection', 'Please connect to the internet to log in.');
+          }
+          else {
+            userCredential = await _auth.signInWithEmailAndPassword(
+                _authData['email']!, _authData['password']!);
+          }
+        } catch (e) {
+          if (e is FirebaseAuthException) {
+            print(e.code);
+            if (e.code == 'user-not-found') {
+              _showError('Account does not exist', 'Please sign up');
+            } else if (e.code == 'wrong-password' || e.code == 'INVALID_LOGIN_CREDENTIALS') {
+              _showError('Invalid credentials', 'Please try again');
+            } else if (e.code == 'too-many-requests'){
+              _showError('Too many requests', 'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.');
+            } else{
+              _showError('An error occurred', 'Please try again');
+            }
+          } else {
+            _showError('An error occurred', 'Please try again');
+          }
         }
+      }
+      else {
+        var connectivityResult = await (Connectivity().checkConnectivity());
+        if (connectivityResult == ConnectivityResult.none) {
+          _showError('No internet connection', 'Please connect to the internet to log in.');
+        }
+        else {
+          // Check if the deviceID already exists in the "devices" node
+          final deviceIDExists =
+          await _auth.checkDeviceIDExists(_authData['deviceID']!);
+          if (deviceIDExists) {
+            userCredential = await _auth.registerWithEmailAndPassword(
+                _authData['email']!, _authData['password']!);
+            await _auth.saveDeviceID(_authData['deviceID']!);
+          } else {
+            _showError('Device ID Does Not Exist',
+                'Please try again with a valid Device ID.');
+          }
 
-        if (userCredential != null &&
-            userCredential.user != null &&
-            _authData['fName'] != null &&
-            _authData['lName'] != null) {
-          String fullName = _authData['fName']! + ' ' + _authData['lName']!;
-          await userCredential.user!.updateDisplayName(fullName);
-          await _auth.saveFullName(_authData['fName']!, _authData['lName']!);
+          if (userCredential != null &&
+              userCredential.user != null &&
+              _authData['fName'] != null &&
+              _authData['lName'] != null) {
+            String fullName = _authData['fName']! + ' ' + _authData['lName']!;
+            await userCredential.user!.updateDisplayName(fullName);
+            await _auth.saveFullName(_authData['fName']!, _authData['lName']!);
+          }
         }
       }
       setState(() {
@@ -195,9 +226,19 @@ class AuthCardState extends State<AuthCard>
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      if (value?.isEmpty == true ||
-                          value?.contains('@') != true) {
-                        return 'Invalid email!';
+                      if (value?.trim().isEmpty == true) {
+                        return 'E-mail is required!';
+                      }
+                      else if(value?.contains('@') != true){
+                        return 'Invalid email format. Please enter a valid email';
+                      }
+                      else {
+                        String pattern =
+                            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+                        RegExp regex = new RegExp(pattern);
+                        if (!regex.hasMatch(value!)) {
+                          return 'Invalid email format. Please enter a valid email';
+                        }
                       }
                       return null;
                     },
@@ -234,8 +275,28 @@ class AuthCardState extends State<AuthCard>
                     obscureText: _obscureText,
                     controller: _passwordController,
                     validator: (value) {
-                      if (value?.isEmpty == true || (value?.length ?? 0) < 5) {
-                        return 'Password is too short!';
+                      if (_authMode == AuthMode.login) {
+                        if (value?.trim().isEmpty == true) {
+                          return 'Password is required!';
+                        }
+                        else if ((value?.length ?? 0) < 6) {
+                          return 'Password is too short!';
+                        }
+                      }
+                      else {
+                        if (value?.trim().isEmpty == true) {
+                          return 'Password is required!';
+                        } else if ((value?.length ?? 0) < 6) {
+                          return 'Password is too short. Please enter at least 6 characters';
+                        } else if (!RegExp(r'(?=.*[a-z])').hasMatch(value!)) {
+                          return 'Password must contain a mix of uppercase and lowercase letters.';
+                        } else if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
+                          return 'Password must contain a mix of uppercase and lowercase letters.';
+                        } else if (!RegExp(r'(?=.*[0-9])').hasMatch(value)) {
+                          return 'Password must contain at least one numeric character';
+                        } else if (!RegExp(r'(?=.*[!@#$%^&*(),.?":{}|<>])').hasMatch(value)) {
+                          return 'Password must contain at least one special character';
+                        }
                       }
                       return null;
                     },
