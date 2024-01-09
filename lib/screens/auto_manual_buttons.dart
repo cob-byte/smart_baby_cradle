@@ -37,7 +37,7 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Sleep Efficiency',
+            'Sleep Tracking',
             style: currentTheme.appBarTheme.titleTextStyle,
           ),
           backgroundColor: currentTheme.appBarTheme.backgroundColor,
