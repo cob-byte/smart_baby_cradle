@@ -20,7 +20,7 @@ final ThemeData boyTheme = ThemeData(
     inversePrimary: Color.fromRGBO(212, 250, 255, 1),
     inverseSurface: Color.fromRGBO(142, 239, 252, 1),
     onPrimaryContainer: Color.fromRGBO(2, 39, 65, 1),
-    onInverseSurface: Color.fromRGBO(39, 98, 166, 1),
+    onInverseSurface: Color.fromRGBO(2, 57, 96, 1),
     onSurfaceVariant: Color.fromRGBO(128, 205, 249, 1),
     surfaceVariant: Color.fromRGBO(1, 47, 87, 1),
     onTertiary: Color.fromRGBO(217, 239, 255, 1),
