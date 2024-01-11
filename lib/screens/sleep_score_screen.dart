@@ -142,6 +142,8 @@ TimeOfDay _parseTimeOfDay(String timeString) {
 }
 
 class SleepQualityCard extends StatelessWidget {
+  double sleepEfficiency = 0;
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -182,7 +184,7 @@ class SleepQualityCard extends StatelessWidget {
                     });
                   });
 
-                  double sleepEfficiency = (totalHoursOfSleep / totalHoursInCradle) * 100;
+                  sleepEfficiency = (totalHoursOfSleep / totalHoursInCradle) * 100;
 
                   return Column(
                     children: [
@@ -247,7 +249,7 @@ class SleepQualityCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SleepEfficiencyScreen(),
+                    builder: (context) => SleepEfficiencyScreen(sleepEfficiency),
                   ),
                 );
               },
@@ -411,7 +413,7 @@ class SleepPatternCard extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SleepPatternScreen(),
+                          builder: (context) => SleepPatternScreen(averageFellAsleepTime, sleepDuration),
                         ),
                       );
                     },

@@ -8,6 +8,11 @@ import '../services/status_service.dart';
 import '../theme_provider.dart';
 
 class SleepEfficiencyScreen extends StatefulWidget {
+  final double sleepEfficiency;
+
+  const SleepEfficiencyScreen(this.sleepEfficiency, {Key? key})
+      : super(key: key);
+
   @override
   _SleepEfficiencyScreenState createState() => _SleepEfficiencyScreenState();
 }
@@ -359,7 +364,7 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                             child: FutureBuilder<Map<String, List<SleepInfo>>>(
                               future: _getSleepInfo(selectedDate, isWeekly),
                               builder: (BuildContext context, AsyncSnapshot<Map<String, List<SleepInfo>>> snapshot) {
-                                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
                                   Map<String, List<SleepInfo>> sleepInfos = snapshot.data!;
                                   List<List<double>> hoursOfSleepData = List.generate(daysOfWeek.length, (index) => []);
                                   List<List<double>> hoursInCradleData = List.generate(daysOfWeek.length, (index) => []);
@@ -408,7 +413,7 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
                                   );
                                 } else if (snapshot.hasError) {
                                   return Text('Error: ${snapshot.error}');
-                                } else if (snapshot.data!.isEmpty){
+                                } else if (snapshot.data == null || snapshot.data!.isEmpty){
                                   return Container(
                                     padding: EdgeInsets.all(16.0),
                                     width: double.infinity,
@@ -626,7 +631,7 @@ class _SleepEfficiencyScreenState extends State<SleepEfficiencyScreen> {
 
  Widget _buildCombinedInsightsContainer() {
   String sleepEfficiencyInsightsText;
-  double asleepEfficiency = 0;
+  double asleepEfficiency = widget.sleepEfficiency;
 
   if (asleepEfficiency >= 0 && asleepEfficiency <= 50) {
     sleepEfficiencyInsightsText = "Your baby's sleep efficiency is in the lower range, suggesting potential sleep challenges. It's crucial to thoroughly assess the sleep environment, adjusting factors like noise, light, and temperature. Consider refining the bedtime routine with calming activities, and ensure the cradle provides optimal comfort. If challenges persist, consult with your pediatrician for a comprehensive evaluation and personalized recommendations tailored to your baby's needs.";
@@ -764,10 +769,4 @@ class ChartLegend extends StatelessWidget {
       ],
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: SleepEfficiencyScreen(),
-  ));
 }

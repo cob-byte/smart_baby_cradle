@@ -6,6 +6,7 @@ import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:smart_baby_cradle/pages/notification_provider.dart';
 import 'package:smart_baby_cradle/screens/auto_manual_buttons.dart';
 import 'package:smart_baby_cradle/screens/auto_tracker.dart';
+import 'package:smart_baby_cradle/screens/sleep_efficiency_screen.dart';
 import 'package:smart_baby_cradle/theme/boy_theme.dart';
 import 'package:smart_baby_cradle/theme/girl_theme.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';

@@ -438,7 +438,21 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
 
       if (snapshot.value != null) {
         Map<dynamic, dynamic> sleepData = snapshot.value as Map<dynamic, dynamic>;
-        sleepData.forEach((key, value) {
+
+        // Convert the map into a list of entries
+        var entries = sleepData.entries.toList();
+
+        // Sort the list of entries based on the wakeUpTime
+        entries.sort((a, b) {
+          final aTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, _parseTimeOfDay(a.value['wakeUpTime']).hour, _parseTimeOfDay(a.value['wakeUpTime']).minute);
+          final bTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, _parseTimeOfDay(b.value['wakeUpTime']).hour, _parseTimeOfDay(b.value['wakeUpTime']).minute);
+          return bTime.compareTo(aTime);
+        });
+
+        // Convert the sorted list of entries back into a map
+        var sortedSleepData = Map.fromEntries(entries);
+
+        sortedSleepData.forEach((key, value) {
           try {
             // Convert data from Firebase to SleepInfo object
             SleepInfo info = SleepInfo(
@@ -460,7 +474,6 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
         });
       }
     }
-
     return sleepInfos;
   }
 
@@ -470,17 +483,93 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 
+  // Helper function to compare two TimeOfDay objects
+  int compareTimeOfDay(TimeOfDay t1, TimeOfDay t2) {
+    final now = DateTime.now();
+    final dt1 = DateTime(now.year, now.month, now.day, t1.hour, t1.minute);
+    final dt2 = DateTime(now.year, now.month, now.day, t2.hour, t2.minute);
+    return dt1.compareTo(dt2);
+  }
+
   Future<void> saveSleepInfoToFirebase(DateTime date, SleepInfo info) async {
     String? deviceID = await auth.getDeviceID();
 
     if (deviceID != null) {
-      // Get Firebase database reference
-      DatabaseReference rootRef = FirebaseDatabase.instance.ref().child("devices").child(deviceID).child("tracker");
-
       // Convert TimeOfDay to String
       String timePutToBed = _formatTOD(info.timePutToBed);
       String timeFellAsleep = _formatTOD(info.timeFellAsleep);
       String wakeUpTime = _formatTOD(info.wakeUpTime);
+
+      // Check if 'Time Fell Asleep' is later than 'Time Put to Bed'
+      if (compareTimeOfDay(info.timeFellAsleep, info.timePutToBed) <= 0) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: [
+                  Icon(Icons.error, color: Colors.red),
+                  SizedBox(width: 8.0),
+                  Text('Invalid Time Configuration'),
+                  SizedBox(width: 12.0),
+                ],
+              ),
+            ),
+            content: Text('Time Fell Asleep should be later than Time Put to Bed.'),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Color.fromARGB(255, 25, 31, 36),
+                  fixedSize: Size(20, 20),
+                ),
+                child: Text(
+                  'OK',
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Check if 'Time Wake Up' is later than 'Time Fell Asleep'
+      if (compareTimeOfDay(info.wakeUpTime, info.timeFellAsleep) <= 0) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: [
+                  Icon(Icons.error, color: Colors.red),
+                  SizedBox(width: 8.0),
+                  Text('Invalid Time Configuration'),
+                  SizedBox(width: 12.0),
+                ],
+              ),
+            ),
+            content: Text('Time Wake Up should be later than Time Fell Asleep.'),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Color.fromARGB(255, 25, 31, 36),
+                  fixedSize: Size(20, 20),
+                ),
+                child: Text(
+                  'OK',
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Get Firebase database reference
+      DatabaseReference rootRef = FirebaseDatabase.instance.ref().child("devices").child(deviceID).child("tracker");
 
       // Generate a unique identifier for the sleep record
       String uniqueID = DateTime.now().millisecondsSinceEpoch.toString(); // Using timestamp as ID
@@ -749,6 +838,16 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
             TextButton(
               onPressed: () {
                 deleteSleepInfoFromFirebase(dateTime, uniqueID);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.error, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text('The sleep information is successfully deleted.'),
+                    ],
+                  ),
+                  backgroundColor: Colors.red,
+                ));
                 Navigator.of(context).pop();
               },
               child: Text(

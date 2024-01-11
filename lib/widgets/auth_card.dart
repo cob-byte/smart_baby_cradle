@@ -139,9 +139,18 @@ class AuthCardState extends State<AuthCard>
           final deviceIDExists =
           await _auth.checkDeviceIDExists(_authData['deviceID']!);
           if (deviceIDExists) {
-            userCredential = await _auth.registerWithEmailAndPassword(
-                _authData['email']!, _authData['password']!);
-            await _auth.saveDeviceID(_authData['deviceID']!);
+            try {
+              userCredential = await _auth.registerWithEmailAndPassword(
+                  _authData['email']!, _authData['password']!);
+              await _auth.saveDeviceID(_authData['deviceID']!);
+            } on FirebaseAuthException catch (e) {
+              if (e.code == 'email-already-in-use') {
+                _showError('Email is already in use',
+                    'The email address is already in use by another account.');
+              }
+            } catch (e) {
+              print(e);
+            }
           } else {
             _showError('Device ID Does Not Exist',
                 'Please try again with a valid Device ID.');

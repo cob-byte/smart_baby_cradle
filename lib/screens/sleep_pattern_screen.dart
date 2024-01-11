@@ -6,8 +6,16 @@ import 'package:provider/provider.dart';
 import 'package:smart_baby_cradle/screens/wake_up_times_screen.dart';
 import '../services/status_service.dart';
 import '../theme_provider.dart';
+import '../user/user.dart';
+import '../user/user_data.dart';
 
 class SleepPatternScreen extends StatefulWidget {
+  final TimeOfDay averageFellAsleepTime;
+  final Duration sleepDuration;
+
+  const SleepPatternScreen(this.averageFellAsleepTime, this.sleepDuration, {Key? key})
+      : super(key: key);
+
   @override
   _SleepPatternScreenState createState() => _SleepPatternScreenState();
 }
@@ -23,6 +31,40 @@ enum SleepInfoType {
 
 class _SleepPatternScreenState extends State<SleepPatternScreen> {
   SleepInfoType selectedSleepInfoType = SleepInfoType.hoursOfSleep;
+  final UserData _userData = UserData();
+  Future<User>? _futureUser;
+  Future<int>? _futureAge;
+
+  List<Map<String, dynamic>> ageCategories = [
+    {'age': 'New Born (0-4 weeks)', 'ageRange': [0], 'sleepRange': [14, 18]},
+    {'age': '1 month – 2 months', 'ageRange': [1, 2], 'sleepRange': [11, 15]},
+    {'age': '3 months to 5 months', 'ageRange': [3, 4, 5], 'sleepRange': [12, 16]},
+    {'age': '6 months to 1 year old', 'ageRange': [6, 7, 8, 9, 10, 11, 12], 'sleepRange': [12, 14]},
+  ];
+
+  List<Map<String, dynamic>> fellAsleepCategories = [
+    {'age': 'New Born (0-4 weeks)', 'ageRange': [0], 'bedTime': [DateTime(2023, 1, 1, 21, 0), DateTime(2023, 1, 1, 23, 0)]},
+    {'age': '1 month – 4 months', 'ageRange': [1, 2, 3, 4], 'bedTime': [DateTime(2023, 1, 1, 20, 0), DateTime(2023, 1, 1, 23, 0)]},
+    {'age': '5 months to 8 months', 'ageRange': [5, 6, 7, 8], 'bedTime': [DateTime(2023, 1, 1, 18, 0), DateTime(2023, 1, 1, 17, 30)]},
+    {'age': '9 months to 1 year old', 'ageRange': [9, 10, 11, 12], 'bedTime': [DateTime(2023, 1, 1, 18, 0), DateTime(2023, 1, 1, 20, 0)]},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _futureUser = _userData.getUser(); // get the user data in initState
+    _futureAge = getUserAge(); // get the user age in initState
+  }
+
+  Future<int> getUserAge() async {
+    User? user = await _futureUser;
+    if (user != null) {
+      int age = user.age;
+      return age;
+    } else {
+      throw Exception('User not found');
+    }
+  }
 
   final List<String> daysOfWeek = [
     'Mon',
@@ -284,7 +326,22 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
     );
   }
 
- Widget _buildCombinedInsightsContainer() {
+  Widget _buildCombinedInsightsContainer() {
+    return FutureBuilder<int>(
+      future: _futureAge,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          int? userAge = snapshot.data;
+          return _buildContainerWithInsights(userAge!);
+        } else {
+          // Return a loading indicator or placeholder widget
+          return CircularProgressIndicator();
+        }
+      },
+    );
+  }
+
+ Widget _buildContainerWithInsights(int userAge) {
   Map<String, List<SleepInfo>> sleepInfos = {};
 
   Map<String, double> averageHoursOfSleep = _calculateAverageHoursOfSleep(sleepInfos);
@@ -294,18 +351,9 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
   });
   double overallAverageHours = totalAverageHours / averageHoursOfSleep.length;
 
-  String currentAgeCategory = 'New Born (0-4 weeks)';
-  
   Map<String, double> averageTimeFellAsleep = _calculateAverageTimeFellAsleep(sleepInfos);
   List<double> averageTimeList = _convertMapToList(averageTimeFellAsleep);
   List<DateTime> averageTimeDateTime = _convertListToDateTime(averageTimeList);
-
-  List<Map<String, String>> ageCategories = [
-    {'age': 'New Born (0-4 weeks)', 'range': '14-18 hours'},
-    {'age': '1 month – 2 months', 'range': '11-15 hours'},
-    {'age': '3 months to 5 months', 'range': '12-16 hours'},
-    {'age': '6 months to 1 year old', 'range': '12-14 hours'},
-  ];
 
   String generateSleepInsightsText(double lowerRange, double upperRange, double averageHours) {
     if (averageHours >= lowerRange && averageHours <= upperRange) {
@@ -317,6 +365,13 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
     }
   }
 
+  Map<String, dynamic> ageCategory = ageCategories.firstWhere((category) => category['ageRange'].contains(userAge));
+  String currentAgeCategory = ageCategory['age'];
+
+  Map<String, dynamic> rangeAge = ageCategories.firstWhere((category) => category['age'] == currentAgeCategory);
+  double lowerRange = rangeAge['sleepRange'][0].toDouble();
+  double upperRange = rangeAge['sleepRange'][1].toDouble();
+
   String generateTimeFellAsleepInsightsText(DateTime lowerRange, DateTime upperRange, DateTime averageTime) {
     if (averageTime.isAfter(lowerRange) && averageTime.isBefore(upperRange)) {
       return "Your baby's bedtime falls within the recommended range, which is excellent for their sleep routine. Keep up the good work! Continue with a consistent bedtime routine, create a comfortable sleep space, and monitor for any signs of restlessness or changes in sleep patterns.";
@@ -327,30 +382,50 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
     }
   }
 
+  double sleepDurationInHours = widget.sleepDuration.inMinutes / 60.0;
+  print(sleepDurationInHours);
   String sleepInsightsText;
   if (currentAgeCategory == 'New Born (0-4 weeks)') {
-    sleepInsightsText = generateSleepInsightsText(14, 18, overallAverageHours);
+    sleepInsightsText = generateSleepInsightsText(lowerRange, upperRange, sleepDurationInHours);
   } else if (currentAgeCategory == '1 month – 2 months') {
-    sleepInsightsText = generateSleepInsightsText(11, 15, overallAverageHours);
+    sleepInsightsText = generateSleepInsightsText(lowerRange, upperRange, sleepDurationInHours);
   } else if (currentAgeCategory == '3 months to 5 months') {
-    sleepInsightsText = generateSleepInsightsText(12, 16, overallAverageHours);
+    sleepInsightsText = generateSleepInsightsText(lowerRange, upperRange, sleepDurationInHours);
   } else if (currentAgeCategory == '6 months to 1 year old') {
-    sleepInsightsText = generateSleepInsightsText(12, 14, overallAverageHours);
+    sleepInsightsText = generateSleepInsightsText(lowerRange, upperRange, sleepDurationInHours);
   } else {
     sleepInsightsText = "Invalid age category"; // Handle unknown age categories
   }
 
-  String timeFellAsleepInsightsText;
-  if (currentAgeCategory == 'New Born (0-4 weeks)') {
-    timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(DateTime(2023, 1, 1, 21, 0), DateTime(2023, 1, 1, 23, 0), averageTimeDateTime[0]);
-  } else if (currentAgeCategory == '1 month – 4 months') {
-    timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(DateTime(2023, 1, 1, 20, 0), DateTime(2023, 1, 1, 23, 0), averageTimeDateTime[0]);
-  } else if (currentAgeCategory == '5 months to 8 months') {
-    timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(DateTime(2023, 1, 1, 18, 0), DateTime(2023, 1, 1, 19, 30), averageTimeDateTime[0]);
-  } else if (currentAgeCategory == '9 months to 1 year old') {
-    timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(DateTime(2023, 1, 1, 18, 0), DateTime(2023, 1, 1, 20, 0), averageTimeDateTime[0]);
+  String timeFellAsleepInsightsText = '';
+
+  Map<String, dynamic> ageCategoryFS = fellAsleepCategories.firstWhere((category) => category['ageRange'].contains(userAge));
+  String currentAgeCategoryFS = ageCategoryFS['age'];
+
+  Map<String, dynamic> rangeAgeFS = fellAsleepCategories.firstWhere(
+        (category) => category['age'] == currentAgeCategoryFS,
+    orElse: () => {'age': '', 'ageRange': [], 'bedTime': []},
+  );
+
+  if (rangeAgeFS['age'] != '') {
+    DateTime lowerRangeFS = rangeAgeFS['bedTime'][0];
+    DateTime upperRangeFS = rangeAgeFS['bedTime'][1];
+    TimeOfDay time = widget.averageFellAsleepTime; // Your TimeOfDay object
+    DateTime averageFellAsleepTime = DateTime(2023, 1, 1, time.hour, time.minute);
+
+    if (currentAgeCategoryFS == 'New Born (0-4 weeks)') {
+      timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(lowerRangeFS, upperRangeFS, averageFellAsleepTime);
+    } else if (currentAgeCategoryFS == '1 month – 4 months') {
+      timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(lowerRangeFS, upperRangeFS, averageFellAsleepTime);
+    } else if (currentAgeCategoryFS == '5 months to 8 months') {
+      timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(lowerRangeFS, upperRangeFS, averageFellAsleepTime);
+    } else if (currentAgeCategoryFS == '9 months to 1 year old') {
+      timeFellAsleepInsightsText = generateTimeFellAsleepInsightsText(lowerRangeFS, upperRangeFS, averageFellAsleepTime);
+    } else {
+      timeFellAsleepInsightsText = "Invalid age category"; // Handle unknown age categories
+    }
   } else {
-    timeFellAsleepInsightsText = "Invalid age category"; // Handle unknown age categories
+    print('No matching age category found');
   }
 
   return Container(
@@ -789,10 +864,4 @@ class ChartLegend extends StatelessWidget {
       ],
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: SleepPatternScreen(),
-  ));
 }
