@@ -500,73 +500,73 @@ class _BabySleepTrackerWidgetState extends State<BabySleepTrackerWidget> {
       String timeFellAsleep = _formatTOD(info.timeFellAsleep);
       String wakeUpTime = _formatTOD(info.wakeUpTime);
 
-      // Check if 'Time Fell Asleep' is later than 'Time Put to Bed'
-      if (compareTimeOfDay(info.timeFellAsleep, info.timePutToBed) <= 0) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Row(
-                children: [
-                  Icon(Icons.error, color: Colors.red),
-                  SizedBox(width: 8.0),
-                  Text('Invalid Time Configuration'),
-                  SizedBox(width: 12.0),
-                ],
-              ),
-            ),
-            content: Text('Time Fell Asleep should be later than Time Put to Bed.'),
-            actions: <Widget>[
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Color.fromARGB(255, 25, 31, 36),
-                  fixedSize: Size(20, 20),
-                ),
-                child: Text(
-                  'OK',
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        );
-        return;
-      }
-
-      // Check if 'Time Wake Up' is later than 'Time Fell Asleep'
-      if (compareTimeOfDay(info.wakeUpTime, info.timeFellAsleep) <= 0) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Row(
-                children: [
-                  Icon(Icons.error, color: Colors.red),
-                  SizedBox(width: 8.0),
-                  Text('Invalid Time Configuration'),
-                  SizedBox(width: 12.0),
-                ],
-              ),
-            ),
-            content: Text('Time Wake Up should be later than Time Fell Asleep.'),
-            actions: <Widget>[
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Color.fromARGB(255, 25, 31, 36),
-                  fixedSize: Size(20, 20),
-                ),
-                child: Text(
-                  'OK',
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        );
-        return;
-      }
+      // // Check if 'Time Fell Asleep' is later than 'Time Put to Bed'
+      // if (compareTimeOfDay(info.timeFellAsleep, info.timePutToBed) <= 0) {
+      //   showDialog(
+      //     context: context,
+      //     builder: (context) => AlertDialog(
+      //       title: Padding(
+      //         padding: const EdgeInsets.only(bottom: 8.0),
+      //         child: Row(
+      //           children: [
+      //             Icon(Icons.error, color: Colors.red),
+      //             SizedBox(width: 8.0),
+      //             Text('Invalid Time Configuration'),
+      //             SizedBox(width: 12.0),
+      //           ],
+      //         ),
+      //       ),
+      //       content: Text('Time Fell Asleep should be later than Time Put to Bed.'),
+      //       actions: <Widget>[
+      //         TextButton(
+      //           style: TextButton.styleFrom(
+      //             foregroundColor: Color.fromARGB(255, 25, 31, 36),
+      //             fixedSize: Size(20, 20),
+      //           ),
+      //           child: Text(
+      //             'OK',
+      //           ),
+      //           onPressed: () => Navigator.of(context).pop(),
+      //         ),
+      //       ],
+      //     ),
+      //   );
+      //   return;
+      // }
+      //
+      // // Check if 'Time Wake Up' is later than 'Time Fell Asleep'
+      // if (compareTimeOfDay(info.wakeUpTime, info.timeFellAsleep) <= 0) {
+      //   showDialog(
+      //     context: context,
+      //     builder: (context) => AlertDialog(
+      //       title: Padding(
+      //         padding: const EdgeInsets.only(bottom: 8.0),
+      //         child: Row(
+      //           children: [
+      //             Icon(Icons.error, color: Colors.red),
+      //             SizedBox(width: 8.0),
+      //             Text('Invalid Time Configuration'),
+      //             SizedBox(width: 12.0),
+      //           ],
+      //         ),
+      //       ),
+      //       content: Text('Time Wake Up should be later than Time Fell Asleep.'),
+      //       actions: <Widget>[
+      //         TextButton(
+      //           style: TextButton.styleFrom(
+      //             foregroundColor: Color.fromARGB(255, 25, 31, 36),
+      //             fixedSize: Size(20, 20),
+      //           ),
+      //           child: Text(
+      //             'OK',
+      //           ),
+      //           onPressed: () => Navigator.of(context).pop(),
+      //         ),
+      //       ],
+      //     ),
+      //   );
+      //   return;
+      // }
 
       // Get Firebase database reference
       DatabaseReference rootRef = FirebaseDatabase.instance.ref().child("devices").child(deviceID).child("tracker");
