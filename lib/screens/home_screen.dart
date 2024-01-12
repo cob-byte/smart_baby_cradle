@@ -31,6 +31,7 @@ import '../widgets/music_player_item.dart';
 import '../widgets/sleep_analysis_item.dart';
 import 'package:smart_baby_cradle/theme_provider.dart';
 import 'package:smart_baby_cradle/theme/greyscale_theme.dart';
+import 'package:multicast_dns/multicast_dns.dart';
 
 import 'notification.dart';
 
@@ -148,55 +149,96 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _sendCommand(String command) async {
-    String url = 'http://192.168.254.183:5000/$command';
-    Map<String, String> headers = {'Content-Type': 'application/json'};
-    try {
-      final response = await http.get(Uri.parse(url), headers: headers);
-      if (response.statusCode == 200) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Success'),
-              content: Text('${command[0].toUpperCase()}${command.substring(1)} was successful.'),
-              actions: <Widget>[
-                TextButton(
-                  child: Text(
-                    'OK',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Failed'),
-              content: Text('Something went wrong, please try again.'),
-              actions: <Widget>[
-                TextButton(
-                  child: Text(
-                    'OK',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
+    final MDnsClient _mdns = MDnsClient();
+    await _mdns.start();
+    String? _raspberryPiAddress; // Declare as nullable
+    await for (PtrResourceRecord ptr in _mdns.lookup<PtrResourceRecord>(
+        ResourceRecordQuery.serverPointer('_http._tcp.local'))) {
+      await for (SrvResourceRecord srv in _mdns.lookup<SrvResourceRecord>(
+          ResourceRecordQuery.service(ptr.domainName))) {
+        _raspberryPiAddress = srv.target;
+        break; // Found the Raspberry Pi, stop the search.
       }
-    } catch (e) {
-      print('Error: $e');
+      if (_raspberryPiAddress != null) {
+        break; // Exit the outer loop if the address is found
+      }
+    }
+    _mdns.stop();
+
+    if (_raspberryPiAddress != null) {
+      String url = 'http://$_raspberryPiAddress:5000/$command';
+      Map<String, String> headers = {'Content-Type': 'application/json'};
+      try {
+        final response = await http.get(Uri.parse(url), headers: headers);
+        if (response.statusCode == 200) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Success'),
+                content: Text('${command[0].toUpperCase()}${command.substring(
+                    1)} was successful.'),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text(
+                      'OK',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Failed'),
+                content: Text('Something went wrong, please try again.'),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text(
+                      'OK',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } catch (e) {
+        print('Error: $e');
+      }
+    } else{
+      // Handle the case where the Raspberry Pi is not found
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Success'),
+            content: Text('Raspberry Pi not found on the network.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text(
+                  'OK',
+                  style: TextStyle(color: Colors.black),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 

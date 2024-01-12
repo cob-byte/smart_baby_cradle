@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:multicast_dns/multicast_dns.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -15,6 +16,37 @@ class CameraScreen extends StatefulWidget {
 class CameraScreenState extends State<CameraScreen> {
   final Completer<InAppWebViewController> _controller =
   Completer<InAppWebViewController>();
+  String _webViewUrl = 'http://192.168.254.183:8888/'; // Default URL
+
+  @override
+  void initState() {
+    super.initState();
+    discoverServices();
+  }
+
+  void discoverServices() async {
+    final MDnsClient _mdns = MDnsClient();
+    await _mdns.start();
+    String? _raspberryPiAddress; // Declare as nullable
+    await for (PtrResourceRecord ptr in _mdns.lookup<PtrResourceRecord>(
+        ResourceRecordQuery.serverPointer('_http._tcp.local'))) {
+      await for (SrvResourceRecord srv in _mdns.lookup<SrvResourceRecord>(
+          ResourceRecordQuery.service(ptr.domainName))) {
+        _raspberryPiAddress = srv.target;
+        break; // Found the Raspberry Pi, stop the search.
+      }
+      if (_raspberryPiAddress != null) {
+        break; // Exit the outer loop if the address is found
+      }
+    }
+    _mdns.stop();
+
+    if (_raspberryPiAddress != null) {
+      setState(() {
+        _webViewUrl = 'http://$_raspberryPiAddress:8888/';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +65,9 @@ class CameraScreenState extends State<CameraScreen> {
       ),
       body: InAppWebView(
         initialUrlRequest: URLRequest(
-          url: Uri.parse('http://192.168.254.183:8888/'),
+          url: Uri.parse(_webViewUrl),
         ),
-        initialOptions: InAppWebViewGroupOptions(
+      initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
             javaScriptEnabled: true,
             mediaPlaybackRequiresUserGesture: true,

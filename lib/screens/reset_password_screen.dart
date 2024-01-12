@@ -52,31 +52,31 @@ class ResetPassState extends State<ResetPass> {
 
     Future<void> _resetPassword() async {
       final email = _emailController.text.trim();
-      if (email.trim().isEmpty == true) {
+      if (email.isEmpty) {
         _showErrorSnackbar('E-mail is required!');
+        return; // Exit the function if the email is empty
       }
-      else if(email.contains('@') != true){
+      if (!email.contains('@')) {
         _showErrorSnackbar('Invalid email format. Please enter a valid email');
+        return;
       }
-      else {
-        String pattern =
-            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-        RegExp regex = new RegExp(pattern);
-        if (!regex.hasMatch(email)) {
-          _showErrorSnackbar('Invalid email format. Please enter a valid email');
-        }
+      String pattern =
+          r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+      RegExp regex = new RegExp(pattern);
+      if (!regex.hasMatch(email)) {
+        _showErrorSnackbar('Invalid email format. Please enter a valid email');
+        return;
       }
 
       try {
         var connectivityResult = await (Connectivity().checkConnectivity());
         if (connectivityResult == ConnectivityResult.none) {
           _showErrorSnackbar('No internet connection. Please try again later.');
+          return; // Exit the function if there is no internet connection
         }
-        else{
-          _auth.sendPasswordResetEmail(email: email);
-          _showSuccessSnackbar(
-              'Password reset email sent. Please check your inbox.');
-        }
+        await _auth.sendPasswordResetEmail(email: email); // Only call this if all checks pass
+        _showSuccessSnackbar(
+            'Password reset email sent. Please check your inbox.');
       } catch (error) {
         _showErrorSnackbar('Password reset unsuccessful. Please try again.');
       }

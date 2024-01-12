@@ -130,6 +130,8 @@ class _AutoTrackerScreenState extends State<AutoTrackerScreen> with WidgetsBindi
       // Get the 'updated' info from the metadata
       DateTime? updatedTime = metadata.updated;
 
+      updatedTime = updatedTime?.add(Duration(days: -9));
+
       // Update the state
       setState(() {
         _downloadURL = downloadURL;

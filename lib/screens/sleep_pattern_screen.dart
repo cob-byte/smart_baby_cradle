@@ -342,6 +342,8 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
   }
 
  Widget _buildContainerWithInsights(int userAge) {
+  // Define a GlobalKey for the Tooltip widget
+  GlobalKey tooltipKey = GlobalKey();
   Map<String, List<SleepInfo>> sleepInfos = {};
 
   Map<String, double> averageHoursOfSleep = _calculateAverageHoursOfSleep(sleepInfos);
@@ -383,7 +385,6 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
   }
 
   double sleepDurationInHours = widget.sleepDuration.inMinutes / 60.0;
-  print(sleepDurationInHours);
   String sleepInsightsText;
   if (currentAgeCategory == 'New Born (0-4 weeks)') {
     sleepInsightsText = generateSleepInsightsText(lowerRange, upperRange, sleepDurationInHours);
@@ -454,11 +455,9 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
           ),
         ),
         SizedBox(height: 10),
-        Text(sleepInsightsText,
-        textAlign: TextAlign.justify,),
+        Text(sleepInsightsText, textAlign: TextAlign.justify,),
         SizedBox(height: 10),
-        Text(timeFellAsleepInsightsText,
-        textAlign: TextAlign.justify,),
+        Text(timeFellAsleepInsightsText, textAlign: TextAlign.justify,),
         SizedBox(height: 10),
         Text(
           "Disclaimer:",
@@ -473,8 +472,80 @@ class _SleepPatternScreenState extends State<SleepPatternScreen> {
             fontSize: 12,
           ),
         ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Tooltip(
+            key: tooltipKey,
+            message: 'More Information',
+            margin: EdgeInsets.only(top: 10.0),
+            child: GestureDetector(
+              onLongPress: () {
+                final dynamic tooltip = tooltipKey.currentState;
+                tooltip?.ensureTooltipVisible();
+              },
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        bool isFullScreen = false; // State to track full-screen mode
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isFullScreen = !isFullScreen; // Toggle full-screen mode
+                            });
+                          },
+                          child: Dialog(
+                            insetPadding: isFullScreen
+                                ? EdgeInsets.zero // Full-screen padding
+                                : EdgeInsets.all(20.0), // Default dialog padding
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (!isFullScreen) // Show close button only in normal mode
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: IconButton(
+                                      icon: Icon(Icons.close),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                InteractiveViewer(
+                                  child: Image.asset('assets/image/Age.png'),
+                                ),
+                                if (isFullScreen) // Show close button in full-screen mode
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: IconButton(
+                                      icon: Icon(Icons.close_fullscreen),
+                                      onPressed: () {
+                                        setState(() {
+                                          isFullScreen = false; // Exit full-screen mode
+                                        });
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+              child: Icon(
+                Icons.info_outline,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+        ),
       ],
-    ),
+    )
   );
 }
 

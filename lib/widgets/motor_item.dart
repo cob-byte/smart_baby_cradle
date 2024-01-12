@@ -94,7 +94,7 @@ class MotorItemState extends State<MotorItem> {
                     setState(() {});
                   },
                   child: SizedBox(
-                    height: 196,
+                    height: 190,
                     width: constraints.maxWidth * 0.75,
                     child: widget.isRaspberryPiOn
                         ? (_buttonStatus == 1

@@ -64,6 +64,7 @@ dependencies:
   path_provider:
   image_cropper:
   connectivity:
+  multicast_dns:
 
 dev_dependencies:
   flutter_test:

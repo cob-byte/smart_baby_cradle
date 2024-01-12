@@ -178,21 +178,22 @@ class _EditImagePageState extends State<EditImagePage> {
                             child: ElevatedButton.icon(
                               onPressed: () async {
                                 try {
-                                  if (user.image == "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fparents-icon-png%2Fparents-icon-png-29.jpg&f=1&nofb=1&ipt=32bdb228ab6cd050a3160cbf8738136974020ab4dd717166a91bbf6db07c9287&ipo=images") {
+                                  if (user.image == null || user.image.isEmpty || user.image.startsWith('http')) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Row(
                                           children: [
                                             Icon(Icons.error,
                                                 color: Colors.white),
-                                            SizedBox(width: 8),
+                                            SizedBox(width: 5),
                                             Text(
-                                                "Please select an image to upload for the profile picture."),
+                                                "Select an image to upload for the profile picture"),
                                           ],
                                         ),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
+                                    return;
                                   }
                                   final location =
                                   await getApplicationDocumentsDirectory();

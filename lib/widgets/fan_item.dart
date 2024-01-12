@@ -116,7 +116,7 @@ class FanItemState extends State<FanItem> {
                         }
                       : null,
                   child: SizedBox(
-                    height: _isManualMode ? 109.5 : 127,
+                    height: _isManualMode ? 103 : 120,
                     width: constraints.maxWidth * 0.65,
                     child: widget.isRaspberryPiOn
                         ? (_buttonStatus == 1
