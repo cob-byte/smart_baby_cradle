@@ -223,7 +223,7 @@ class HomeScreenState extends State<HomeScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Success'),
+            title: Text('Failed'),
             content: Text('Raspberry Pi not found on the network.'),
             actions: <Widget>[
               TextButton(
